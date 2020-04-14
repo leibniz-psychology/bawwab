@@ -1,6 +1,7 @@
 # example configuration
-SERVER_NAME = 'example.com'
-LISTEN = SERVER_NAME
+#SERVER_NAME = 'https://www.example.com'
+FORWARDED_SECRET = '123'
+LISTEN = 'localhost:8000'
 #SOCKET = 'bawwab.socket'
 SOCKET_MODE = 0o600
 DEBUG = True

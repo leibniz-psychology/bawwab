@@ -98,7 +98,7 @@ async def login (request):
 	if not session.user.isAnonymous:
 		return redirect ('/')
 
-	cbUrl = app.url_for ('auth.callback', _external=True)
+	cbUrl = request.url_for ('auth.callback')
 	state = randomSecret ()
 	session.oauthState = state
 	redirectUrl = await auth.authorize (scope="ZPID", redirectUri=cbUrl, state=state)
@@ -129,7 +129,7 @@ async def callback (request):
 	session.oauthState = None
 
 	# redirect_uri must be the same as above, or server will reject auth
-	cbUrl = app.url_for ('auth.callback', _external=True)
+	cbUrl = request.url_for ('auth.callback')
 	try:
 		token, userinfo = await auth.authorize (
 				scope="ZPID",
