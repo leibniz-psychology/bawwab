@@ -75,8 +75,7 @@ async def csrfOriginCheck (request):
 	If they disagree someone sent a request from a different site (i.e. Origin).
 	"""
 	origin = request.headers.get ('origin')
-	host = request.server_name
-	if origin and host and URL (origin).host != host:
+	if origin and URL (origin).with_path ('/') != URL (request.url).with_path ('/'):
 		raise Forbidden ('csrf')
 
 async def saveSession (request, response):
