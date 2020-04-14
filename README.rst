@@ -1,0 +1,30 @@
+bawwab
+======
+
+A web gateway to compute clusters.
+
+(This software is probably not very useful to you. It is heavily branded with
+lots of hard-coded assumptions.)
+
+Prerequisites
+-------------
+
+You’ll need some form of automated user management, which clumsy_ provides, a
+working installation of conductor_, an OAuth2-capable sign-on (only KeyCloak_
+is supported right now) and a recent OpenSSH (>= 7.0) [#]_.
+
+A good method to deploy bawwab is using guix_:
+
+.. code:: bash
+
+	guix package -p /usr/local/profiles/bawwab -f contrib/bawwab.scm
+
+Then use the systemd service file provided in ``contrib/bawwab.service`` to run it.
+
+.. [#] asyncssh’s .terminate() does not have an effect on prior versions, see
+	https://github.com/ronf/asyncssh/blob/f2c73b12a6977ec71b0ae19894e6f5f4022e4450/asyncssh/channel.py#L1259
+.. _clumsy: https://github.com/leibniz-psychology/clumsy
+.. _guix: https://guix.gnu.org
+.. _conductor: https://github.com/leibniz-psychology/conductor
+.. _KeyCloak: https://www.keycloak.org/
+

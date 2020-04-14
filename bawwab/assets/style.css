@@ -1,0 +1,545 @@
+:root {
+	/* colorscheme */
+	/* Informations- und Recherchedienste */
+	--green-base: #a0b01e;
+	--green-highlight: #c4d904;
+	--green-text: #a1b01f;
+
+	/* Studienplanung und -analyse */
+	--magenta-base: #8d2c82;
+	--magenta-highlight: #a63396;
+	--magenta-dark-base: #831776;
+	--magenta-dark-highlight: #9c1c8d;
+	--magenta-text: #af33a1;
+
+	/* Archivierung und Veröffentlichung */
+	--cyan-base: #0097c6;
+	--cyan-highlight: #33bee8;
+	--cyan-dark-base: #2ea8ce;
+	--cyan-dark-highlight: #00ace0;
+	--cyan-text: #0093be;
+
+	/* Forschung */
+	--blue-base: #1a1146;
+	--blue-text: #2b2171;
+
+	/* unknown */
+	--gray-base: #e6ecf0;
+
+	--font-base: 'Montserrat', sans-serif;
+	--font-header: 'Zilla Slab', serif;
+	/* product name font, should be museo slab, which is non-free and not
+	 * available on google fonts */
+	--font-product: 'Zilla Slab', serif;
+}
+
+/* set font for pure.css grids, see
+ * https://purecss.io/grids/#using-grids-with-custom-fonts */
+html, button, input, select, textarea,
+.pure-g [class *= "pure-u"] {
+	font-family: var(--font-base);
+}
+
+/* allow adding padding to grid boxes directly, keeping markup clean. See
+ * https://purecss.io/grids/#applying-padding-and-borders-to-grid-units */
+.pure-g > div {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+html {
+	line-height: 1;
+}
+
+body {
+	/* use the same color as the last footer stripe, so a short site does not
+	 * have a strange white space at the bottom */
+	background-color: var(--gray-base);
+	color: var(--blue-text);
+	font-family: var(--font-base);
+}
+
+a {
+	text-decoration: none;
+	-webkit-transition-duration: 0.4s; /* Safari */
+	transition-duration: 0.4s;
+}
+
+a:focus {
+	outline: none;
+}
+
+a:hover {
+	color: var(--magenta-text);
+}
+
+h1, h2, h3, h4, h5, h6, .abstract {
+	font-weight: normal;
+	font-family: var(--font-header);
+	margin-top: 0;
+}
+
+h1 {
+	font-size: 3.53em;
+	line-height: 1.1em;
+}
+
+h2, #main p.abstract {
+	font-size: 2.2em;
+	line-height: 1.2em;
+}
+
+h3 {
+	font-size: 1.7em;
+	margin-bottom: 0.6em;
+	line-height: 1.3em;
+	font-weight: 500;
+}
+
+address {
+	font-style: normal;
+}
+
+#main p,
+footer p,
+#main ul,
+footer ul {
+	line-height: 1.7em;
+}
+
+footer p,
+footer ul  {
+	font-size: 0.9em;
+	line-height: 1.6em;
+}
+
+ul, 
+li {
+	margin: 0;
+	padding: 0;
+}
+
+.btn {
+	display: inline-block;
+	padding: 0.5em 2em;
+	color: #FFFFFF;
+}
+
+.btn-blue {
+	background-color: #352071;
+}
+
+.btn-blue:hover {
+	background-color: #443787;
+	color: #FFFFFF !important;
+}
+
+#main p {
+	margin-bottom: 1.6em;
+}
+
+.violet {
+	color: var(--magenta-text);
+}
+
+.blue, .abstract {
+	color: var(--cyan-text);
+}
+
+.wrapped {
+	margin: 0 auto;
+	max-width: 80em;
+}
+
+header {
+	background: #240d46;
+	background: linear-gradient(to right, #240d46 0%, var(--blue-text) 100%);
+}
+
+header .product-logo {
+	background-image: url(/assets/img/header.png);
+	background-position: right;
+	background-repeat: no-repeat;
+	padding: 1em 0.6em;
+	font-size: 3em;
+	color: #FFFFFF;
+}
+
+html.cyan header .product-logo {
+	background-color: var(--cyan-text);
+}
+
+html.magenta header .product-logo {
+	background-color: var(--magenta-text);
+}
+
+html.green header .product-logo {
+	background-color: var(--green-text);
+}
+
+html.blue header .product-logo {
+	background-color: var(--blue-text);
+}
+
+header .product-logo a {
+	color: inherit;
+}
+
+#topline {
+	background-color: #FFFFFF;
+}
+
+#topline a {
+	color: var(--blue-text);
+}
+
+#topline a.active {
+    color: var(--magenta-text);
+    font-weight: bold;
+	text-decoration: none;
+}
+
+#topline .pure-g {
+	align-items: center;
+	padding: 1em;
+}
+
+.topline-nav {
+	text-align: right;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.topline-nav li {
+	display: inline-block;
+	margin-left: 0.3em;
+}
+
+/* formatting for two-part product name */
+.product-name {
+	font-family: var(--font-product);
+}
+
+.product-name .one {
+	font-weight: 600;
+}
+
+.product-name .two {
+	font-weight: 300;
+}
+
+#main-nav {
+	background-color: #FFFFFF;
+	padding: 1em 2em 0.5em 0;
+}
+
+#main-nav ul {
+	text-align: right;
+}
+
+#main-nav ul li {
+	display: inline-block;
+	margin-right: 0.4em;
+}
+
+#main-nav ul li a {
+	font-size: 1.25em;
+	color: #352071;
+	font-family: var(--font-header);
+	font-weight: 500;
+	padding: 0 1em 0.7em 1em;
+}
+
+#main-nav ul li a.active {
+	color: var(--magenta-text);
+}
+
+#main {
+	padding-top: 3em;
+	padding-bottom: 3em;
+	background-color: white;
+}
+
+.breadcrumb {
+	margin-bottom: 1em;
+	color: #2e2d2c;
+}
+
+.breadcrumb ul li {
+	display: inline;
+}
+
+.breadcrumb ul li:before {
+	content: "> ";
+}
+
+/* reset for first child */
+.breadcrumb ul li:first-child:before {
+	content: "";
+}
+
+.breadcrumb a {
+	color: #2e2d2c;
+}
+
+main {
+	padding: 0 2em;
+}
+
+main ul {
+	margin-left: 2em;
+	margin-bottom: 2em;
+}
+
+main ul li {
+	margin-bottom: 0.6em;
+}
+
+
+.site-box {
+	margin-bottom: 3em;
+}
+
+.site-box-default {
+	padding: 1.8em 1.8em 1em 1.5em;
+}
+
+.link-box {
+	background-color: var(--gray-base);
+	padding-top: 1.8em;
+	padding-bottom: 1em;
+}
+
+.link-box h3 {
+	margin-left: 1em;
+}
+
+.link-box ul {
+	list-style: none;
+}
+
+.link-box ul li {
+	border-bottom: 0.1em solid #FFFFFF;
+	padding-left: 1.8em;
+}
+
+.link-box.white-bg ul li {
+	border-bottom: 0.1em solid #f2f5f7;
+}
+
+.subnavi-box.white-bg ul li {
+	border-bottom: 0.1em solid #bfbcd4;
+}
+
+
+.link-box ul li a {
+	font-family: var(--font-base);
+	font-weight: 700;
+	color: var(--blue-text);
+	line-height: 2em;
+}
+
+.link-box ul li a::before {
+	background-image: url(/assets/img/circle-arrow.png);
+	background-repeat: no-repeat;
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	content: "";
+	margin-right: 0.3em;
+}
+
+.link-box ul li a:hover {
+	color: var(--magenta-text);
+}
+
+.subnavi-box {
+	border: 0.2em solid var(--blue-text);
+	padding-top: 0.6em;
+}
+
+.link-box ul li:last-child {
+	border: 0 none;
+}
+
+.subnavi-box ul li a {
+	font-family: var(--font-header);
+	font-weight: 500;
+	font-size: 1.375em;
+}
+
+.subnavi-box ul li a.active,
+.subnavi-box ul li a:hover {
+	color: var(--magenta-text);
+}
+
+.subnavi-box ul ul {
+	margin-bottom: 0.4em;
+}
+
+.link-box.subnavi-box ul ul li {
+	border-bottom: 0 none;
+	padding-left: 0;
+}
+
+.subnavi-box ul ul li a {
+	font-size: 1em;
+	font-family: var(--font-base);
+	background-image: none;
+	font-weight: 400;
+}
+
+.subnavi-box ul ul li a:before {
+	background-image: none;
+	margin-right: 0.4125em; /* margin-right of .link-box a:before scaled by font size */
+}
+
+.grey-bg {
+	background-color: var(--gray-base);
+}
+
+.white-bg {
+	background-color: #FFFFFF;
+}
+
+.blue-bg {
+	background-color: var(--cyan-text);
+}
+
+.blue-bg * {
+	color: #FFFFFF;
+}
+
+.blue {
+	color: var(--cyan-text);
+}
+
+.darkblue {
+	color: var(--blue-base);
+}
+
+.icon::before {
+	display: inline-block;
+	width: 21px;
+	height: 21px;
+	background-repeat: no-repeat;
+	background-position: left;
+	content: "";
+	vertical-align: middle;
+	padding-right: 0.5em;
+}
+
+.phone::before {
+	background-image: url(/assets/img/phone.png);
+}
+
+.fax::before {
+	background-image: url(/assets/img/fax.png);
+}
+
+.email::before {
+	background-image: url(/assets/img/mail.png);
+}
+
+footer a {
+	color: var(--blue-text);
+}
+
+footer a:hover {
+	color: var(--magenta-text);
+}
+
+footer .btn {
+	color: #FFFFFF;
+}
+
+footer ul {
+	list-style: none;
+}
+
+.footer-stripe-partner {
+	background-color: var(--gray-base);
+	padding: 2em 0;
+}
+
+.footer-stripe-contact {
+	background-color: var(--gray-base);
+	box-shadow: 0 -0.5em 1em -0.3em #b8bdc0;
+}
+
+.footer-stripe-partner > .pure-g > .pure-u-1,
+.footer-stripe-contact > .pure-g > .pure-u-1,
+.footer-stripe-navi > .pure-g > .pure-u-1,
+.footer-stripe-imprint > .pure-g > .pure-u-1 {
+	padding: 0 1em;
+}
+
+.footer-stripe-contact > .pure-g > .pure-u-1 {
+	padding: 2em 1em;
+}
+
+.footer-stripe-contact > .pure-g > .pure-u-1 {
+	border-left: 0.1em solid #FFFFFF;
+	border-bottom: 0.1em solid #FFFFFF;
+}
+
+.footer-stripe-contact > .pure-g > .pure-u-1:first-child {
+	border-left: none;
+}
+
+.footer-stripe-navi {
+	background-color: #f2f5f7;
+	padding: 2.0em 0;
+}
+
+.footer-stripe-imprint {
+	background-color: var(--gray-base);
+	padding: 0.7em 0;
+}
+
+.footer-stripe-imprint .pure-g {
+	align-items: center;
+}
+
+.footer-stripe-imprint .logos ul li {
+	display: inline;
+}
+
+.footer-stripe-imprint .links {
+	text-align: right;
+}
+
+.footer-stripe-imprint ul li {
+	display: inline-block;
+	margin-left: 1.2em;
+}
+
+.social-line {
+	text-align: right;
+}
+
+.social-line li {
+	display: inline;
+}
+
+.social-line img {
+	height: 3em;
+	border-radius: 0.2em;
+}
+
+/* hack to get a rectangular icon */
+.social-line .facebook img {
+	background-color: #1877f2;
+}
+
+.ft-contact-btn {
+	text-align: right;
+}
+
+/* leibniz-psychology.org logo */
+.lp-logo {
+	height: 3.3em;
+}
+
