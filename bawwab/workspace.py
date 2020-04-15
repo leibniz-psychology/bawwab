@@ -1,4 +1,5 @@
 from datetime import timedelta
+import asyncio
 
 import aiohttp
 from sanic import Blueprint
@@ -84,10 +85,66 @@ defaultPermissions = dict (canList=True, canDelete=True, canExecute=True, canSSH
 
 bp = Blueprint('workspace')
 
+gcThread  = None
+
+async def purgeWorkspace (usermgrd, w):
+	# stop all applications
+	async for a in w.applications:
+		await runFactory.stop (a)
+
+	# can be None if something went wrong, ignore
+	if w.sshUser is not None:
+		async with usermgrd.delete (URL ('http://localhost/') / w.sshUser) as resp:
+			data = await resp.json ()
+			status = data['status']
+			if status != 'ok':
+				if status == 'user_not_found':
+					# this is fine, I guess
+					logger.error (f'trying to delete user {w.sshUser} for workspace {wid}, but user was already gone')
+				else:
+					raise Exception (f'XXX not ok: {data["status"]}')
+
+	async for p in w.permissions:
+		await p.delete ()
+	async for a in w.applications:
+		await a.delete ()
+	await w.delete ()
+
+gcThread = None
+async def collectGarbage (app):
+	hour = 60*60
+
+	while True:
+		logger.info ('running workspace garbage collect')
+		# XXX: tortoise can’t count() yet inside filter()?
+		async for w in Workspace.all ():
+			if await w.permissions.all().count () == 0:
+				logger.info (f'purging workspace {w.id}')
+				try:
+					await purgeWorkspace (app.usermgrd, w)
+					audit.log ('workspace.gc.purge', dict (id=w.id))
+				except Exception as e:
+					logger.error (f'cannot purge workspace {w.id}: {e}')
+
+		await asyncio.sleep (1*hour)
+
 @bp.listener('before_server_start')
 async def setup (app, loop):
+	global gcThread
+
 	config = app.config
 	Workspace.setup (config.DATABASE_PASSWORD_KEY)
+
+	gcThread = asyncio.ensure_future (collectGarbage (app))
+
+@bp.listener('after_server_stop')
+async def teardown (app, loop):
+	if gcThread:
+		gcThread.cancel ()
+		try:
+			await gcThread
+		except asyncio.CancelledError:
+			pass
 
 async def workspaceToDict (w):
 	applications = []
@@ -184,39 +241,21 @@ async def workspaceModify (request, wid):
 
 @bp.route ('/<wid:int>', methods=['DELETE'])
 @requireTos
-async def workspaceDelete (request, wid):
+async def workspaceUnlink (request, wid):
+	""" Revoke permissions of current user to workspace """
+
 	session = request.ctx.session
 
-	w = await Workspace.filter (id=wid,
-			permissions__role=session.role,
-			permissions__canDelete=True).first ()
-	if w is None:
+	p = await WorkspacePermissions.filter (workspaces__id=wid,
+			role=session.role,
+			canDelete=True).first ()
+	if p is None:
 		raise NotFound ('not_found')
 
-	# stop all applications
-	async for a in w.applications:
-		await runFactory.stop (a)
+	await p.delete ()
 
-	# can be None if something went wrong, ignore
-	if w.sshUser is not None:
-		async with request.app.usermgrd.delete (URL ('http://localhost/') / w.sshUser) as resp:
-			data = await resp.json ()
-			status = data['status']
-			if status != 'ok':
-				if status == 'user_not_found':
-					# this is fine, I guess
-					logger.error (f'trying to delete user {w.sshUser} for workspace {wid}, but user was already gone')
-				else:
-					raise Exception (f'XXX not ok: {data["status"]}')
-
-	async for p in w.permissions:
-		await p.delete ()
-	async for a in w.applications:
-		await a.delete ()
-	await w.delete ()
-
-	audit.log ('workspace.delete', dict (
-			id=w.id,
+	audit.log ('workspace.unlink', dict (
+			id=wid,
 			role=session.role.id,
 			user=session.user.id if session.user else None,
 			session=session.name,
@@ -248,7 +287,7 @@ async def workspaceShareAction (request, wid):
 					'permissions': {
 						'canList': True,
 						'canExecute': True,
-						'canDelete': False,
+						'canDelete': True,
 						'canShareAction': False,
 						'canSSH': False,
 					}
