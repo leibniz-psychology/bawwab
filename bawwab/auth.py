@@ -101,6 +101,7 @@ async def login (request):
 	cbUrl = request.url_for ('auth.callback')
 	state = randomSecret ()
 	session.oauthState = state
+	await session.save (update_fields=('oauthState', ))
 	redirectUrl = await auth.authorize (scope="ZPID", redirectUri=cbUrl, state=state)
 
 	audit.log ('auth.login.start', dict (session=session.name))
@@ -127,6 +128,7 @@ async def callback (request):
 				))
 		return redirect (app.url_for ('auth.error', kind='state_mismatch'))
 	session.oauthState = None
+	await session.save (update_fields=('oauthState', ))
 
 	# redirect_uri must be the same as above, or server will reject auth
 	cbUrl = request.url_for ('auth.callback')
@@ -153,6 +155,7 @@ async def callback (request):
 
 			session.user = user
 			session.role = await user.roles.order_by ('priority').first ()
+			await session.save (update_fields=('user_id', 'role_id'))
 		except DoesNotExist:
 			if not await hasPermission (session.role, 'canRegister'):
 				raise Forbidden ('permission_denied')

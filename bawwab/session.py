@@ -67,6 +67,7 @@ async def loadSession (request):
 		except IntegrityError:
 			session = None
 	session.accessed = now ()
+	await session.save (update_fields=('accessed', ))
 	request.ctx.session = session
 
 async def csrfOriginCheck (request):
@@ -90,7 +91,8 @@ async def saveSession (request, response):
 		response.cookies['session']['httponly'] = True
 		response.cookies['session']['samesite'] = 'Lax'
 		# no expiraton == session cookie
-		await request.ctx.session.save ()
+		# DO NOT .save() the session here. Session objects are long-lived and
+		# prone to race-conditions. Use .save(update_fields=…) instead.
 	else:
 		# delete session
 		del response.cookies['session']
