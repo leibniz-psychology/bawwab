@@ -103,6 +103,7 @@ async def workspaceToDict (w):
 	# enrich with runner info
 	wdict = w.toPublicDict ()
 	wdict['applications'] = applications
+	wdict['shared'] = (await w.permissions.all().count()) - 1
 	return wdict
 
 @bp.route ('/')

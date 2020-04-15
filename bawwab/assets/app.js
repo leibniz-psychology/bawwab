@@ -154,6 +154,7 @@ Vue.component('workspace-item', {
 		</ul>
 
 		<h3 :contenteditable="editable" class="title">{{ workspace.name ? workspace.name : 'Unbenannt' }}</h3>
+		<div v-if="workspace.shared > 0"><small><i class="fa fa-users"></i> Geteilte Arbeitsfläche</small></div>
 
 		<p :contenteditable="editable" class="description">{{ workspace.description ? workspace.description : '(Keine Beschreibung)' }}</p>
 		<dl v-if="workspace.sshUser && workspace.sshPassword">
