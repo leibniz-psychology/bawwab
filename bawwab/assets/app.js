@@ -464,9 +464,16 @@ let ActionView = Vue.extend ({
 		const r = await postData('/api/action/' + this.token, {});
 		try {
 			let j = await getResponse (r);
-			if (j.next == 'login') {
+			if (j.name == 'modifyRolePermissions' && j.arguments.canRegister) {
+				/* the user can now register */
 				this.message = 'Weiterleiten…';
+				/* cannot use $router.push, because it’s not a registered endpoint */
 				window.location.href = '/api/auth/login';
+			} else if (j.name == 'grantWorkspacePermissions') {
+				/* reload and go to that workspace */
+				await store.initWorkspaces ();
+				this.message = 'Weiterleiten…';
+				this.$router.push ({name: 'workspace', params: {id: j.arguments.workspace_id}});
 			} else {
 				this.message = 'Aktion wurde ausgeführt.';
 			}

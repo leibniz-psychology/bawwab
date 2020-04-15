@@ -27,7 +27,6 @@ class Action (Model):
 	usesRemaining = fields.IntField (null=True, description='Number of times the link can be used')
 	name = fields.CharField (16, description='Action name')
 	arguments = fields.JSONField (description='Action function parameters')
-	next = fields.CharField (16, null=True, description='Action the client should take next')
 
 bp = Blueprint('action')
 
@@ -72,7 +71,7 @@ async def executeAction (request, token):
 	else:
 		raise NotFound ('name_not_found')
 		
-	return json ({'name': action.name, 'next': action.next}, status=200)
+	return json ({'name': action.name, 'arguments': action.arguments}, status=200)
 
 __all__ = ['bp', 'runFactory']
 
