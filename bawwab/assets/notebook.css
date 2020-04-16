@@ -85,6 +85,11 @@ ul.applications li {
 	color: var(--magenta-text);
 }
 
-input {
+input, textarea {
 	width: 100%;
 }
+
+span.placeholder {
+	opacity: 0.5;
+}
+

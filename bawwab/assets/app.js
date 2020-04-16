@@ -66,12 +66,13 @@ let store = {
 		this.state.workspaces = this.state.workspaces.filter(elem => elem.id != wid);
 	},
 	updateWorkspace: async function(w) {
-		const r = await postData('/api/workspace/' + w.id, {
+		let wid = w.id;
+		const r = await postData('/api/workspace/' + wid, {
 			'name': w.name,
 			'description': w.description
 		});
 		let j = await getResponse (r);
-		// already applied to internal model
+		this.state.workspaces = this.state.workspaces.map(elem => elem.id == wid ? j : elem);
 		return j;
 	},
 	shareWorkspace: async function(w) {
@@ -141,22 +142,29 @@ Vue.component('action-button', {
 
 Vue.component('workspace-item', {
     props: ['workspace', 'onDelete', 'onStart', 'onUpdate', 'onShare'],
-	data: function () { return {'editable': false} },
+	data: function () { return {editable: false} },
     template: `<div class="workspaceItem">
 		<ul class="actions">
-		<li>
-			<action-button v-if="editable" icon="save" :f="save" importance="high">Speichern</action-button>
-			<action-button v-else icon="edit" :f="makeEditable" importance="medium">Bearbeiten</action-button>
-		</li>
+		<li v-if="editable"><action-button icon="save" :f="save" importance="high">Speichern</action-button></li>
+		<li v-if="editable"><action-button icon="window-close" :f="discard" importance="low">Verwerfen</action-button></li>
+		<li v-if="!editable"><action-button icon="edit" :f="makeEditable" importance="medium">Bearbeiten</action-button></li>
 		<li><action-button icon="share" :f="doShare">Teilen</action-button></li>
 		<li><action-button icon="trash" :f="doDelete">Löschen</action-button></li>
 		<li><router-link class="btn low" :to="{name: 'workspaces'}">Zurück zur Übersicht</router-link></li>
 		</ul>
 
-		<h3 :contenteditable="editable" class="title">{{ workspace.name ? workspace.name : 'Unbenannt' }}</h3>
+		<h3 class="title">
+			<input v-if="editable" placeholder="Name der Arbeitsfläche" :value="name">
+			<span v-else-if="hasName" v-text="name"></span>
+			<span v-else class="placeholder">Unbenannte Arbeitsfläche</span>
+		</h3>
 		<div v-if="workspace.shared > 0"><small><i class="fa fa-users"></i> Geteilte Arbeitsfläche</small></div>
 
-		<p :contenteditable="editable" class="description">{{ workspace.description ? workspace.description : '(Keine Beschreibung)' }}</p>
+		<p class="description">
+			<textarea v-if="editable" placeholder="Beschreibung der Arbeitsfläche" v-text="description"></textarea>
+			<span v-else-if="hasDescription" v-text="description"></span>
+			<span v-else class="placeholder">Diese Arbeitsfläche hat noch keine Beschreibung.</span>
+		</p>
 		<dl v-if="workspace.sshUser && workspace.sshPassword">
 			<dt>User</dt>
 			<dd>{{ workspace.sshUser }}</dd>
@@ -165,10 +173,21 @@ Vue.component('workspace-item', {
 		</dl>
 		<application-list :applications="workspace.applications" :onStart="doStart"></application-list>
 	</div>`,
+	computed: {
+		name: function () { return this.workspace.name },
+		hasName: function () { return this.editable || this.workspace.name !== null },
+		description: function () { return this.workspace.description },
+		hasDescription: function () { return this.editable || this.workspace.description !== null },
+	},
     methods: {
-		makeEditable: function () { this.editable = true; },
+		makeEditable: function () {
+			this.editable = true;
+		},
 		save: async function () {
-			await this.onUpdate (this.$el.querySelector ('.title').innerText, this.$el.querySelector ('.description').innerText);
+			await this.onUpdate (this.$el.querySelector ('.title input').value, this.$el.querySelector ('.description textarea').value);
+			this.editable = false;
+		},
+		discard: async function () {
 			this.editable = false;
 		},
 		doDelete: async function () {
@@ -240,7 +259,7 @@ let Workspaces = Vue.extend ({
 		<div v-for="w in state.workspaces" :key="w.id" class="workspace">
 			<h3><router-link :to="{name: 'workspace', params: {id: w.id}}">
 				<span v-if="w.name">{{ w.name }}</span>
-				<em v-else>Unbenannt</em>
+				<span v-else class="placeholder">Unbenannte Arbeitsfläche</span>
 				</router-link></h3>
 		</div>
 	</div>`,

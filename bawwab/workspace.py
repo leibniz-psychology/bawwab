@@ -233,8 +233,9 @@ async def workspaceModify (request, wid):
 		raise NotFound ('not_found')
 
 	form = request.json
-	w.name = form.get ('name')
-	w.description = form.get ('description')
+	# normalize empty string values to null
+	w.name = form.get ('name', '').strip () or None
+	w.description = form.get ('description', '').strip () or None
 	await w.save ()
 
 	return json (await workspaceToDict (w), status=200)
