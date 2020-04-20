@@ -154,16 +154,16 @@ Vue.component('workspace-item', {
 		</ul>
 
 		<h3 class="title">
-			<input v-if="editable" placeholder="Name der Arbeitsfläche" :value="name">
+			<input v-if="editable" placeholder="Name des Projekts" :value="name">
 			<span v-else-if="hasName" v-text="name"></span>
-			<span v-else class="placeholder">Unbenannte Arbeitsfläche</span>
+			<span v-else class="placeholder">Unbenanntes Projekt</span>
 		</h3>
-		<div v-if="workspace.shared > 0"><small><i class="fa fa-users"></i> Geteilte Arbeitsfläche</small></div>
+		<div v-if="workspace.shared > 0"><small><i class="fa fa-users"></i> Geteiltes Projekt</small></div>
 
 		<p class="description">
-			<textarea v-if="editable" placeholder="Beschreibung der Arbeitsfläche" v-text="description"></textarea>
+			<textarea v-if="editable" placeholder="Beschreibung des Projekts" v-text="description"></textarea>
 			<span v-else-if="hasDescription" v-text="description"></span>
-			<span v-else class="placeholder">Diese Arbeitsfläche hat noch keine Beschreibung.</span>
+			<span v-else class="placeholder">Dieses Projekt hat noch keine Beschreibung.</span>
 		</p>
 		<dl v-if="workspace.sshUser && workspace.sshPassword">
 			<dt>User</dt>
@@ -261,13 +261,13 @@ Vue.component ('modal', {
 
 let Workspaces = Vue.extend ({
 	template: `<div class="workspace-list">
-		<h2>Arbeitsflächen</h2>
+		<h2>Projekte</h2>
 		<p>Hier kann man Dinge tun.</p>
-		<action-button icon="plus-square" :f="createWorkspace" importance="high">Neue Arbeitsfläche erstellen</action-button>
+		<action-button icon="plus-square" :f="createWorkspace" importance="high">Neues Projekt erstellen</action-button>
 		<div v-for="w in state.workspaces" :key="w.id" class="workspace">
 			<h3><router-link :to="{name: 'workspace', params: {id: w.id}}">
 				<span v-if="w.name">{{ w.name }}</span>
-				<span v-else class="placeholder">Unbenannte Arbeitsfläche</span>
+				<span v-else class="placeholder">Unbenanntes Projekt</span>
 				</router-link></h3>
 		</div>
 	</div>`,
@@ -292,8 +292,8 @@ let Workspace = Vue.extend ({
 					<h2><i class="fas fa-question-circle"></i></h2>
 				</div>
 				<div class="pure-u-4-5">
-				<h2>Arbeitsfläche löschen</h2>
-				<p>Soll die Arbeitsfläche <em>{{ queryDelete.name }}</em> wirklich gelöscht werden?</p>
+				<h2>Projekt löschen</h2>
+				<p>Soll das Projekt <em>{{ queryDelete.name }}</em> wirklich gelöscht werden?</p>
 				<button @click="queryDelete=false" class="btn low">Abbrechen</button>
 				<action-button :f="deleteWorkspace" icon="trash" importance="high">Löschen</action-button>
 				</div>
@@ -305,15 +305,15 @@ let Workspace = Vue.extend ({
 					<h2><i class="fas fa-question-circle"></i></h2>
 				</div>
 				<div class="pure-u-4-5">
-				<h2>Arbeitsfläche teilen</h2>
-				<p>Sende den folgenden Link an die Person, mit der Du die Arbeitsfläche teilen möchtest. Bitte beachte: Der Empfänger kann <strong>alle Dateien einsehen und ändern</strong>.</p>
+				<h2>Projekt teilen</h2>
+				<p>Sende den folgenden Link an die Person, mit der Du das Projekt teilen möchtest. Bitte beachte: Der Empfänger kann <strong>alle Dateien einsehen und ändern</strong>.</p>
 				<p><input readonly v-model="shareUrl"></p>
 				<p><button class="btn high" @click="shareUrl=null">Schließen</button></p>
 				</div>
 			</div>
 		</modal>
 		<workspace-item :workspace="currentWorkspace" v-if="currentWorkspace" :onDelete="askDeleteWorkspace" :onUpdate="updateWorkspace" :onStart="startApplication" :onShare="shareWorkspace"></workspace-item>
-		<p v-else>Arbeitsfläche existiert nicht.</p></div>`,
+		<p v-else>Projekt existiert nicht.</p></div>`,
 	data: function () { return { state: store.state, queryDelete: false, shareUrl: null, }; },
 	computed: {
 		currentWorkspace: function () { return this.state.workspaces.filter(elem => elem.id == this.id)[0]; }
@@ -452,7 +452,7 @@ von Studien aus dem Gebiet der Psychologie und verwandter Disziplinen.</p>
 		<a class="btn high" href="/api/auth/login">Anmelden</a>
 		(Zurzeit ist eine Anmeldung nur nach Einladung möglich.)
 	</p>
-	<p v-else><router-link class="btn high" :to="{name: 'workspaces'}">Zu meinen Arbeitsflächen</router-link></p>
+	<p v-else><router-link class="btn high" :to="{name: 'workspaces'}">Zu meinen Projekten</router-link></p>
 </div>`,
 	data: function () { return { 'state': store.state }; },
 });
