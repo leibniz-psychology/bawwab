@@ -236,11 +236,19 @@ Vue.component('login-item', {
     template: `<li v-if="user === null || user.isAnonymous">
 		<a href="/api/auth/login">Anmelden</a></li>
 		<li v-else>
-			Angemeldet als
-			<span v-if="user.username">{{ user.username }}</span>
-			<span v-else>{{ user.id }}</span>
+			Hallo {{ name }}!
 			<router-link :to="{name: 'logout'}">Abmelden</router-link>
 		</li>`,
+	computed: {
+		name: function () {
+			if (this.user.givenName) {
+				return this.user.givenName;
+			} else if (this.user.username) {
+				return this.user.username;
+			}
+			return this.user.id;
+		}
+	}
 });
 
 Vue.component ('modal', {
