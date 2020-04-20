@@ -43,7 +43,7 @@ class ApplicationRunner:
 
 	async def baseUrl (self):
 		w = await self.application.workspaces.all ().first ()
-		return URL (f'http://{self.application.conductorKey}.{w.sshUser}.{self.CONFIG.PROXY_HOST}/')
+		return URL (self.CONFIG.PROXY_HOST.format (key=self.application.conductorKey, user=w.sshUser))
 
 	async def loginUrl (self):
 		if self.running:

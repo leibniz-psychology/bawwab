@@ -37,8 +37,8 @@ USERMGRD_SOCKET = 'usermgrd.socket'
 
 # compute node, just one supported right now
 SSH_HOST = 'ssh.example.com'
-# host running conductor
-PROXY_HOST = 'user.example.com'
+# URL running conductor, python format string, which expands variables key and user
+PROXY_HOST = 'https://{key}.{user}.user.example.com'
 
 # default permissions for unauthenticated roles
 ANON_PERMISSIONS = dict (
