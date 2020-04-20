@@ -21,11 +21,14 @@ setup(
         'tortoise-orm',
         'aiosqlite',
         'cryptography',
+		# for migrations
+		'pypika',
     ],
     python_requires='>=3.7',
     entry_points={
     'console_scripts': [
             'bawwab = bawwab.run:main',
+            'bawwab-migrate = bawwab.run:migrate',
             ],
     },
     package_data={

@@ -19,14 +19,13 @@ class Application (Model):
 	Runnable entity bound to a workspace
 	"""
 
-	name = fields.CharField (32, description='Human-readable application name')
-	icon = fields.CharField (128, description='Icon URL')
+	key = fields.CharField (32, description='Application kind')
 	command = fields.CharField (128, description='Shell command that starts the application')
 	conductorKey = fields.CharField (32, description='Key (i.e. subdomain) for conductor')
 	lastStarted = fields.DatetimeField (null=True, description='Time the application was started')
 
 	def toPublicDict (self):
-		return dict (id=self.id, icon=self.icon, name=self.name)
+		return dict (id=self.id, key=self.key)
 
 class ApplicationRunner:
 	"""
@@ -151,8 +150,8 @@ class ApplicationRunnerFactory:
 
 def defaultApplications ():
 	return [
-		Application (name='JupyterLab', icon='/assets/img/jupyter.svg', command='startjupyter', conductorKey='jupyterlab'),
-		Application (name='RStudio', icon='/assets/img/rstudio.svg', command='startrstudio', conductorKey='rstudio'),
+		Application (key='jupyterlab', command='startjupyter', conductorKey='jupyterlab'),
+		Application (key='rstudio', command='startrstudio', conductorKey='rstudio'),
 		]
 
 bp = Blueprint('application')

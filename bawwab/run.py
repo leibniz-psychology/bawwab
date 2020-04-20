@@ -1,4 +1,4 @@
-import socket, os, sys, shutil, traceback
+import socket, os, sys, shutil, traceback, sqlite3, inspect, argparse
 
 import pkg_resources
 import aiohttp
@@ -8,6 +8,7 @@ from sanic.log import logger
 from sanic.exceptions import SanicException
 from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
+from pypika import Query, Table, Field
 
 from . import session, auth, workspace, audit, application, tos, action
 
@@ -91,3 +92,32 @@ def main ():
 		os.chmod (config.SOCKET, config.SOCKET_MODE)
 
 	app.run (**args)
+
+def migrateDoApplicationNameToKey (db):
+	application = Table('application')
+	c = db.cursor()
+	print ('begin transaction;')
+	for row in c.execute ('select name, command, conductorKey, lastStarted, id from application'):
+		q = Query \
+				.into(application) \
+				.columns('key', 'command', 'conductorKey', 'lastStarted', 'id') \
+				.insert(row[0].lower(), row[1], row[2], row[3], row[4])
+		print (str (q) + ';')
+	print ('commit;')
+
+def migrate ():
+	prefix = 'migrateDo'
+	available = dict ()
+	for k, v in inspect.getmembers (sys.modules[__name__], inspect.isfunction):
+		if k.startswith (prefix):
+			available[k[len(prefix):].lower ()] = v
+
+	parser = argparse.ArgumentParser(description='Database migration.')
+	parser.add_argument('database', help='Database path')
+	parser.add_argument('apply', choices=available.keys (), help='Named migration to apply')
+
+	args = parser.parse_args()
+
+	db = sqlite3.connect (args.database)
+	available[args.apply] (db)
+

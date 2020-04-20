@@ -204,26 +204,48 @@ Vue.component('workspace-item', {
 
 Vue.component('application-list', {
 	props: ['applications', 'onStart'],
-	template: `<dl class="applications">
+	template: `<div class="applications">
     <application-item
       v-for="a in applications"
       :application="a"
       :key="a.id"
 	:onStart="onStart"
     ></application-item>
-  </dl>`,
+  </div>`,
 });
 
 Vue.component('application-item', {
     props: ['application', 'onStart'],
-    template: `<div><dt>
-		<img :src="application.icon" style="height: 3em">
-		</dt>
-		<dd>
+    template: `<div class="pure-g application">
+		<div class="pure-u-md-4-5 pure-u-1">
+			<img :src="icon" style="height: 3em; vertical-align: middle;">
+			{{ name }}. {{ description }}
+		</div>
+		<div class="pure-u-md-1-5 pure-u-1 actions">
 		<a :href="application.url" class="btn high" v-if="application.url">
 		<i class="fas fa-external-link-square-alt"></i> Aufrufen</a>
 		<action-button v-else icon="play" :f="doStart" importance="medium">Starten</action-button>
-		</dd></div>`,
+		</div></div>`,
+	computed: {
+		icon: function () {
+			return {
+					rstudio: '/assets/img/rstudio.svg',
+					jupyterlab: '/assets/img/jupyter.svg',
+					}[this.application.key] || '';
+		},
+		name: function () {
+			return {
+					rstudio: 'RStudio',
+					jupyterlab: 'JupyterLab',
+					}[this.application.key] || 'Unbenannte Anwendung';
+		},
+		description: function() {
+			return {
+					rstudio: 'Eignet sich zur Inspektion und Analyse von Daten.',
+					jupyterlab: 'Eignet sich zur Erstellung von Präsentationen oder Textdokumenten, die ausführbaren Code enthalten',
+					}[this.application.key] || 'Keine Beschreibung vorhanden.';
+		},
+	},
 	methods: {
 		doStart: async function () {
 			await this.onStart (this.application);
@@ -262,7 +284,8 @@ Vue.component ('modal', {
 let Workspaces = Vue.extend ({
 	template: `<div class="workspace-list">
 		<h2>Projekte</h2>
-		<p>Hier kann man Dinge tun.</p>
+		<p>Hier können Projekte eingerichtet und aufgerufen werden. Projekte
+sind Sammlungen von Analyseskripten, Daten und anderen Materialien.</p>
 		<action-button icon="plus-square" :f="createWorkspace" importance="high">Neues Projekt erstellen</action-button>
 		<div v-for="w in state.workspaces" :key="w.id" class="workspace">
 			<h3><router-link :to="{name: 'workspace', params: {id: w.id}}">
