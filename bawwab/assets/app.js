@@ -316,7 +316,7 @@ let Workspace = Vue.extend ({
 				</div>
 				<div class="pure-u-4-5">
 				<h2>Projekt löschen</h2>
-				<p>Soll das Projekt <em>{{ queryDelete.name }}</em> wirklich gelöscht werden?</p>
+				<p>Soll das Projekt <em>{{ currentWorkspace.name }}</em> wirklich gelöscht werden?</p>
 				<button @click="queryDelete=false" class="btn low">Abbrechen</button>
 				<action-button :f="deleteWorkspace" icon="trash" importance="high">Löschen</action-button>
 				</div>
