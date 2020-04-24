@@ -179,6 +179,7 @@ async def applicationStart (request, aid):
 
 	audit.log ('application.start', dict (
 			app=a.id,
+			command=a.command,
 			session=session.name,
 			sshUser=workspace.sshUser,
 			))
