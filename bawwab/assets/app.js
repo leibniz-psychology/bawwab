@@ -39,7 +39,7 @@ let store = {
 		const r = await fetch ('/api/workspace');
 		try {
 			const j = await getResponse (r);
-			Vue.set (this.state, 'workspaces', j.map (function (w) { w.created = new Date (w.created*1000); return w; }));
+			Vue.set (this.state, 'workspaces', j.map (function (w) { w.created = new Date (w.created); return w; }));
 		} catch (e) {
 			Vue.set (this.state, 'workspaces', []);
 			throw e;
@@ -55,7 +55,7 @@ let store = {
 		});
 		let j = await getResponse (r);
 		// XXX: create Workspace class
-		j.created = new Date (j.created*1000);
+		j.created = new Date (j.created);
 		this.state.workspaces.push(j);
 		return j;
 	},
@@ -386,7 +386,7 @@ let TermsOfService = Vue.extend ({
 		const r = await fetch('/api/tos');
 		if (r.ok) {
 			const j = await r.json();
-			this.terms = {id: j.id, created: new Date (j.created*1000), enforce: new Date (j.enforce*1000), content: j.content};
+			this.terms = {id: j.id, created: new Date (j.created), enforce: new Date (j.enforce), content: j.content};
 			this.loading = false;
 		} else {
 			this.terms = null;

@@ -16,8 +16,8 @@ class TermsOfService (Model):
 	def toPublicDict (self):
 		return dict (
 			id=self.id,
-			created=self.created,
-			enforce=self.enforce,
+			created=self.created.isoformat (),
+			enforce=self.enforce.isoformat (),
 			content=self.content,
 			)
 

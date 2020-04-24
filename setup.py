@@ -18,7 +18,7 @@ setup(
         'pytz',
         'yarl',
         'asyncssh',
-        'tortoise-orm',
+        'tortoise-orm>=0.16.7',
         'aiosqlite',
         'cryptography',
 		# for migrations

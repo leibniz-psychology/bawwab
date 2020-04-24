@@ -58,7 +58,7 @@ class Workspace (Model):
 	def toPublicDict (self):
 		workspace = dict (
 				id=self.id,
-				created=self.created,
+				created=self.created.isoformat (),
 				name=self.name,
 				description=self.description,
 				# XXX: publish only with canSSH permission
@@ -296,5 +296,5 @@ async def workspaceShareAction (request, wid):
 			)
 	await a.save ()
 
-	return json ({'token': a.token, 'expires': a.expires, 'usesRemaining': a.usesRemaining}, status=200)
+	return json ({'token': a.token, 'expires': a.expires.isoformat (), 'usesRemaining': a.usesRemaining}, status=200)
 
