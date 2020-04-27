@@ -46,7 +46,7 @@ class ApplicationRunner:
 
 	async def loginUrl (self):
 		if self.running:
-			return (await self.baseUrl ()).with_path (f'/_auth-conductor/{self.token}')
+			return (await self.baseUrl ()).with_path (f'/_conductor/auth/{self.token}')
 		else:
 			return None
 
