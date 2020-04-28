@@ -85,3 +85,15 @@ span.placeholder {
 .application div.actions {
 	text-align: right;
 }
+
+.workspaceItem .shared ul {
+	list-style-type: none;
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+
+.workspaceItem .shared ul li {
+	display: inline;
+}
+

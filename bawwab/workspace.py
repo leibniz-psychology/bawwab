@@ -157,10 +157,23 @@ async def workspaceToDict (w):
 			# not running
 			pass
 		applications.append (x)
+
 	# enrich with runner info
 	wdict = w.toPublicDict ()
 	wdict['applications'] = applications
-	wdict['shared'] = (await w.permissions.all().count()) - 1
+
+	# get list of people who have access
+	users = []
+	async for p in w.permissions.all():
+		role = await p.role.all ()
+		async for u in role.users:
+			users.append (dict (
+					id=u.id,
+					username=u.username,
+					givenName=u.givenName,
+					familyName=u.familyName,
+					))
+	wdict['shared'] = users
 	return wdict
 
 @bp.route ('/')

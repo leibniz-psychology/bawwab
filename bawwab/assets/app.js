@@ -98,6 +98,20 @@ function postData(url = '', data = {}) {
     });
 }
 
+/* XXX: this should be a class attribute */
+function userToName (u, long=false) {
+	if (u.givenName) {
+		if (long) {
+			return u.givenName + ' ' + u.familyName;
+		} else {
+			return u.givenName;
+		}
+	} else if (u.username) {
+		return u.username;
+	}
+	return u.id;
+}
+
 Vue.component ('spinner', {
 	template: `<i class="fas fa-spin fa-spinner"></i>`
 });
@@ -158,7 +172,14 @@ Vue.component('workspace-item', {
 			<span v-else-if="hasName" v-text="name"></span>
 			<span v-else class="placeholder">Unbenanntes Projekt</span>
 		</h3>
-		<div v-if="workspace.shared > 0"><small><i class="fa fa-users"></i> Geteiltes Projekt</small></div>
+		<div v-if="shared.length > 0" class="shared">
+		<i class="fa fa-users"></i>
+		Geteiltes Projekt mit
+		<ul>
+			<li v-for="u in shared">
+			{{ userToName(u, true) }}
+			</li>
+		</ul></div>
 
 		<p class="description">
 			<textarea v-if="editable" placeholder="Beschreibung des Projekts" v-text="description"></textarea>
@@ -178,6 +199,7 @@ Vue.component('workspace-item', {
 		hasName: function () { return this.editable || this.workspace.name !== null },
 		description: function () { return this.workspace.description },
 		hasDescription: function () { return this.editable || this.workspace.description !== null },
+		shared: function () { return this.workspace.shared.filter (u => u.id !== store.state.user.id); },
 	},
     methods: {
 		makeEditable: function () {
@@ -199,6 +221,7 @@ Vue.component('workspace-item', {
 		doShare: async function (a) {
 			await this.onShare (this.workspace);
 		},
+		userToName: userToName,
     }
 });
 
@@ -262,14 +285,7 @@ Vue.component('login-item', {
 			<router-link :to="{name: 'logout'}">Abmelden</router-link>
 		</li>`,
 	computed: {
-		name: function () {
-			if (this.user.givenName) {
-				return this.user.givenName;
-			} else if (this.user.username) {
-				return this.user.username;
-			}
-			return this.user.id;
-		}
+		name: function () { return userToName (this.user); },
 	}
 });
 
