@@ -108,10 +108,6 @@ async def login (request):
 
 	return redirect (str (redirectUrl))
 
-@bp.route ('/error/<kind:string>')
-async def error (request, kind):
-	return json ({'error': kind}, 400)
-
 @bp.route ('/callback')
 async def callback (request):
 	app = request.app
@@ -126,7 +122,7 @@ async def callback (request):
 				received=request.args['state'][0],
 				session=session.name,
 				))
-		return redirect (app.url_for ('auth.error', kind='state_mismatch'))
+		return redirect ('/login/state_mismatch')
 	session.oauthState = None
 	await session.save (update_fields=('oauthState', ))
 
@@ -143,7 +139,7 @@ async def callback (request):
 				reason=e.args[0],
 				session=session.name,
 				))
-		return redirect (app.url_for ('auth.error', kind=e.args[0]))
+		return redirect ('/login/oauth2_' + e.args[0])
 
 	async with in_transaction ():
 		user = session.user
@@ -175,7 +171,7 @@ async def callback (request):
 
 	audit.log ('auth.login.success', dict (id=user.id, authId=user.authId, session=session.name))
 
-	return redirect ('/')
+	return redirect ('/login/success')
 
 def userToDict (u):
 	return dict (

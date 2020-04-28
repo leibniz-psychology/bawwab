@@ -590,6 +590,30 @@ let LogoutView = Vue.extend ({
 	}
 });
 
+let LoginView = Vue.extend ({
+	props: ['status'],
+	template: `<div><h2>Anmelden</h2>
+	<p>{{ message }}</p>
+</div>`,
+	computed: {
+		message: function () {
+			const messages = {
+				success: 'Angemeldet.',
+				};
+			var m = messages[this.status];
+			if (!m) {
+				m = 'Die Anmeldung war nicht erfolgreich. Bitte versuche es noch einmal.';
+			}
+			return m;
+		},
+	},
+	created: async function () {
+		if (this.status == 'success') {
+			this.$router.push ({name: 'workspaces'});
+		}
+	},
+});
+
 let NotFound = Vue.extend ({
 	template: `<div><h2>Nicht gefunden</h2></div>`,
 });
@@ -603,6 +627,7 @@ const routes = [
 	{ path: '/account', component: AccountView, name: 'account' },
 	{ path: '/action/:token', component: ActionView, name: 'action', props: true },
 	{ path: '/logout', component: LogoutView, name: 'logout' },
+	{ path: '/login/:status', component: LoginView, name: 'login', props: true },
 	{ path: '/', component: IndexView, name: 'index' },
 	{ path: '*', component: NotFound }
 ]
