@@ -97,6 +97,14 @@ async def saveSession (request, response):
 		# delete session
 		del response.cookies['session']
 
+async def getStatus ():
+	""" Get module status information """
+	activeSince = now() - timedelta (minutes=10)
+	return dict (
+			active10m=await Session.filter (accessed__gte=activeSince).count (),
+			total=await Session.filter().count (),
+			)
+
 @bp.route ('/', methods=['DELETE'])
 async def sessionDelete (request):
 	app = request.app

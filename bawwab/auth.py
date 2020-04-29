@@ -6,6 +6,7 @@ XXX: perhaps rename to "user"?
 
 import asyncio
 from functools import wraps
+from datetime import timedelta
 
 from tortoise.models import Model
 from tortoise import fields
@@ -84,6 +85,15 @@ def requirePermission (name):
 			return await f (*args, **kwargs)
 		return wrapped
 	return wrapper
+
+async def getStatus ():
+	""" Get module status information """
+	activeSince = now() - timedelta (days=1)
+	return dict (
+			total=await User.filter().count (),
+			anonymous=await User.filter(authId=None).count (),
+			login1d=await User.filter(lastLogin__gte=activeSince).count (),
+			)
 
 from .tos import TermsOfService
 

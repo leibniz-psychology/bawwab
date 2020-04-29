@@ -128,6 +128,12 @@ async def collectGarbage (app):
 
 		await asyncio.sleep (1*hour)
 
+async def getStatus ():
+	""" Get module status information """
+	return dict (
+			total=await Workspace.filter().count (),
+			)
+
 @bp.listener('before_server_start')
 async def setup (app, loop):
 	global gcThread

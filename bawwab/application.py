@@ -1,5 +1,6 @@
 import asyncio
 from traceback import TracebackException
+from datetime import timedelta
 
 import aiohttp
 import asyncssh
@@ -8,6 +9,7 @@ from sanic import Blueprint
 from sanic.response import json
 from sanic.log import logger
 from tortoise.models import Model
+from tortoise.functions import Count
 from tortoise import fields
 
 from . import audit
@@ -153,6 +155,25 @@ def defaultApplications ():
 		Application (key='jupyterlab', command='startjupyter', conductorKey='jupyterlab'),
 		Application (key='rstudio', command='startrstudio', conductorKey='rstudio'),
 		]
+
+async def getStatus ():
+	""" Get module status information """
+	activeSince = now() - timedelta (days=1)
+
+	async def collapse (result):
+		result = await result.annotate(count=Count("key")).group_by("key").values("key", "count")
+		result = dict (map (lambda x: (x['key'], x['count']), result))
+		result['all'] = sum (result.values ())
+		return result
+
+	total = await collapse (Application)
+	active1d = await collapse (Application.filter(lastStarted__gte=activeSince))
+
+	return dict (
+			total=total,
+			active1d=active1d,
+			activeNow=len (runFactory.running),
+			)
 
 bp = Blueprint('application')
 runFactory = ApplicationRunnerFactory ()

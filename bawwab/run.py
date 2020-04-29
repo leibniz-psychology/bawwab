@@ -10,7 +10,7 @@ from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
 from pypika import Query, Table, Field
 
-from . import session, auth, workspace, audit, application, tos, action
+from . import session, auth, workspace, audit, application, tos, action, status
 
 def socketSession (path):
 	conn = aiohttp.UnixConnector (path=path)
@@ -53,6 +53,7 @@ def main ():
 	app.blueprint (audit.bp, url_prefix='/api/audit')
 	app.blueprint (tos.bp, url_prefix='/api/tos')
 	app.blueprint (action.bp, url_prefix='/api/action')
+	app.blueprint (status.bp, url_prefix='/api/status')
 	# must be first, so /assets does not override subpath
 	app.static('/assets/fontawesome', config.FONTAWESOME_PATH)
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
