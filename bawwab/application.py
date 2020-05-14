@@ -75,35 +75,35 @@ class ApplicationRunner:
 				pass
 
 		try:
-			conn = await asyncssh.connect (
+			async with asyncssh.connect (
 					host,
 					port=22,
 					username=user,
 					password=workspace.sshPassword,
 					options=asyncssh.SSHClientConnectionOptions (known_hosts=self.CONFIG.KNOWN_HOSTS_PATH),
-					)
-			proc = await conn.create_process (f'$SHELL -l -c "CONDUCTOR_TOKEN={self.token} {self.application.command}"')
-			stdoutTask = asyncio.ensure_future (dumpLines (proc.stdout))
-			stderrTask = asyncio.ensure_future (dumpLines (proc.stderr))
-			try:
-				ret = await proc.wait ()
-				audit.log ('application.exit', dict (
-						app=self.application.id,
-						command=self.application.command,
-						workspace=workspace.id,
-						returncode=ret.exit_status,
-						signal=ret.exit_signal,
-						))
-			except asyncio.CancelledError:
-				proc.terminate ()
-				await proc.wait ()
-				audit.log ('application.cancel', dict (
-						app=self.application.id,
-						command=self.application.command,
-						workspace=workspace.id,
-						))
-			await stdoutTask
-			await stderrTask
+					) as conn, \
+					conn.create_process (f'$SHELL -l -c "CONDUCTOR_TOKEN={self.token} {self.application.command}"') as proc:
+				stdoutTask = asyncio.ensure_future (dumpLines (proc.stdout))
+				stderrTask = asyncio.ensure_future (dumpLines (proc.stderr))
+				try:
+					ret = await proc.wait ()
+					audit.log ('application.exit', dict (
+							app=self.application.id,
+							command=self.application.command,
+							workspace=workspace.id,
+							returncode=ret.exit_status,
+							signal=ret.exit_signal,
+							))
+				except asyncio.CancelledError:
+					proc.terminate ()
+					await proc.wait ()
+					audit.log ('application.cancel', dict (
+							app=self.application.id,
+							command=self.application.command,
+							workspace=workspace.id,
+							))
+				await stdoutTask
+				await stderrTask
 		except Exception as e:
 			audit.log ('application.crash', dict (
 					app=self.application.id,
