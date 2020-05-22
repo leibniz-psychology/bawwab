@@ -37,6 +37,10 @@ async def loadSession (request):
 	session = None
 	config = request.app.config
 
+	# this is a hack, so status collection does not create a session
+	if request.headers.get ('x-no-session'):
+		return
+
 	sessionId = request.cookies.get ('session')
 	if sessionId:
 		try:
@@ -83,7 +87,8 @@ async def saveSession (request, response):
 	# a handler can delete the session by setting .session to None. When doing
 	# so it should .delete() the session object as well.
 	# XXX: can we figure out a fail-safe way to do this?
-	if getattr (request.ctx, 'session', None) is not None:
+	session = getattr (request.ctx, 'session')
+	if session is not None and session.name:
 		response.cookies['session'] = request.ctx.session.name
 		# session cookies should never be readable by JavaScript. In case of an
 		# XSS vulnerability reading them via JavaScript is not possible.
