@@ -543,3 +543,39 @@ footer ul {
 	height: 3.3em;
 }
 
+.appoverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+}
+
+.appoverlay header {
+	background: none;
+	border-bottom: 0.15em solid var(--gray-base);
+}
+
+.appoverlay header div {
+	padding: 1em;
+}
+
+.appoverlay header .title {
+	text-align: center;
+}
+
+.appoverlay header .back {
+	text-align: right;
+}
+
+.appoverlay iframe {
+	flex: 1;
+}
+
+.fullscreen {
+	overflow: hidden;
+}
+

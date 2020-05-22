@@ -81,7 +81,7 @@ let store = {
 		// already applied to internal model
 		return j;
 	},
-	startApplication: async function(w, a) {
+	startApplication: async function(a) {
 		let r = await fetch('/api/application/' + a.id, { 'method': 'POST' });
 		const j = await getResponse (r);
 		Vue.set (a, 'url', j.url);
@@ -155,7 +155,7 @@ Vue.component('action-button', {
 });
 
 Vue.component('workspace-item', {
-    props: ['workspace', 'onDelete', 'onStart', 'onUpdate', 'onShare'],
+    props: ['workspace', 'onDelete', 'onUpdate', 'onShare'],
 	data: function () { return {editable: false} },
     template: `<div class="workspaceItem">
 		<ul class="actions">
@@ -192,7 +192,7 @@ Vue.component('workspace-item', {
 			<dt>Password</dt>
 			<dd>{{ workspace.sshPassword }}</dd>
 		</dl>
-		<application-list :applications="workspace.applications" :onStart="doStart"></application-list>
+		<application-list :applications="workspace.applications"></application-list>
 	</div>`,
 	computed: {
 		name: function () { return this.workspace.name },
@@ -215,9 +215,6 @@ Vue.component('workspace-item', {
 		doDelete: async function () {
 			await this.onDelete (this.workspace);
 		},
-		doStart: async function (a) {
-			await this.onStart (this.workspace, a);
-		},
 		doShare: async function (a) {
 			await this.onShare (this.workspace);
 		},
@@ -226,28 +223,26 @@ Vue.component('workspace-item', {
 });
 
 Vue.component('application-list', {
-	props: ['applications', 'onStart'],
+	props: ['applications'],
 	template: `<div class="applications">
     <application-item
       v-for="a in applications"
       :application="a"
       :key="a.id"
-	:onStart="onStart"
     ></application-item>
   </div>`,
 });
 
 Vue.component('application-item', {
-    props: ['application', 'onStart'],
+    props: ['application'],
     template: `<div class="pure-g application">
 		<div class="pure-u-md-4-5 pure-u-1">
 			<img :src="icon" style="height: 3em; vertical-align: middle;">
 			{{ name }}. {{ description }}
 		</div>
 		<div class="pure-u-md-1-5 pure-u-1 actions">
-		<a :href="application.url" class="btn high" v-if="application.url">
-		<i class="fas fa-external-link-square-alt"></i> Aufrufen</a>
-		<action-button v-else icon="play" :f="doStart" importance="medium">Starten</action-button>
+		<router-link :to="{name: 'application', params: {id: application.id}}" class="btn medium">
+		<i class="fas fa-play"></i> Starten</router-link>
 		</div></div>`,
 	computed: {
 		icon: function () {
@@ -270,9 +265,6 @@ Vue.component('application-item', {
 		},
 	},
 	methods: {
-		doStart: async function () {
-			await this.onStart (this.application);
-		},
 	},
 });
 
@@ -351,7 +343,7 @@ let Workspace = Vue.extend ({
 				</div>
 			</div>
 		</modal>
-		<workspace-item :workspace="currentWorkspace" v-if="currentWorkspace" :onDelete="askDeleteWorkspace" :onUpdate="updateWorkspace" :onStart="startApplication" :onShare="shareWorkspace"></workspace-item>
+		<workspace-item :workspace="currentWorkspace" v-if="currentWorkspace" :onDelete="askDeleteWorkspace" :onUpdate="updateWorkspace" :onShare="shareWorkspace"></workspace-item>
 		<p v-else>Projekt existiert nicht.</p></div>`,
 	data: function () { return { state: store.state, queryDelete: false, shareUrl: null, }; },
 	computed: {
@@ -376,9 +368,6 @@ let Workspace = Vue.extend ({
 			const resolved = this.$router.resolve ({name: 'action', params: {token: j.token}});
 			this.shareUrl = new URL (resolved.href, window.location.href);
 		},
-        startApplication: async function(w, a) {
-            await store.startApplication (w, a);
-        },
 	}
 });
 
@@ -436,6 +425,49 @@ let TermsOfService = Vue.extend ({
             }
 		}
 	}
+});
+
+let ApplicationView = Vue.extend ({
+	props: ['id'],
+	template: `<aside class="appoverlay">
+		   <header class="pure-g">
+				   <div class="pure-u-1-5 logo">
+						   <router-link :to="{name: 'index'}"><img src="/assets/img/psychnotebook.svg" style="height: 1.5em; filter: invert(100%) opacity(50%);"></router-link>
+				   </div>
+				   <div class="pure-u-3-5 title">
+						   {{ workspace.name }}
+				   </div>
+				   <div class="pure-u-1-5 back">
+						   <router-link :to="{name: 'workspace', params: {id: workspace.id}}">Zurück</router-link>
+				   </div>
+		   </header>
+		<p v-if="!application">Anwendung existiert nicht.</p>
+		<p v-else-if="!application.url" style="text-align: center;"><spinner></spinner> Anwendung wird gestartet</p>
+		<iframe v-else frameborder="0" name="appframe" :src="application.url"></iframe>
+	</aside>`,
+	data: function () { return { state: store.state }; },
+	computed: {
+		/* argument is a string */
+		_id: function () {
+			return Number.parseInt (this.id);
+		},
+		workspace: function() {
+			return this.state.workspaces.filter(elem => elem.applications.map (a => a.id).includes (this._id))[0];
+		},
+		application: function () {
+			const workspace = this.state.workspaces.filter(elem => elem.applications.map (a => a.id).includes (this._id))[0];
+			if (!workspace) {
+				return null;
+			}
+			const ret = workspace.applications.filter(elem => elem.id == this._id)[0];
+			/* this is not pretty, but watchers don’t work for some reason, not
+			 * even with deep: true */
+			if (ret && !ret.url) {
+				store.startApplication (ret).then (_ => null);
+			}
+			return ret;
+		},
+	},
 });
 
 let TermsOfServiceUpdate = Vue.extend ({
@@ -624,6 +656,7 @@ const routes = [
 	{ path: '/legal', component: LegalView, name: 'legal' },
 	{ path: '/workspaces', component: Workspaces, name: 'workspaces' },
 	{ path: '/workspaces/:id', component: Workspace, name: 'workspace', props: true },
+	{ path: '/applications/:id', component: ApplicationView, name: 'application', props: true, meta: { layout: 'fullscreen' } },
 	{ path: '/account', component: AccountView, name: 'account' },
 	{ path: '/action/:token', component: ActionView, name: 'action', props: true },
 	{ path: '/logout', component: LogoutView, name: 'logout' },
@@ -654,7 +687,20 @@ const app = new Vue({
 			}
 		}
 	},
+	computed: {
+		fullscreen: function () {
+			return this.$route.matched[0].meta.layout == 'fullscreen';
+		},
+		htmlClass: function () {
+			return this.fullscreen ? 'fullscreen' : '';
+		},
+	},
+	watch: {
+		/* this is a little hacky, so we can tell the browser to hide scrollbars */
+		htmlClass: {immediate: true, handler: function () {
+			document.documentElement.className = 'magenta ' + this.htmlClass;
+		}},
+	},
 	router: router,
-
 });
 
