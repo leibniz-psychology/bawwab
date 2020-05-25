@@ -560,7 +560,7 @@ footer ul {
 }
 
 .appoverlay header div {
-	padding: 1em;
+	padding: 0.5em;
 }
 
 .appoverlay header .title {
@@ -568,6 +568,10 @@ footer ul {
 }
 
 .appoverlay header .back {
+	text-align: left;
+}
+
+.appoverlay header .logo {
 	text-align: right;
 }
 

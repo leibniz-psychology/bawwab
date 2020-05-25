@@ -431,14 +431,14 @@ let ApplicationView = Vue.extend ({
 	props: ['id'],
 	template: `<aside class="appoverlay">
 		   <header class="pure-g">
-				   <div class="pure-u-1-5 logo">
-						   <router-link :to="{name: 'index'}"><img src="/assets/img/psychnotebook.svg" style="height: 1.5em; filter: invert(100%) opacity(50%);"></router-link>
+				   <div class="pure-u-1-5 back">
+						   <router-link :to="{name: 'workspace', params: {id: workspace.id}}">Zurück</router-link>
 				   </div>
 				   <div class="pure-u-3-5 title">
 						   {{ workspace.name }}
 				   </div>
-				   <div class="pure-u-1-5 back">
-						   <router-link :to="{name: 'workspace', params: {id: workspace.id}}">Zurück</router-link>
+				   <div class="pure-u-1-5 logo">
+						   <router-link :to="{name: 'index'}"><img src="/assets/img/psychnotebook.svg" style="height: 1.5em; filter: invert(100%) opacity(50%);"></router-link>
 				   </div>
 		   </header>
 		<p v-if="!application">Anwendung existiert nicht.</p>
