@@ -87,7 +87,7 @@ async def saveSession (request, response):
 	# a handler can delete the session by setting .session to None. When doing
 	# so it should .delete() the session object as well.
 	# XXX: can we figure out a fail-safe way to do this?
-	session = getattr (request.ctx, 'session')
+	session = getattr (request.ctx, 'session', None)
 	if session is not None and session.name:
 		response.cookies['session'] = request.ctx.session.name
 		# session cookies should never be readable by JavaScript. In case of an
