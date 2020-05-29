@@ -12,7 +12,6 @@ ACCESS_LOG = False
 # proxy_set_header Forwarded "for=_hidden;proto=https;by=_fooshyair5;host=$server_name";
 # see also https://sanic.readthedocs.io/en/latest/sanic/config.html#proxy-configuration
 FORWARDED_SECRET = '_foobar'
-FONTAWESOME_PATH = '/path/to/fontawesome'
 KNOWN_HOSTS_PATH = '/etc/ssh/ssh_known_hosts'
 
 # oauth config

@@ -1,4 +1,4 @@
-import socket, os, sys, shutil, traceback, sqlite3, inspect, argparse
+import socket, os, sys, shutil, traceback, sqlite3, inspect, argparse, re
 
 import pkg_resources
 import aiohttp
@@ -54,16 +54,15 @@ def main ():
 	app.blueprint (tos.bp, url_prefix='/api/tos')
 	app.blueprint (action.bp, url_prefix='/api/action')
 	app.blueprint (status.bp, url_prefix='/api/status')
-	# must be first, so /assets does not override subpath
-	app.static('/assets/fontawesome', config.FONTAWESOME_PATH)
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
 
 	# this should only be required when debugging
+	minre = re.compile (r'(href|src)="(.*?)[\.-]min\.(css|js)"\s+integrity=".*?"')
 	async def catchall (request, path=None):
 		with pkg_resources.resource_stream (__package__, 'assets/app.html') as fd:
 			# use non-minified script resources when debugging
 			if config.DEBUG:
-				return html (fd.read ().decode ('utf-8').replace ('.min.js', '.js'))
+				return html (minre.sub (r'\1="\2.\3"', fd.read ().decode ('utf-8')))
 			else:
 				return html (fd.read ().decode ('utf-8'))
 	app.add_route (catchall, '/')
