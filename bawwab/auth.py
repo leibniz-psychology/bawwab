@@ -241,6 +241,7 @@ async def userUpdate (request):
 
 auth = None
 expireJobThread = None
+expireJobThread1 = None
 
 async def expireJob ():
 	""" Remove users without authId and not attached to any session """
@@ -253,12 +254,25 @@ async def expireJob ():
 			if not u.sessions:
 				audit.log ('user.delete', dict (id=u.id))
 				await u.delete ()
-
+				
+		await asyncio.sleep (1*hour)		
+				
+async def expireJob_role ():
+	""" Remove the roles of a user in case the last connection to a user is broken to any session """
+	
+	hour = 60*60
+	
+	while True:
+		async for r in Role.filter (priority=0).prefetch_related('users'):
+                       if not r.users:
+                                audit.log ('role.delete', dict (id=r.id))
+                                await r.delete ()
+				
 		await asyncio.sleep (1*hour)
 
 @bp.listener('before_server_start')
 async def setup (app, loop):
-	global auth, expireJobThread
+	global auth, expireJobThread, expireJobThread1
 
 	logger.info ('Booting blueprint auth')
 
@@ -269,7 +283,8 @@ async def setup (app, loop):
 			baseUrl=config.KEYCLOAK_BASE,
 			realm=config.KEYCLOAK_REALM)
 
-	expireJobThread = asyncio.ensure_future (expireJob ())
+	expireJobThread  = asyncio.ensure_future (expireJob ())
+	expireJobThread1 = asyncio.ensure_future (expireJob_role ())
 
 @bp.listener('after_server_stop')
 async def teardown (app, loop):
@@ -280,3 +295,11 @@ async def teardown (app, loop):
 		except asyncio.CancelledError:
 			pass
 
+@bp.listener('after_server_stop')
+async def teardown (app, loop):
+        if expireJobThread1:
+                expireJobThread1.cancel()
+                try:
+                        await expireJobThread1
+                except asyncio.CancelledError:
+                        pass
