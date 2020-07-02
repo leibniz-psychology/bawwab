@@ -243,7 +243,7 @@ auth = None
 expireJobThread = None
 
 async def expireJob ():
-	""" Remove users without authId and not attached to any session """
+	""" Remove users and roles without authId and not attached to any session """
 
 	hour = 60*60
 
@@ -254,7 +254,13 @@ async def expireJob ():
 				audit.log ('user.delete', dict (id=u.id))
 				await u.delete ()
 
+		async for r in Role.filter ().prefetch_related('users'):
+			if not r.users:
+				audit.log ('role.delete', dict (id=r.id))
+				await r.delete ()
+
 		await asyncio.sleep (1*hour)
+
 
 @bp.listener('before_server_start')
 async def setup (app, loop):
