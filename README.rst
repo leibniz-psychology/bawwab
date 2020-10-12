@@ -34,10 +34,7 @@ Design
 ------
 
 bawwab is a JavaScript application based on VueJS_ and `VueJS router`_ with a
-Python backend based on sanic_ and tortoise-orm_. It interacts with the
-software mentioned above in the following ways:
-
-.. image:: doc/architecture.png
+Python backend based on sanic_ and tortoise-orm_.
 
 .. _VueJS: https://vuejs.org/
 .. _VueJS router: https://router.vuejs.org/
