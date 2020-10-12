@@ -32,7 +32,7 @@ async def setup (app, loop):
 
 	logfile = app.config.AUDIT_LOG_PATH
 
-def log (name, data=None):
+def log (name, **data):
 	global fd
 
 	if not logfile:

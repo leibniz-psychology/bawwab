@@ -4,9 +4,9 @@ Flexible one (or multiple) time action links
 Unicorns. Unicorns everywhere.
 """
 
-import asyncio
+import asyncio, hashlib
+from datetime import timedelta
 
-from yarl import URL
 from sanic import Blueprint
 from sanic.response import json
 from sanic.log import logger
@@ -15,63 +15,100 @@ from tortoise.models import Model
 from tortoise import fields
 
 from . import audit
-from .auth import GlobalPermission
-from .util import now
-from .workspace import defaultPermissions, Workspace, WorkspacePermissions
-from .tos import requireTos
+from .util import now, randomSecret
 
 class Action (Model):
-	token = fields.CharField (32, unique=True, description='Token used to trigger this action')
+	# token is hashed, so a database breach does not expose all actions and
+	# hexencoded, so SQL-lookups work
+	tokenHashed = fields.CharField (64*2, unique=True, description='Token used to trigger this action')
 	created = fields.DatetimeField (auto_now_add=True, description='Creation time')
 	expires = fields.DatetimeField (null=True, description='Expiry time')
 	usesRemaining = fields.IntField (null=True, description='Number of times the link can be used')
 	name = fields.CharField (16, description='Action name')
 	arguments = fields.JSONField (description='Action function parameters')
 
+	@staticmethod
+	def hashToken (t):
+		return hashlib.blake2b (t.encode ('ascii')).hexdigest ()
+
+	@property
+	def token (self):
+		raise NotImplementedError ()
+
+	@token.setter
+	def token (self, value):
+		self.tokenHashed = self.hashToken (value)
+
 bp = Blueprint('action')
 
-@bp.route ('/<token:string>', methods=['POST'])
-@requireTos
-async def executeAction (request, token):
-	config = request.app.config
-	session = request.ctx.session
+def actionToDict (token, action):
+	return dict (
+			token=token,
+			name=action.name,
+			expires=action.expires.isoformat (),
+			usesRemaining=action.usesRemaining,
+			)
 
-	action = await Action.get_or_none (token=token)
+@bp.route ('/', methods=['POST'])
+async def createAction (request):
+	session = request.ctx.session
+	form = request.json
+	name = form.get ('name')
+
+	if name == 'run':
+		# Why does a run action exist? When interacting with web services users
+		# expect they can share documents using links with other users who may
+		# or may not be registered on the platform already. For the underlying
+		# UNIX user model however, we cannot for instance grant permissions to
+		# a user that does not exist yet.
+		# Thus some form of “limited sudo” is required. Why not use
+		# passwordless sudo? Because it will not work with Kerberos and
+		# limiting the available commands is next to impossible.
+		# The command supports python-style format strings, see rpc.py
+		arguments = {'command': form['command'], 'user': session.authId}
+	else:
+		raise NotFound ({'status': 'invalid_action'})
+
+	token = randomSecret ()
+	action = Action (
+			expires=now()+timedelta (seconds=int (form['validFor'])),
+			usesRemaining=form['usesRemaining'],
+			name=form['name'],
+			arguments=arguments,
+			)
+	action.token = token
+	await action.save ()
+
+	return json (actionToDict (token, action))
+
+async def getAction (token):
+	action = await Action.get_or_none (tokenHashed=Action.hashToken (token))
 	if action is None:
-		raise NotFound ('token_not_found')
+		raise KeyError ()
 
 	# XXX: let a garbage cleaner remove expired ones?
 	if now () >= action.expires:
-		raise NotFound ('expired')
+		raise ValueError ('expired')
 	if action.usesRemaining is not None:
 		if action.usesRemaining <= 0:
-			raise NotFound ('expired')
+			raise ValueError ('expired')
 		action.usesRemaining -= 1
-		await action.save ()
+		await action.save (update_fields=('usesRemaining', ))
 
-	if action.name == 'modifyRolePermissions':
-		await GlobalPermission.filter (role=session.role).update (**action.arguments)
-	elif action.name == 'grantWorkspacePermissions':
-		# Grant permissions to the current role for the workspace in payload.
-		# Only *grants* permissions, but never removes them
-		workspace = await Workspace.get_or_none (id=action.arguments['workspace_id'])
-		if workspace is None:
-			raise NotFound ('workspace_not_found')
-		wp = await WorkspacePermissions.get_or_none (role=session.role, workspaces__id=action.arguments['workspace_id'])
-		if wp is None:
-			permissions = defaultPermissions.copy ()
-			permissions.update (action.arguments['permissions'])
-			wp = WorkspacePermissions (role=session.role, **permissions)
-			await wp.save ()
-			await workspace.permissions.add (wp)
-		else:
-			for k, v in action.arguments['permissions'].items ():
-				setattr (wp, k, v or getattr (wp, k))
-			await wp.save ()
-	else:
-		raise NotFound ('name_not_found')
-		
-	return json ({'name': action.name, 'arguments': action.arguments}, status=200)
+	return action
+
+@bp.route ('/<token:string>', methods=['GET'])
+async def fetchAction (request, token):
+	session = request.ctx.session
+
+	try:
+		action = await getAction (token)
+	except KeyError:
+		raise NotFound ('not_found')
+	except ValueError as e:
+		raise NotFound (e.args[0])
+
+	return json (actionToDict (token, action))
 
 __all__ = ['bp', 'runFactory']
 

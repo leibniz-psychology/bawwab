@@ -149,7 +149,7 @@ li {
 
 .wrapped {
 	margin: 0 auto;
-	max-width: 80em;
+	max-width: 80%;
 }
 
 header {
@@ -161,7 +161,8 @@ header .product-logo {
 	background-image: url(/assets/img/header.png);
 	background-position: right;
 	background-repeat: no-repeat;
-	padding: 1em 0.6em;
+	background-size: auto 100%;
+	padding: 0.6em 1em;
 	font-size: 3em;
 	color: #FFFFFF;
 }
@@ -171,7 +172,7 @@ html.cyan header .product-logo {
 }
 
 html.magenta header .product-logo {
-	background-color: var(--magenta-text);
+	background-color: var(--magenta-dark-base);
 }
 
 html.green header .product-logo {
@@ -184,6 +185,11 @@ html.blue header .product-logo {
 
 header .product-logo a {
 	color: inherit;
+}
+
+header .product-logo img {
+	height: 1.1em;
+	max-width: 100%;
 }
 
 #topline {
@@ -215,6 +221,7 @@ header .product-logo a {
 .topline-nav li {
 	display: inline-block;
 	margin-left: 0.3em;
+	text-transform: uppercase;
 }
 
 /* formatting for two-part product name */
@@ -541,45 +548,5 @@ footer ul {
 /* leibniz-psychology.org logo */
 .lp-logo {
 	height: 3.3em;
-}
-
-.appoverlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-color: white;
-	display: flex;
-	flex-direction: column;
-}
-
-.appoverlay header {
-	background: none;
-	border-bottom: 0.15em solid var(--gray-base);
-}
-
-.appoverlay header div {
-	padding: 0.5em;
-}
-
-.appoverlay header .title {
-	text-align: center;
-}
-
-.appoverlay header .back {
-	text-align: left;
-}
-
-.appoverlay header .logo {
-	text-align: right;
-}
-
-.appoverlay iframe {
-	flex: 1;
-}
-
-.fullscreen {
-	overflow: hidden;
 }
 

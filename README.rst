@@ -1,10 +1,12 @@
 bawwab
 ======
 
-A web gateway to compute clusters.
+A web gateway to compute clusters, but really just a glorified SSH client.
 
 (This software is probably not very useful to you. It is heavily branded and
 has lots of hard-coded assumptions.)
+
+Depends on trash-cli, mashru3 on the target.
 
 Prerequisites
 -------------

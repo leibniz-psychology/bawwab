@@ -15,6 +15,7 @@
 	<script src="https://www.lifp.de/assets/scripts/vue-router/3.2.0/dist/vue-router.min.js" integrity="sha384-q2k+qGH0mwIAi2a3vbwlfY5KFOAQu6gKv1U2qcefUUVumCvayxYUx2NI125eTHkA" crossorigin="anonymous"></script>
     <link href="/assets/style.css" rel="stylesheet">
     <link href="/assets/notebook.css" rel="stylesheet">
+	<script src="/assets/i18n.js" crossorigin="anonymous"></script>
 	<!-- favicon -->
 	<link rel="apple-touch-icon" sizes="180x180" href="https://www.lifp.de/assets/images/favicon/public/apple-touch-icon.png?v=KmzOLrkgP7">
 	<link rel="icon" type="image/png" sizes="32x32" href="https://www.lifp.de/assets/images/favicon/public/favicon-32x32.png?v=KmzOLrkgP7">
@@ -28,7 +29,7 @@
 	<!-- end favicon -->
   </head>
   <body>
-	<div id="app">
+	<div id="app" v-cloak>
     <div id="topline">
       <div class="wrapped pure-g">
         <div class="pure-u-1-2">
@@ -37,32 +38,29 @@
                alt="Leibniz Psychology"></a>
         </div>
         <div class="pure-u-1-2">
-          <ul class="topline-nav">
-        <!--
-            <li><a href="#">DE</a></li>
-            <li><a href="#" class="active">EN</a></li>
-        -->
-          </ul>
+			<language-switcher :state="state" :languages="['de', 'en']"></language-switcher>
         </div>
       </div>
     </div>
     <header>
       <div class="wrapped">
         <div class="product-logo">
-          <router-link :to="{name: 'index'}" class="product-name"><img src="https://www.lifp.de/assets/images/psychnotebook.svg" style="height: 1.5em"> <!--<span class="one">Psych</span><span class= "two">Notebook</span>--></router-link>
+          <router-link :to="{name: 'index'}" class="product-name">
+			<img src="https://www.lifp.de/assets/images/psychnotebook.svg">
+			<!--<span class="one">Psych</span><span class= "two">Notebook</span>-->
+			</router-link>
         </div>
         <nav id="main-nav">
           <ul>
-            <li>
-              <router-link :to="{name: 'workspaces'}">Projekte</router-link>
+            <li v-if="haveWorkspaces">
+              <router-link :to="{name: 'workspaces'}">{{ t('nav.projects') }}</router-link>
             </li>
-            <login-item :user="user"></login-item>
+            <login-item :session="state.session"></login-item>
           </ul>
         </nav>
       </div>
     </header>
-    <div id="main"
-         role="main">
+    <div id="main" role="main">
       <!--<div class="breadcrumb">
         <div class="wrapped">
           <ul>
@@ -79,260 +77,14 @@
         <div class="wrapped pure-g">
           <div class="pure-u-1">
             <main>
-				<router-view></router-view>
+				<p style="text-align: center" v-if="loading">{{ t('loading') }}<br><spinner :big="true"></spinner></p>
+				<router-view v-else></router-view>
             </main>
           </div>
         </div>
       </div>
     </div>
-    <footer>
-      <!--<div class="footer-stripe-partner">
-        <div class="wrapped pure-g">
-          <div class="pure-u-md-1-2 pure-u-1">
-            <img src="img/ratswd.png"
-                 alt="RatSWD">
-            <p>
-              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-              nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-              erat
-            </p>
-          </div>
-          <div class="pure-u-md-1-2 pure-u-1">
-            <img src="img/dfg.svg"
-                 alt="DFG">
-            <p>
-              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-              nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-              erat
-            </p>
-          </div>
-        </div>
-      </div>-->
-      <div class="footer-stripe-contact">
-        <div class="wrapped pure-g">
-          <div class="pure-u-md-1-2 pure-u-1">
-            <div class="pure-g">
-              <div class="pure-u-md-2-3 pure-u-1">
-                <h3>
-                  Haben Sie Fragen?
-                </h3>
-                <p>
-                  Schreiben Sie uns eine E-Mail. Wir helfen Ihnen gern.
-                </p>
-              </div>
-              <div class="pure-u-md-1-3 pure-u-1">
-                <div class="ft-contact-btn">
-                  <a href="mailto:info@leibniz-psychology.org"
-                       class="btn high">Kontakt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="pure-u-md-1-2 pure-u-1">
-            <div class="pure-g">
-              <div class="pure-u-md-2-3 pure-u-1">
-                <h3>
-                  Folgen Sie uns.
-                </h3>
-                <p>
-                  Auf Twitter und&nbsp;Facebook&nbsp;informieren wir Sie über
-                  Neuigkeiten aus dem ZPID.
-                </p>
-              </div>
-              <div class="pure-u-1-3">
-                <ul class="social-line">
-                  <li>
-                    <a href="https://twitter.com/ZPID"><img src=
-                    "https://www.lifp.de/assets/images/twitter.svg"
-                         alt="Twitter"></a>
-                  </li>
-                  <li class="facebook">
-                    <a href=
-                    "https://www.facebook.com/ZPID.LeibnizZentrum/"><img src=
-                    "https://www.lifp.de/assets/images/facebook.svg"
-                         alt="facebook"></a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="footer-stripe-navi">
-        <div class="wrapped pure-g">
-          <div class="pure-u-md-1-4 pure-u-1">
-            <h3>
-              Angebote
-            </h3>
-            <ul>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/angebote/informierenrecherchieren/"
-                    title=
-                    "Informieren/Recherchieren"><span>Informieren/Recherchieren</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/angebote/studien-prae-registrieren/"
-                    title="Studien prä-registrieren"><span>Studien
-                    prä-registrieren</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/angebote/studien-planen/"
-                    title="Studien planen"><span>Studien planen</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/angebote/daten-erheben/"
-                    title="Daten erheben"><span>Daten erheben</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/angebote/daten-analysieren/"
-                    title="Daten analysieren"><span>Daten
-                    analysieren</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/angebote/archivieren/"
-                    title="Archivieren"><span>Archivieren</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/angebote/veroeffentlichen/"
-                    title="Veröffentlichen"><span>Veröffentlichen</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/angebote/jobs/"
-                    title="Jobs"><span>Jobs</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/angebote/events/"
-                    title="Events"><span>Events</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/angebote/mediathek/"
-                    title="Mediathek"><span>Mediathek</span></a>
-              </li>
-            </ul>
-          </div>
-          <div class="pure-u-md-1-4 pure-u-1">
-            <h3 class="">
-              Forschung
-            </h3>
-            <ul>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/forschung/forschungsliteralitaet/"
-                    title=
-                    "Forschungsliteralität"><span>Forschungsliteralität</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/forschung/forschungssynthesen/"
-                    title=
-                    "Forschungssynthesen"><span>Forschungssynthesen</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/forschung/big-data/"
-                    title="Big Data"><span>Big Data</span></a>
-              </li>
-            </ul>
-          </div>
-          <div class="pure-u-md-1-4 pure-u-1">
-            <h3 class="">
-              Institut
-            </h3>
-            <ul>
-              <li>
-                <a href="https://leibniz-psychology.org/institut/ueber-uns/"
-                    title="Über uns"><span>Über uns</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/institut/entwicklung/"
-                    title="Entwicklung"><span>Entwicklung</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/institut/leitung/"
-                    title="Leitung"><span>Leitung</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/institut/mitarbeitende/"
-                    title="Mitarbeitende"><span>Mitarbeitende</span></a>
-              </li>
-              <li>
-                <a href="https://leibniz-psychology.org/institut/organe/"
-                    title="Organe"><span>Organe</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/institut/kooperationspartner/"
-                    title=
-                    "Kooperationspartner"><span>Kooperationspartner</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/institut/karrieremoeglichkeiten/"
-                    title=
-                    "Karrieremöglichkeiten"><span>Karrieremöglichkeiten</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/institut/drittmittelprojekte/"
-                    title=
-                    "Drittmittelprojekte"><span>Drittmittelprojekte</span></a>
-              </li>
-              <li>
-                <a href=
-                "https://leibniz-psychology.org/institut/veroeffentlichungen/"
-                    title=
-                    "Veröffentlichungen"><span>Veröffentlichungen</span></a>
-              </li>
-            </ul>
-          </div>
-          <div class="pure-u-md-1-4 pure-u-1">
-            <h3>
-              leibniz-psychology.org
-            </h3>
-            <address>
-              <p>
-                Leibniz-Zentrum für Psychologische Information und
-                Dokumentation (ZPID)<br>
-                Universitätsring 15<br>
-                54296 Trier
-              </p>
-              <p>
-                T. +49 (0)651 201-2877<br>
-                F. +49 (0)651 201-2071<br>
-                M. <a href="mailto:info@leibniz-psychology.org"
-                   title="E-Mail senden">info(at)leibniz-psychology.org</a>
-              </p>
-            </address>
-          </div>
-        </div>
-      </div>
-      <div class="footer-stripe-imprint">
-        <div class="wrapped pure-g">
-          <div class="pure-u-sm-4-5 pure-u-1">
-            <ul class="logos">
-              <li>
-                <a href="#"><img src="/assets/img/leibniz_logo.svg"
-                     style="height: 5em"
-                     alt="Leibniz-Gemeinschaft"></a>
-              </li>
-            </ul>
-          </div>
-          <div class="pure-u-sm-1-5 pure-u-1">
-            <ul class="links">
-			<li><router-link :to="{name: 'terms'}">Nutzungsbedingungen</router-link> </li>
-			  <li><router-link :to="{name: 'legal', hash: '#softwarelizenzen'}">Softwarelizenzen</router-link></li>
-              <li><router-link :to="{name: 'legal', hash: '#impressum'}">Impressum/Datenschutz</router-link></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </footer>
+	<dynamic-footer></dynamic-footer>
 	</div>
 	<script src="/assets/app.js"></script>
   </body>

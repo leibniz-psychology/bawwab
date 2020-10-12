@@ -16,13 +16,14 @@ setup(
         # XXX: version 4 is currently broken, blacklist it
         'aiohttp<4',
         'pytz',
-        'yarl',
+        'furl',
         'asyncssh',
         'tortoise-orm>=0.16.7',
         'aiosqlite',
         'cryptography',
 		# for migrations
 		'pypika',
+		'pyyaml',
     ],
     python_requires='>=3.7',
     entry_points={

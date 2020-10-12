@@ -11,12 +11,12 @@ from tortoise.exceptions import DoesNotExist, IntegrityError
 from tortoise.transactions import in_transaction
 from sanic import Blueprint
 from sanic.log import logger
-from sanic.response import json
-from sanic.exceptions import Forbidden
-from yarl import URL
+from sanic.response import json, redirect
+from sanic.exceptions import Forbidden, ServerError
+from furl import furl
 
 from .util import now, randomSecret
-from .auth import Role, User, GlobalPermission
+from .oauth2 import KeycloakClient, Oauth2Error
 from . import audit
 
 # do not change this value unless you know how to migrate your database
@@ -26,10 +26,15 @@ class Session (Model):
 	name = fields.CharField(sessionNameLen, unique=True, description='Session id exposed to browser')
 	created = fields.DatetimeField(auto_now_add=True)
 	accessed = fields.DatetimeField(null=True, description='Last user access to session')
-	role = fields.ForeignKeyField ('models.Role', null=True, description='Current user’s role')
-	user = fields.ForeignKeyField('models.User', null=True, description='Currently authenticated user')
-	# for .auth
 	oauthState = fields.TextField (null=True, description='OAuth state data')
+	oauthInfo = fields.JSONField (null=True, description='OAuth user info cache')
+
+	@property
+	def authId (self):
+		if self.oauthInfo and 'sub' in self.oauthInfo:
+			return self.oauthInfo['sub']
+		else:
+			raise KeyError ()
 
 bp = Blueprint ('session')
 
@@ -44,32 +49,24 @@ async def loadSession (request):
 	sessionId = request.cookies.get ('session')
 	if sessionId:
 		try:
-			session = await Session.filter (name=sessionId).prefetch_related ('role', 'user').first ()
+			session = await Session.filter (name=sessionId).first ()
 		except DoesNotExist:
 			pass
 
-	while not session:
+	# try to create a new session if none exists yet
+	for i in range (100 if not session else 0):
 		try:
-			async with in_transaction ():
-				# create a new one
-				sid = randomSecret (sessionNameLen)
+			# create a new one
+			sid = randomSecret (sessionNameLen)
 
-				role = Role (priority=0, name='default')
-				await role.save ()
-
-				permissions = GlobalPermission (role=role, **config.ANON_PERMISSIONS)
-				await permissions.save ()
-
-				user = User ()
-				await user.save ()
-				await user.roles.add (role)
-
-				# make sure there’s no duplicates
-				session = Session (name=sid, role=role, user=user)
-				await session.save ()
-				break
+			# make sure there’s no duplicates
+			session = Session (name=sid)
+			await session.save ()
+			break
 		except IntegrityError:
 			session = None
+	if not session:
+		raise ServerError ('session')
 	session.accessed = now ()
 	await session.save (update_fields=('accessed', ))
 	request.ctx.session = session
@@ -80,8 +77,15 @@ async def csrfOriginCheck (request):
 	If they disagree someone sent a request from a different site (i.e. Origin).
 	"""
 	origin = request.headers.get ('origin')
-	if origin and URL (origin).with_path ('/') != URL (request.url).with_path ('/'):
-		raise Forbidden ('csrf')
+	if origin:
+		originUrl = furl (origin).set (path='/')
+		requestUrl = furl (request.url).set (path='/')
+		# Fix the scheme for websocket requests
+		if requestUrl.scheme in {'ws', 'wss'}:
+			requestUrl = requestUrl.set (scheme=originUrl.scheme)
+		if originUrl != requestUrl:
+			logger.error (f'csrf protection denied {request} origin {originUrl} request {requestUrl}')
+			raise Forbidden ('csrf')
 
 async def saveSession (request, response):
 	# a handler can delete the session by setting .session to None. When doing
@@ -110,19 +114,108 @@ async def getStatus ():
 			total=await Session.filter().count (),
 			)
 
+@bp.route ('/', methods=['GET'])
+async def sessionGet (request):
+	app = request.app
+
+	session = request.ctx.session
+	audit.log ('session.delete', session=session.name)
+
+	session = dict (
+		name=session.name,
+		oauthInfo=session.oauthInfo,
+		created=session.created.isoformat (),
+		accessed=session.accessed.isoformat (),
+		)
+
+	return json (session, status=200)
+
 @bp.route ('/', methods=['DELETE'])
 async def sessionDelete (request):
 	app = request.app
 
 	session = request.ctx.session
-	audit.log ('session.delete', dict (session=session.name))
+	audit.log ('session.delete', session=session.name)
 
 	await session.delete ()
 	request.ctx.session = None
 
 	return json ({}, status=200)
 
+def callbackUrl (request):
+	kwargs = dict ()
+	if 'next' in request.args:
+		kwargs['next'] = request.args['next'][0]
+	return request.url_for ('session.callback', **kwargs)
+	#return request.url_for ('session.callback')
+
+@bp.route ('/login')
+async def login (request):
+	app = request.app
+	config = app.config
+
+	session = request.ctx.session
+
+	# already logged in?
+	if session.oauthInfo:
+		return redirect ('/')
+
+	cbUrl = callbackUrl (request)
+	state = randomSecret ()
+	session.oauthState = state
+	await session.save (update_fields=('oauthState', ))
+	logger.debug (f'authenticating using url {cbUrl}')
+	redirectUrl = await auth.authorize (scope="ZPID", redirectUri=cbUrl, state=state)
+	logger.debug (f'redirecting to {redirectUrl}')
+
+	audit.log ('auth.login.start', session=session.name)
+
+	return redirect (str (redirectUrl))
+
+@bp.route ('/callback')
+async def callback (request):
+	app = request.app
+	config = app.config
+	session = request.ctx.session
+
+	# CSRF protection
+	if session.oauthState != request.args['state'][0]:
+		audit.log ('session.login.failure',
+				reason='state_mismatch',
+				expected=session.oauthState,
+				received=request.args['state'][0],
+				session=session.name,
+				)
+		return redirect ('/login/state_mismatch')
+	session.oauthState = None
+	await session.save (update_fields=('oauthState', ))
+
+	# redirect_uri must be the same as above, or server will reject auth
+	cbUrl = callbackUrl (request)
+	logger.debug (f'authenticating (step 2) using url {cbUrl}')
+	try:
+		token, userinfo = await auth.authorize (
+				scope="ZPID",
+				redirectUri=cbUrl,
+				state=request.args['state'],
+				code=request.args['code'])
+	except Oauth2Error as e:
+		audit.log ('auth.login.failure',
+				reason=e.args[0],
+				session=session.name,
+				)
+		return redirect ('/login/oauth2_' + e.args[0])
+
+	session.oauthInfo = userinfo
+	await session.save ()
+
+	audit.log ('session.login.success',
+			authId=session.authId, session=session.name)
+
+	return redirect (request.args['next'][0] if 'next' in request.args else '/login/success')
+
 expireJobThread = None
+auth = None
 
 async def expireJob ():
 	hour = 60*60
@@ -130,16 +223,23 @@ async def expireJob ():
 	while True:
 		oldest = now() - timedelta (days=1)
 		async for s in Session.filter (accessed__lte=oldest):
-			audit.log ('session.expire', dict (session=s.name))
+			audit.log ('session.expire', session=s.name)
 			await s.delete ()
 
 		await asyncio.sleep (1*hour)
 
 @bp.listener('before_server_start')
 async def setup (app, loop):
-	global expireJobThread
+	global expireJobThread, auth
+
+	config = app.config
 
 	expireJobThread = asyncio.ensure_future (expireJob ())
+	auth = KeycloakClient (
+			id=config.CLIENT_ID,
+			secret=config.CLIENT_SECRET,
+			baseUrl=config.KEYCLOAK_BASE,
+			realm=config.KEYCLOAK_REALM)
 
 	# @bp.middleware attaches to blueprint’s url only, but we need it
 	# application-wide

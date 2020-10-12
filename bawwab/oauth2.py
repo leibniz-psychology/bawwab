@@ -7,8 +7,9 @@ authorization, fetching a token and returning user info.
 See https://tools.ietf.org/html/rfc6749
 """
 
+import urllib.parse
 import aiohttp
-from yarl import URL
+from furl import furl
 
 class Oauth2Error (Exception):
 	pass
@@ -42,13 +43,13 @@ class Oauth2Client:
 			for k in list (query.keys ()):
 				if query[k] is None:
 					query.pop (k)
-			return self.authUrl.update_query (query)
+			return self.authUrl.add (query_params=query)
 		else:
 			async with aiohttp.ClientSession() as session:
 				query = dict (grant_type='authorization_code', code=code,
 						redirect_uri=redirectUri, client_id=self.id,
 						client_secret=self.secret)
-				async with session.post (self.tokenUrl, data=query) as resp:
+				async with session.post (str (self.tokenUrl), data=query) as resp:
 					token = await resp.json ()
 					if resp.status == 400:
 						raise {'invalid_grant': Oauth2InvalidGrant}.get (token['error'], Exception) (token['error'])
@@ -59,7 +60,7 @@ class Oauth2Client:
 						raise Exception ('unexpected status code')
 
 				headers = {'Authorization': f'{token["token_type"]} {token["access_token"]}'}
-				async with session.get (self.userinfoUrl, headers=headers) as resp:
+				async with session.get (str (self.userinfoUrl), headers=headers) as resp:
 					userinfo = await resp.json ()
 					if resp.status == 200:
 						# ok
@@ -87,7 +88,7 @@ class KeycloakClient (Oauth2Client):
 
 	def __init__ (self, id, secret, baseUrl, realm):
 		super ().__init__ (id, secret)
-		self.baseUrl = URL (baseUrl)
+		self.baseUrl = furl (baseUrl)
 		self.realm = realm
 
 	def _buildUrl (self):

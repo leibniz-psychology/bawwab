@@ -7,6 +7,7 @@
   #:use-module (gnu packages time)
   #:use-module (gnu packages fonts)
   #:use-module (gnu packages databases)
+  #:use-module (gnu packages shellutils)
   #:use-module (zpid packages asyncssh)
   #:use-module (zpid packages sanic)
   #:use-module ((zpid packages tortoise) #:prefix zpid:)
@@ -27,7 +28,8 @@
   (arguments `(#:tests? #f))
   (propagated-inputs
    `(("python-asyncssh" ,python-asyncssh)
-     ("python-yarl" ,python-yarl)
+     ("python-furl" ,python-furl)
+     ("python-pyyaml" ,python-pyyaml)
      ("python-sanic" ,python-sanic)
      ("python-aiohttp" ,python-aiohttp)
      ("python-pytz" ,python-pytz)

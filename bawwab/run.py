@@ -10,7 +10,7 @@ from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
 from pypika import Query, Table, Field
 
-from . import session, auth, workspace, audit, application, tos, action, status
+from . import session, user, action, status, rpc, csp
 
 def socketSession (path):
 	conn = aiohttp.UnixConnector (path=path)
@@ -22,6 +22,7 @@ def main ():
 	app.config.from_envvar('BAWWAB_SETTINGS')
 	config = app.config
 
+	# globally available services
 	@app.listener('before_server_start')
 	async def setup (app, loop):
 		config = app.config
@@ -32,7 +33,7 @@ def main ():
 		await app.usermgrd.close ()
 
 	@app.exception (Exception)
-	async def handleException (request, exception):
+	def handleException (request, exception):
 		if isinstance (exception, SanicException):
 			return json (dict (status=exception.args[0]), status=exception.status_code)
 		else:
@@ -42,18 +43,20 @@ def main ():
 	register_tortoise (
 		app=app,
 		db_url=config.DATABASE_URL,
-		modules={'models': ['bawwab.workspace', 'bawwab.application', 'bawwab.session', 'bawwab.auth', 'bawwab.tos', 'bawwab.action']},
+		modules={'models': [
+				'bawwab.session',
+				'bawwab.user',
+				'bawwab.action',
+				]},
 		generate_schemas=True,
 	)
 
 	app.blueprint (session.bp, url_prefix='/api/session')
-	app.blueprint (auth.bp, url_prefix='/api/auth')
-	app.blueprint (workspace.bp, url_prefix='/api/workspace')
-	app.blueprint (application.bp, url_prefix='/api/application')
-	app.blueprint (audit.bp, url_prefix='/api/audit')
-	app.blueprint (tos.bp, url_prefix='/api/tos')
+	app.blueprint (user.bp, url_prefix='/api/user')
 	app.blueprint (action.bp, url_prefix='/api/action')
 	app.blueprint (status.bp, url_prefix='/api/status')
+	app.blueprint (rpc.bp, url_prefix='/api/rpc')
+	app.blueprint (csp.bp, url_prefix='/api/csp')
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
 
 	# this should only be required when debugging

@@ -1,11 +1,26 @@
 /* notebook-specific styling */
-.workspaceItem ul.actions {
+.workspaceItem .wsactions {
+	margin-bottom: 1em;
+}
+.workspaceItem .wsactions ul {
 	list-style-type: none;
-	text-align: right;
+	margin: 0;
+	padding: 0;
 }
 
-.workspaceItem ul.actions li {
+.workspaceItem .wsactions ul li {
 	display: inline;
+}
+.workspaceItem .wsactions {
+	display: flex;
+}
+.workspaceItem .wsactions .left {
+	text-align: left;
+	flex-grow: 1;
+}
+.workspaceItem .wsactions .right {
+	text-align: right;
+	flex-grow: 2;
 }
 
 a {
@@ -30,6 +45,17 @@ a {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	padding: 2em;
+	width: 50vw;
+	display: flex;
+}
+
+.modal-content .icon {
+	margin-right: 2em;
+}
+
+.modal-content .buttons {
+	text-align: right;
+	margin-top: 1em;
 }
 
 [contenteditable=true] {
@@ -40,18 +66,21 @@ a {
 	border: 0.1em solid transparent;
 }
 
-.workspace-list .workspace {
-	background-color: var(--gray-base);
-	padding: 1em;
-	margin: 1em 0;
-}
-
 .btn {
 	display: inline-block;
 	padding: 0.5em 2em;
 	background-color: #FFFFFF;
 	color: inherit;
 	border: 0.1em solid transparent;
+	cursor: pointer;
+	white-space: nowrap;
+	text-align: left;
+}
+
+/* same as links */
+.btn:hover {
+	color: var(--magenta-text);
+	transition-duration: 0.4s;
 }
 
 .btn.high {
@@ -61,6 +90,10 @@ a {
 
 .btn.high:hover {
 	background-color: #443787;
+}
+
+.btn.small {
+	padding: 0.5em;
 }
 
 .btn.medium {
@@ -74,8 +107,10 @@ a {
 	color: var(--magenta-text);
 }
 
-input, textarea {
+input[type="text"], textarea {
 	width: 100%;
+	border: 0.1em solid #352071;
+	padding: 0.2em;
 }
 
 span.placeholder {
@@ -86,14 +121,242 @@ span.placeholder {
 	text-align: right;
 }
 
-.workspaceItem .shared ul {
+.workspaceItem .shared ul, .workspaceItem .owners ul {
 	list-style-type: none;
 	display: inline;
 	margin: 0;
 	padding: 0;
 }
 
-.workspaceItem .shared ul li {
+.workspaceItem .shared ul li, .workspaceItem .owners ul li {
 	display: inline;
+}
+
+.workspaceItem .metadata {
+	font-size: 0.9em;
+	list-style-type: none;
+}
+
+.workspaceItem .metadata {
+	margin: 0;
+	padding: 0;
+}
+
+.appoverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+}
+
+.appoverlay header {
+	background: none;
+	border-bottom: 0.15em solid var(--gray-base);
+}
+
+.appoverlay header div {
+	padding: 0.5em;
+}
+
+.appoverlay header .title {
+	text-align: center;
+}
+
+.appoverlay header .title img {
+	height: 1em;
+	vertical-align: middle;
+}
+
+.appoverlay header .back {
+	text-align: left;
+}
+
+.appoverlay header .logo {
+	text-align: right;
+}
+
+.appoverlay iframe {
+	flex: 1;
+}
+
+.appoverlay pre.log {
+	max-width: 80em;
+	margin: 0 auto;
+	padding: 2em;
+	word-wrap: break-word;
+	white-space: pre-wrap;
+	background-color: var(--blue-text);
+	color: var(--gray-base);
+}
+
+.appoverlay .loading {
+	overflow-y: auto;
+}
+
+.appoverlay .loading summary {
+	text-align: center;
+	padding: 0.5em;
+}
+
+.fullscreen {
+	overflow: hidden;
+}
+
+/* Hide elements until ready, see https://vuejs.org/v2/api/#v-cloak */
+[v-cloak] {
+	display: none;
+}
+
+.textbutton {
+	display: flex;
+	align-items: baseline;
+}
+
+.textbutton input {
+	flex-grow: 3;
+	width: auto;
+	margin-right: 0.3em;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+.initials {
+	background-color: var(--magenta-dark-base);
+	color: white;
+	font-weight: bold;
+	border-radius: 50%;
+	padding: 0.3em;
+}
+
+details.usermenu {
+	position: relative;
+}
+
+details > summary {
+	display: block;
+	/* Remove outline when focused, Google Chrome */
+	outline: none;
+}
+/* remove triangle for chrome */
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.usermenu ul {
+	position: absolute;
+	background-color: white;
+	padding: 0.6em;
+	box-shadow: 0 0 0.3em rgba(0,0,0,0.2);
+	border: 0.1em solid #352071;
+	text-align: left !important;
+}
+
+details.usermenu ul li {
+	margin: 0.3em 0;
+}
+
+dl dt {
+	font-weight: bold;
+}
+
+dl dd {
+	margin: 0.3em 0em 0.6em 0em;
+}
+
+form.filter {
+	border-bottom: 0.1em solid var(--gray-base);
+	/*text-align: center;*/
+	/* 2em at the bottom, because we’re moving the divs down */
+	margin: 1em 0 2em 0;
+}
+
+form.filter input[type="radio"] {
+	display: none;
+}
+
+form.filter div {
+	display: inline;
+	position: relative;
+	top: 0.5em;
+}
+
+form.filter input[type="radio"] ~ label {
+	padding: 0.3em;
+	background-color: white;
+	cursor: pointer;
+	border: 0.1em solid var(--gray-base);
+}
+
+form.filter input[type="radio"]:checked ~ label {
+	background-color: var(--gray-base);
+}
+
+table.workspaces {
+	width: 100%;
+	margin: 1em 0;
+	border-collapse: collapse;
+}
+
+table.workspaces tr td {
+	border-bottom: 0.05em solid var(--gray-base);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 0;
+}
+
+table.workspaces .title {
+	text-align: left;
+}
+table.workspaces .description {
+	text-align: left;
+}
+/* fill entire cell and make it clickable */
+table.workspaces .title a, table.workspaces .description a {
+	display: inline-block;
+	padding: 0.7em 0;
+}
+table.workspaces .actions {
+	text-align: center;
+}
+
+table.workspaces .actions ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+table.workspaces .actions li {
+	display: inline;
+	margin: 0 0.3em;
+}
+
+.spinner {
+	animation: spin 2.5s infinite linear;
+	height: 1.2em;
+	vertical-align: middle;
+}
+
+.spinner.big {
+	height: 7em;
+	margin: 1em;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
