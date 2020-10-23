@@ -10,7 +10,7 @@ from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
 from pypika import Query, Table, Field
 
-from . import session, user, action, status, rpc, csp
+from . import session, user, action, status, process, csp
 
 def socketSession (path):
 	conn = aiohttp.UnixConnector (path=path)
@@ -55,7 +55,7 @@ def main ():
 	app.blueprint (user.bp, url_prefix='/api/user')
 	app.blueprint (action.bp, url_prefix='/api/action')
 	app.blueprint (status.bp, url_prefix='/api/status')
-	app.blueprint (rpc.bp, url_prefix='/api/rpc')
+	app.blueprint (process.bp, url_prefix='/api/process')
 	app.blueprint (csp.bp, url_prefix='/api/csp')
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
 

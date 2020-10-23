@@ -24,13 +24,15 @@ function randomId () {
 	return a.join ('');
 }
 
-/* Abstracting a running program using RPC
+/* Abstracting a running program
  */
 class Program {
-	constructor(rpc, token) {
-		this.rpc = rpc;
+	constructor(mgr, token, command, extraData) {
+		this.mgr = mgr;
 		/* identifier used to distinguish messages for this program */
 		this.token = token;
+		this.command = command;
+		this.extraData = extraData;
 		this.stdoutBuf = '';
 		this.stderrBuf = '';
 		this.exitStatus = null;
@@ -46,9 +48,9 @@ class Program {
 	/* Process incoming messages.
 	 */
 	async handleMessages () {
-		const msg = await this.rpc.receive (this.token);
-		switch (msg.method) {
-			case 'notifyProcessData':
+		const msg = await this.mgr.receive (this.token);
+		switch (msg.notify) {
+			case 'processData':
 				console.log ('got more data for', msg.kind, msg.data);
 				switch (msg.kind) {
 					case 'stdout':
@@ -63,13 +65,13 @@ class Program {
 				}
 				break;
 
-			case 'notifyProcessExit':
+			case 'processExit':
 				this.exitStatus = msg.status;
 				this.exitSignal = msg.signal;
 				break;
 
 			default:
-				throw Error (['unknownMessage', msg]);
+				throw Error (['unknownMessage', msg.method, JSON.stringify (msg)]);
 				break;
 		}
 	}
@@ -117,17 +119,17 @@ class Program {
 	}
 }
 
-/* RPC websocket API abstraction, wrapping message-based websocket into async
- * API.
- */
-class Rpc {
+class ProcessManager {
 	constructor(url) {
 		url.protocol = url.protocol == 'http:' ? 'ws:' : 'wss:';
 		console.log ('connecting to', url);
 		this.socket = new WebSocket (url);
-		this.waiting = new Map ();
-		this.receiveBuffer = new Map ();
-		this.sendBuffer = [];
+		this.recvWaiting = new Map ();
+		this.recvBuffer = new Map ();
+		/* currently running processes */
+		this.procs = new Map ();
+		this.procsWaiting = new Map ();
+		this.newProcsWaiting = new AsyncNotify ();
 
 		this.socket.addEventListener ('open', this.onOpen.bind (this));
 		this.socket.addEventListener ('message', this.onMessage.bind (this));
@@ -137,7 +139,6 @@ class Rpc {
 	 */
 	onOpen (event) {
 		console.log ('socket is now open', this);
-		this.sendBuffer.forEach (msg => this.socket.send (JSON.stringify (msg)));
 	}
 
 	/* A message was received from the server.
@@ -146,44 +147,74 @@ class Rpc {
 		const data = JSON.parse (event.data);
 		const token = data.token;
 		console.log ('got message with token', token);
-		if (this.waiting.has (token)) {
-			/* if someone is waiting, forward directly */
-			console.log ('forwarding message', token, 'to waiting clients', this.waiting);
-			this.waiting.get (token).forEach (f => f(data));
-		} else {
-			/* otherwise store, so we do not lose it; XXX: obviously this does
-			 * not handle backpressure correctly */
-			console.log ('no one is waiting for', token, 'storing.')
-			const buf = this.receiveBuffer;
-			if (!buf.has (token)) {
-				buf.set (token, []);
+
+		if (data.notify == 'processStart') {
+			console.log ('got process start for', token);
+			/* create new process */
+			const p = new Program (this, token, data.command, data.extraData);
+			this.procs.set (token, p);
+			const waiting = this.procsWaiting;
+			if (waiting.has (token)) {
+				console.log ('notifying about arrival of process', token);
+				waiting.get (token).notify (p);
 			}
-			buf.get (token).push (data);
+			this.newProcsWaiting.notify (p);
+		} else {
+			/* data for existing process */
+			if (this.recvWaiting.has (token)) {
+				/* if someone is waiting, forward directly */
+				console.log ('forwarding message', token, 'to waiting clients', this.recvWaiting);
+				this.recvWaiting.get (token).forEach (f => f(data));
+				/* XXX: what if calling f() has the side-effect of adding another waiter? */
+				this.recvWaiting.set (token, []);
+			} else {
+				/* otherwise store, so we do not lose it; XXX: obviously this does
+				 * not handle backpressure correctly */
+				console.log ('no one is waiting for', token, 'storing.')
+				const buf = this.recvBuffer;
+				if (!buf.has (token)) {
+					buf.set (token, []);
+				}
+				buf.get (token).push (data);
+			}
 		}
 	}
 
-	/* send a message to server */
-	send (msg) {
-		const token = randomId ();
-		msg.token = token;
-		console.log ('sending', msg, 'to', this.socket);
-		if (this.socket.readyState == 1) {
-			this.socket.send (JSON.stringify (msg));
+	/* Get process for token
+	 */
+	async get (token=null) {
+		if (token === null) {
+			/* not looking for something specific */
+			console.log ('looking for new processes');
+			const ret = await this.newProcsWaiting.wait ();
+			this.newProcsWaiting.reset ();
+			return ret;
 		} else {
-			this.sendBuffer.push (msg);
+			console.log ('getting process for token', token);
+			const procs = this.procs;
+			if (procs.has (token)) {
+				return procs.get (token);
+			}
+
+			const waiting = this.procsWaiting;
+			if (!waiting.has (token)) {
+				waiting.set (token, new AsyncNotify ());
+			}
+			const notify = waiting.get (token);
+			const ret = await notify.wait ();
+			return ret;
 		}
-		return token;
 	}
 
 	/* Get the next message for token.
 	 */
 	async receive (token) {
-		const buf = this.receiveBuffer;
+		const buf = this.recvBuffer;
 		let p = null;
-		if (buf.has (token)) {
+		if (buf.has (token) && buf.get (token).length > 0) {
 			/* resolve immediately */
 			console.log ('have stored message for', token);
-			const data = buf.shift ();
+			const data = buf.get (token).shift ();
 			p = new Promise ((resolve, reject) => {
 				resolve (data);
 			});
@@ -191,29 +222,20 @@ class Rpc {
 			/* wait */
 			console.log ('waiting for message for', token);
 			p = new Promise ((resolve, reject) => {
-				if (!this.waiting.has (token)) {
-					this.waiting.set (token, []);
+				if (!this.recvWaiting.has (token)) {
+					this.recvWaiting.set (token, []);
 				}
 				/* don’t call resolve, but queue it into waiting list */
-				this.waiting.get (token).push (resolve);
+				this.recvWaiting.get (token).push (resolve);
 			});
 		}
 		return p;
 	}
 
-	/* Send a ping to the server and check it responds correctly.
+	/* Run an application and on success return a token.
 	 */
-	async ping () {
-		const i = randomId ();
-		const token = this.send ({method: 'ping', extradata: i})
-		const resp = await this.receive (token);
-		return resp.extradata == i;
-	}
-
-	/* Run an application and on success return a Program.
-	 */
-	async run (command=null, action=null) {
-		const payload = {method: 'run'};
+	async run (command=null, action=null, extraData=null) {
+		const payload = {extraData: extraData};
 		if (command && action) {
 			console.log ('both command and action given', command, action);
 			throw Error ('bug');
@@ -224,13 +246,105 @@ class Rpc {
 			console.log ('starting run() with action', action);
 			payload.action = action;
 		}
-		const token = this.send (payload);
-		const p = new Program (this, token);
-		const resp = await this.receive (token);
-		if (resp.status == 'ok') {
-			return p;
+
+		const r = await postData ('/api/process', payload);
+		const j = await r.json ();
+		if (r.ok) {
+			return j.token;
+		} else {
+			throw Error (j.status);
 		}
-		throw Error (resp.status);
+	}
+}
+
+class EventManager {
+	constructor (pm) {
+		/* process manager */
+		this.pm = pm;
+		this.handler = new Map ();
+		/* disallow all handler at first */
+		this.allowedHandler = /^$/i;
+		/* deferred programs due to allowedHandler mismatch */
+		this.deferred = [];
+
+		this.waiting = new Map ();
+	}
+
+	register (name, f) {
+		this.handler.set (name, f);
+	}
+
+	/* Start handling events. Should only be called after all handlers are
+	 * registered.
+     */
+	start () {
+		this._listen().then (_ => ({}));
+	}
+
+	async handleProc (p) {
+		if (!p.extraData) {
+			/* nothing we can handle */
+			return;
+		}
+
+		const name = p.extraData.trigger;
+		console.log ('em: got new program', p.token, 'for', name);
+
+		if (!this.handler.has (name)) {
+			throw Error (`${name} is not registered`);
+		}
+
+		/* defer if not allowed right now */
+		if (!this.allowedHandler.test (name)) {
+			console.log ('deferring', p.token);
+			this.deferred.push (p);
+			return false;
+		}
+
+		const f = this.handler.get (name);
+		const ret = await f (p.extraData.args, p);
+		if (this.waiting.has (p.token)) {
+			this.waiting.get (p.token).notify (ret);
+		}
+
+		return true;
+	}
+
+	async _listen () {
+		console.log ('starting em listener');
+		/* process existing programs */
+		for (let i = 0; i < this.pm.procs.length; i++) {
+			const p = this.pm.procs[i];
+			await this.handleProc (p);
+		}
+
+		while (true) {
+			const p = await this.pm.get ();
+			await this.handleProc (p);
+		}
+	}
+
+	async setAllowedHandler (re) {
+		this.allowedHandler = re;
+		const newDeferred = [];
+		for (let i = 0; i < this.deferred.length; i++) {
+			const p = this.deferred[i];
+			const ran = await this.handleProc (p);
+			if (!ran) {
+				newDeferred.push (p);
+			}
+		}
+		this.deferred = newDeferred;
+	}
+
+	async run (name, args=null, command=null, action=null) {
+		console.log ('em running', name, args, command, action);
+		const pm = this.pm;
+		const token = await pm.run (command, action, {trigger: name, args: args});
+		this.waiting.set (token, new AsyncNotify ());
+		const ret = await this.waiting.get (token).wait ();
+		this.waiting.delete (token);
+		return ret;
 	}
 }
 
@@ -412,17 +526,17 @@ function whoami () {
 /* Simple async notification
  */
 class AsyncNotify {
-	constructor (getArgs) {
+	constructor () {
 		this.waiting = [];
-		this.getArgs = getArgs;
 		this.notified = false;
+		this.args = null;
 	}
 
 	/* Notify (unblock) all waiting clients
 	 */
-	async notify () {
+	async notify (args) {
+		this.args = args;
 		this.notified = true;
-		const args = this.getArgs ();
 		for (let i = 0; i < this.waiting.length; i++) {
 			const f = this.waiting[i];
 			await f (args);
@@ -434,15 +548,16 @@ class AsyncNotify {
 	 */
 	reset () {
 		this.notified = false;
+		this.args = null;
 	}
 
 	/* Async wait for notification
 	 */
 	wait () {
 		if (this.notified) {
-			/* resolve immediately */
+			/* resolve immediately with stored args */
 			return new Promise (function (resolve, reject) {
-				resolve (this.getArgs ());
+				resolve (this.args);
 			}.bind (this));
 		} else {
 			/* queue */
@@ -526,16 +641,41 @@ class User {
 }
 
 class Workspaces {
-	constructor (rpc, user) {
-		this.rpc = rpc;
+	constructor (em, user) {
+		/* event manager */
+		this.em = em;
 		this.user = user;
 		this.loading = false;
 		this.workspaces = [];
+		/* running applications, must be reactive, so cannot use Map() */
+		this.applications = {};
+
+		/* welcome to “this hell” */
+		const registerRunWithCb = (name, f) =>
+			this.em.register (name, async function (args, p) {
+				return f.bind (this) (args, await this.onRunWith (p));
+			}.bind (this));
+
+		registerRunWithCb ('workspaces.fetch', this.onFetch);
+
+		registerRunWithCb ('workspaces.create', this.onCreate);
+		/* use same callback */
+		registerRunWithCb ('workspaces.copy', this.onCreate);
+
+		registerRunWithCb ('workspaces.update', this.onUpdate);
+		/* use the same callback */
+		registerRunWithCb ('workspaces.share', this.onUpdate);
+		registerRunWithCb ('workspaces.unshare', this.onUpdate);
+
+		registerRunWithCb ('workspaces.ignore', this.onIgnore);
+
+		this.em.register ('workspaces.delete', this.onDelete.bind (this));
+		this.em.register ('workspaces.start', this.onStart.bind (this));
 	}
 
-	/* Run RPC workspace command
+	/* Run workspace command with more arguments
 	 */
-	async runRpcWith (ws, args) {
+	async runWith (name, ws, args, extraArgs=null) {
 		let command = ['workspace', '-f', 'json'];
 		if (ws) {
 			command = command.concat (['-d', ws.path]);
@@ -543,7 +683,17 @@ class Workspaces {
 		if (args) {
 			command = command.concat (args);
 		}
-		const p = await this.rpc.run (command);
+		if (ws) {
+			if (extraArgs === null) {
+				extraArgs = ws.path;
+			} else {
+				extraArgs.path = ws.path;
+			}
+		}
+		return await this.em.run (name, extraArgs, command);
+	}
+
+	async onRunWith (p) {
 		const workspaces = await p.getAllObjects ();
 		const ret = await p.wait ();
 		if (ret == 0) {
@@ -556,7 +706,7 @@ class Workspaces {
 	async fetch () {
 		try {
 			this.loading = true;
-			this.workspaces = await this.runRpcWith (null, [
+			return await this.runWith ('workspaces.fetch', null, [
 					'list',
 					'-s', config.publicData,
 					'-s', config.privateData,
@@ -569,14 +719,22 @@ class Workspaces {
 		}
 	}
 
+	onFetch (args, ret) {
+		this.workspaces = ret;
+	}
+
 	async create (name) {
-		const ws = await this.runRpcWith (null, [
+		return await this.runWith ('workspaces.create', null, [
 				'-d', `${config.publicData}/${this.user.name}`,
 				'create',
 				name,
 				]);
-		this.workspaces.push (ws[0]);
-		return ws[0];
+	}
+
+	onCreate (args, ret) {
+		const ws = ret[0];
+		this.workspaces.push (ws);
+		return ws;
 	}
 
 	async update (ws) {
@@ -584,20 +742,29 @@ class Workspaces {
 		for (const k in ws.metadata) {
 			args.push (`${k}=${ws.metadata[k]}`);
 		}
-		const newws = await this.runRpcWith (ws, args);
-		this.replace (ws, newws[0]);
-		return newws[0];
+		return await this.runWith ('workspaces.update', ws, args);
+	}
+
+	onUpdate (path, ret) {
+		const ws = this.getByPath (path);
+		const newws = ret[0];
+		this.replace (ws, newws);
+		return newws;
 	}
 
 	async delete (ws) {
-		const p = await this.rpc.run (['trash', '--', ws.path]);
+		return await this.em.run ('workspaces.delete', ws.path, ['trash', '--', ws.path]);
+	}
+
+	async onDelete (path, p) {
+		const ws = this.getByPath (path);
 		const ret = await p.wait ();
 		if (ret == 0) {
 			this.workspaces = this.workspaces.filter(elem => elem.path != ws.path);
+			return true;
 		} else {
 			throw Error ('unhandled');
 		}
-		return true;
 	}
 
 	/* share workspace with a group
@@ -607,9 +774,7 @@ class Workspaces {
 		if (isWrite) {
 			args.push ('-w');
 		}
-		const newws = await this.runRpcWith (ws, args);
-		this.replace (ws, newws[0]);
-		return newws[0];
+		return await this.runWith ('workspaces.share', ws, args);
 	}
 
 	/* Implicitly share a workspace through an action link
@@ -621,6 +786,7 @@ class Workspaces {
 		}
 		const r = await postData('/api/action', {
 				name: 'run',
+				arguments: {trigger: 'workspaces.create', args: ws.path},
 				command: command,
 				validFor: 7*24*60*60,
 				usesRemaining: 100,
@@ -631,26 +797,54 @@ class Workspaces {
 
 	async unshare (ws, group) {
 		const args = ['share', '-x', group];
-		const newws = await this.runRpcWith (ws, args);
-		this.replace (ws, newws[0]);
-		return newws[0];
+		return await this.runWith ('workspaces.unshare', ws, args);
 	}
 
 	async ignore (ws) {
 		const args = ['ignore'];
-		await this.runRpcWith (ws, args);
+		return await this.runWith ('workspaces.ignore', ws, args);
+	}
+
+	onIgnore (path, ret) {
+		const ws = this.getByPath (path);
 		this.workspaces = this.workspaces.filter(elem => elem.path != ws.path);
 	}
 
 	async copy (ws) {
 		const args = ['copy', `${config.publicData}/${this.user.name}/`];
-		const newws = await this.runRpcWith (ws, args);
-		this.workspaces.push (newws[0]);
-		return newws[0];
+		return await this.runWith ('workspaces.copy', ws, args);
+	}
+
+	async start (ws, a) {
+		return await this.runWith ('workspaces.start', ws, ['run', a._id], {aid: a._id});
+	}
+
+	async onStart (args, p) {
+		const ws = this.getByPath (args.path);
+		const c = new ConductorClient (p);
+		const k = ws.metadata._id + '+' + args.aid;
+		Vue.set (this.applications, k, c);
+		/* keep the application if an error occurred */
+		c.run ().then (function () { if (!c.error) { Vue.delete (this.applications, k); } }.bind (this));
+		return c;
+	}
+
+	getRunningApplication (ws, a) {
+		const k = ws.metadata._id + '+' + a._id;
+		return this.applications[k];
+	}
+
+	resetRunningApplication (ws, a) {
+		const k = ws.metadata._id + '+' + a._id;
+		Vue.delete (this.applications, k);
 	}
 
 	getById (wid) {
 		return this.workspaces.filter(elem => elem.metadata._id == wid)[0];
+	}
+
+	getByPath (path) {
+		return this.workspaces.filter(elem => elem.path == path)[0];
 	}
 
 	all () {
@@ -670,30 +864,31 @@ class LockedOutError extends Error {
 
 const store = {
 	state: {
-		rpc: null,
+		processes: null,
+		events: null,
 		session: null,
 		user: null,
 		workspaces: null,
-		/* running applications */
-		applications: new Map (),
 		/* current language */
 		language: 'de',
 
 		/* notify when the store is fully initialized */
-		ready: new AsyncNotify (_ => store),
+		ready: new AsyncNotify (),
 	},
 
 	async init () {
 		this.state.session = await Session.get ();
 
-		/* RPC needs a valid session */
-		const url = new URL ('/api/rpc', window.location.href);
-		this.state.rpc = new Rpc (url);
+		/* needs a valid session */
+		const url = new URL ('/api/process/notify', window.location.href);
+		this.state.processes = new ProcessManager (url);
+
+		this.state.events = new EventManager (this.state.processes);
 
 		try {
 			this.state.user = await User.get ();
 		} catch (e) {
-			if (e == 'nonexistent' && this.state.session.authenticated()) {
+			if (e.message == 'nonexistent' && this.state.session.authenticated()) {
 				this.state.user = await User.create (this.state.session.oauthInfo);
 			} else {
 				/* just accept the fact */
@@ -701,11 +896,21 @@ const store = {
 			}
 		}
 		if (this.state.user) {
-			this.state.workspaces = new Workspaces (this.state.rpc, this.state.user);
+			this.state.workspaces = new Workspaces (this.state.events, this.state.user);
+		} else {
+			this.state.workspaces = null;
+		}
+		/* event manager must be started before we can run programs, otherwise
+		 * .fetch() below deadlocks. */
+		this.state.events.start ();
+
+		if (this.state.workspaces) {
 			try {
+				/* allow only updating project list */
+				await this.state.events.setAllowedHandler (/^workspaces.fetch$/);
 				await this.state.workspaces.fetch ();
 			} catch (e) {
-				if (e == 'locked_out') {
+				if (e.message == 'locked_out') {
 					this.state.workspaces = new LockedOutError ();
 				} else {
 					this.state.workspaces = null;
@@ -713,17 +918,10 @@ const store = {
 				}
 			}
 		}
+		/* allow all events */
+		await this.state.events.setAllowedHandler (/.*/);
 
 		await this.state.ready.notify ();
-	},
-
-	startApplication: async function(w, a) {
-		const p = await this.state.rpc.run (['workspace', '-d', w.path, 'run', a._id]);
-		const c = new ConductorClient (p);
-		const k = w.metadata._id + '+' + a._id;
-		this.state.applications.set (k, c);
-		c.run ().then (function () { this.state.applications.delete (k); }.bind (this));
-		return c;
 	},
 
 	/* XXX: Move this to a user property that indicates we can run SSH commands */
@@ -1007,6 +1205,7 @@ Vue.component('application-item', {
     props: ['workspace', 'application'],
 	mixins: [i18nMixin],
 	data: _ => ({
+		state: store.state,
 		strings: translations({
 			de: {
 				'run': 'Starten',
@@ -1023,7 +1222,7 @@ Vue.component('application-item', {
 		</div>
 		<div class="pure-u-md-1-5 pure-u-1 actions">
 		<router-link :to="{name: 'application', params: {wsid: workspace.metadata._id, appid: application._id}}" class="btn medium">
-			<i class="fas fa-play"></i> {{ t('run') }}
+			<i :class="cls"></i> {{ t('run') }}
 		</router-link>
 		</div></div>`,
 	computed: {
@@ -1044,6 +1243,9 @@ Vue.component('application-item', {
 			}
 			return desc;
 		},
+		cls () {
+			return 'fas ' + (this.state.workspaces.getRunningApplication (this.workspace, this.application) === undefined ? 'fa-play' : 'fa-external-link-square-alt');
+		}
 	}
 });
 
@@ -1538,10 +1740,10 @@ const ApplicationView = Vue.extend ({
 		<p v-if="!workspace">{{ t('nonexistentws') }}</p>
 		<p v-else-if="!application">{{ t('nonexistent') }}</p>
 		<iframe v-else-if="url" frameborder="0" name="appframe" :src="url"></iframe>
-		<div v-else-if="dummy && program" class="loading">
+		<div v-else-if="program" class="loading">
 			<details>
 				<summary>
-				<span v-if="program.error !== null">{{ t('failed', {reason: program.error}) }}</span>
+				<span v-if="program.error !== null">{{ t('failed', {reason: program.error}) }}. <a @click="reset">{{ t('reset') }}</a>.</span>
 				<span v-else-if="program.state == ConductorState.starting">{{ t('starting') }}<br><spinner :big="true"></spinner></span>
 				<span v-else-if="program.state == ConductorState.exited">{{ t('exited') }}</span>
 				</summary>
@@ -1551,7 +1753,6 @@ const ApplicationView = Vue.extend ({
 	</aside>`,
 	data: _ => ({
 		state: store.state,
-		program: null,
 		ConductorState: ConductorState,
 		strings: translations({
 			de: {
@@ -1561,6 +1762,7 @@ const ApplicationView = Vue.extend ({
 				'exited': 'Anwendung wurde beendet.',
 				'failed': 'Anwendung konnte nicht ausgeführt werden. (%{reason})',
 				'projects': 'Projekte',
+				'reset': 'Neustarten',
 				},
 			en: {
 				'nonexistent': 'Application does not exist.',
@@ -1569,10 +1771,16 @@ const ApplicationView = Vue.extend ({
 				'exited': 'Application finished.',
 				'failed': 'Application failed to run. (%{reason})',
 				'projects': 'Projects',
+				'reset': 'Restart',
 				},
 		}),
 	}),
 	mixins: [i18nMixin],
+	methods: {
+		reset: function () {
+			this.state.workspaces.resetRunningApplication (this.workspace, this.application);
+		},
+	},
 	computed: {
 		/* argument is a string */
 		workspace: function() {
@@ -1604,31 +1812,24 @@ const ApplicationView = Vue.extend ({
 			}
 			return u.toString ();
 		},
-		key: function () {
-			const workspace = this.workspace;
-			const application = this.application;
-			return workspace.metadata._id + '+' + application._id;
-		},
-		dummy: function () {
+		program: function () {
 			console.log ('application changed');
 			const workspace = this.workspace;
 			const application = this.application;
-			const p = this.state.applications.get (this.key);
-			if (!p) {
-				console.log ('starting new instance of', workspace, application);
-				this.program = null;
-				store.startApplication (workspace, application).then (function (program) { this.program = program}.bind (this));
-			} else {
-				console.log ('using running instance of', workspace, application);
-				this.program = p;
+			const p = this.state.workspaces.getRunningApplication (workspace, application);
+			if (p) {
+				return p;
 			}
-			return true;
+			console.log ('starting new instance of', workspace, application);
+			this.state.workspaces.start (workspace, application);
+			return null;
 		},
 	},
 	watch: {
 		'program.state': function () {
 			/* go back to workspace if program exited */
-			if (this.program.state == ConductorState.exited && this.program.error === null) {
+			if (this.program && this.program.state == ConductorState.exited && this.program.error === null) {
+				console.log ('program is gone, going back to workspace', this.workspace);
 				this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
 			}
 		},
@@ -1898,7 +2099,6 @@ const ActionView = Vue.extend ({
 	created: async function () {
 		await this.state.ready.wait ();
 
-	 	/* XXX: wait for init to complete */
 	 	console.log ('executing action', this.token);
 	 	const r = await fetch ('/api/action/' + this.token);
 	 	try {
@@ -1907,7 +2107,7 @@ const ActionView = Vue.extend ({
 	 		switch (a.name) {
 	 			case 'run': {
 	 				console.log ('got run action');
-	 				const p = await this.state.rpc.run (null, this.token);
+	 				const p = await this.state.processes.get (await this.state.processes.run (null, this.token));
 	 				console.log ('got program', p);
 	 				const newws = new Workspace (await p.getObject (), whoami);
 	 				const ret = await p.wait ();
@@ -1923,7 +2123,7 @@ const ActionView = Vue.extend ({
 	 		}
 	    } catch (e) {
 			console.log ('failed', e);
-			if (e == 'unauthenticated') {
+			if (e.message == 'unauthenticated') {
 				const url = new URL ('/api/session/login', window.location.href);
 				const next = new URL (this.$route.fullPath, window.location.href);
 				next.hash = '';
