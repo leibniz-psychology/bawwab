@@ -1881,7 +1881,6 @@ const IndexView = Vue.extend ({
 		<a class="btn high" href="/api/session/login">{{ t('login') }}</a>
 	</p>
 	<p v-else-if="haveWorkspaces"><router-link class="btn high" :to="{name: 'workspaces'}">{{ t('toprojects') }}</router-link></p>
-	<p v-else><i class="fa fa-exclamation-triangle"></i> {{ t('locked') }}</p>
 </div>`,
 	data: _ => ({
 		state: store.state,
@@ -1891,13 +1890,11 @@ const IndexView = Vue.extend ({
 				'description': 'PsychNotebook ist eine web-basierte Plattform für die Planung und Analyse von Studien aus dem Gebiet der Psychologie und verwandter Disziplinen.',
 				'login': 'Anmelden',
 				'toprojects': 'Zu meinen Projekten',
-				'locked': 'Dein Benutzerkonto ist zurzeit gesperrt. Bitte kontaktiere einen Administrator.',
 				},
 			en: {
 				'description': 'PsychNotebook is a web-based platform for planning and analyzing studies in the field of psychology and related disciplines.',
 				'login': 'Login',
 				'toprojects': 'Go to my projects',
-				'locked': 'Your account is locked right now. Please contact an administrator.',
 				},
 			}),
 	}),
@@ -1947,7 +1944,7 @@ const AccountView = Vue.extend ({
 				'name': 'Name',
 				'email': 'E-Mail-Adresse',
 				'unixaccount': 'UNIX-Nutzername',
-				'locked': 'Du kannst Dein Konto derzeit nicht löschen. Bitte kontaktiere einen Administrator.',
+				'locked': 'Du kannst Dein Konto derzeit nicht löschen.',
 				},
 			en: {
 				'headline': 'My account',
@@ -1958,7 +1955,7 @@ const AccountView = Vue.extend ({
 				'name': 'Name',
 				'email': 'Email address',
 				'unixaccount': 'UNIX account name',
-				'locked': 'You cannot delete your account at this time. Please contact an administrator.',
+				'locked': 'You cannot delete your account at this time.',
 				},
 			}),
 		queryDelete: false,
@@ -2204,10 +2201,12 @@ const app = new Vue({
 			de: {
 				'nav.projects': 'Projekte',
 				'loading': 'Einen Moment bitte…',
+				'locked': 'Dein Benutzerkonto ist zurzeit gesperrt. Bitte melde Dich per E-Mail bei <a href="mailto:%{mail}">%{mail}</a>.',
 				},
 			en: {
 				'nav.projects': 'Projects',
 				'loading': 'Just a second…',
+				'locked': 'Your account is locked right now. Please contact <a href="mailto:%{mail}">%{mail}</a> via email.',
 			},
 		}),
 		}),
@@ -2227,6 +2226,12 @@ const app = new Vue({
 		},
 		haveWorkspaces: function () {
 			return store.haveWorkspaces ();
+		},
+		isLockedOut: function () {
+			return this.state.workspaces instanceof LockedOutError;
+		},
+		supportMail: function () {
+			return 'psychnotebook@leibniz-psychology.org';
 		},
 	},
 	watch: {

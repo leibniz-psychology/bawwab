@@ -360,3 +360,14 @@ table.workspaces .actions li {
   }
 }
 
+.accountLocked {
+	background-color: var(--magenta-base);
+	color: white;
+	padding: 1em;
+	margin: 1em 0;
+}
+
+.accountLocked a {
+	color: white;
+}
+
