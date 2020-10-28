@@ -1590,7 +1590,7 @@ const WorkspaceView = Vue.extend ({
 			<option selected="selected" :value="false" class="read">{{ t('read') }}</option>
 			<option :value="true" class="write">{{ t('write') }}</option>
 			</select>
-			</p>
+			<p>{{ shareMeaning }}</p>
 			<div>
 				<label for="shareUrl">{{ t('sharelink') }}</label>
 				<div class="textbutton">
@@ -1629,7 +1629,9 @@ const WorkspaceView = Vue.extend ({
 				'close': 'Schließen',
 				'copy': 'Kopieren',
 				'read': 'Nur Lesen',
+				'readMeaning': 'Der Benutzer kann das Projekt nur kopieren.',
 				'write': 'Schreibzugriff',
+				'writeMeaning': 'Der Benutzer kann das Projekt kopieren, Anwendungen starten und alle Daten ändern oder löschen.',
 				'copyname': 'Kopie von %{name}', /* name after copying a project */
 				'sharelink': 'Teile den folgenden Link',
 				},
@@ -1647,7 +1649,9 @@ const WorkspaceView = Vue.extend ({
 				'close': 'Close',
 				'copy': 'Copy',
 				'read': 'Read-only',
+				'readMeaning': 'The user can only copy this project.',
 				'write': 'Write access',
+				'writeMeaning': 'The user can copy the project, start applications and modify or delete all data.',
 				'copyname': 'Copy of %{name}', /* name after copying a project */
 				'sharelink': 'Share the link below',
 				},
@@ -1661,6 +1665,13 @@ const WorkspaceView = Vue.extend ({
 		},
 		canDelete: function () {
 			return this.currentWorkspace.canDelete ();
+		},
+		shareMeaning: function () {
+			if (!this.selectedShareUrl) {
+				return this.t ('readMeaning');
+			} else {
+				return this.t ('writeMeaning');
+			}
 		}
 	},
 	methods: {
