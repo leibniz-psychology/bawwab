@@ -7,7 +7,6 @@ setup(
     author_email='ldb@leibniz-psychology.org',
     url='https://github.com/leibniz-psychology/bawwab',
     packages=['bawwab'],
-    #license='LICENSE.txt',
     description='A web gateway to compute clusters.',
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
@@ -35,4 +34,10 @@ setup(
     package_data={
             'bawwab': ['assets/*', 'assets/img/*'],
     },
+    classifiers = [
+        'License :: OSI Approved :: MIT License',
+        'Development Status :: 4 - Beta',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 3',
+        ],
 )
