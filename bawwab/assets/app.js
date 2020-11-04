@@ -467,8 +467,11 @@ class Workspace {
 
 	myPermissions () {
 		const me = this.whoami ();
-		const [k, v] = Object.entries (this.permissions).filter (([k, v]) => k == me)[0];
-		return v;
+		const perms = Object.entries (this.permissions).filter (([k, v]) => k == me);
+		if (perms.length < 1) {
+			return '';
+		}
+		return perms[0][1];
 	}
 
 	/* Retrive the owner of this workspace.
