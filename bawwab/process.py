@@ -25,6 +25,7 @@ Interact with processes running on the compute backend
 import shlex, json, asyncio, traceback
 from collections import defaultdict
 from functools import partial
+from itertools import chain
 
 from sanic import Blueprint
 from sanic.log import logger
@@ -112,6 +113,19 @@ class WebsocketProcess:
 		asyncio.create_task (sendOutput ('stderr', p.stderr))
 
 		self.task = asyncio.create_task (f (p))
+
+async def getStatus ():
+	replayBufferMessages = 0
+	for procs in perUserProcesses.values ():
+		for p in procs.values ():
+			replayBufferMessages += len (p.messages)
+
+	return dict (
+		users=len (perUserSockets),
+		sockets=sum (map (len, perUserSockets.values ())),
+		processes=sum (map (len, perUserProcesses.values ())),
+		replayBufferMessages=replayBufferMessages,
+		)
 
 @bp.route ('/', methods=['POST'])
 async def processRun (request):

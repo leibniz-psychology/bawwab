@@ -101,8 +101,6 @@ async def getStatus ():
 	activeSince = now() - timedelta (days=1)
 	return dict (
 			total=await User.filter().count (),
-			anonymous=await User.filter(authId=None).count (),
-			login1d=await User.filter(lastLogin__gte=activeSince).count (),
 			)
 
 @bp.route ('/', methods=['GET'])

@@ -59,6 +59,11 @@ class Action (Model):
 	def token (self, value):
 		self.tokenHashed = self.hashToken (value)
 
+async def getStatus ():
+	return dict (
+		total=await Action.filter().count(),
+		)
+
 bp = Blueprint('action')
 
 def actionToDict (token, action):

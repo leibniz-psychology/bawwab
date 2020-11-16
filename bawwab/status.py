@@ -18,11 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import asyncio, resource
+
 from sanic import Blueprint
 from sanic.response import json
 
 from .session import getStatus as getSession
 from .user import getStatus as getUser
+from .process import getStatus as getProcess
+from .action import getStatus as getAction
 
 from .util import now
 
@@ -31,9 +35,20 @@ bp = Blueprint ('status')
 @bp.route ('/')
 async def statusGet (request):
 	start = now ()
+
+	usage = resource.getrusage (resource.RUSAGE_SELF)
+	runtime = dict (
+		tasks=len (asyncio.all_tasks ()),
+		cpuTimeUser=usage.ru_utime,
+		cpuTimeSystem=usage.ru_stime,
+		)
+
 	status = dict (
 			session=await getSession (),
 			user=await getUser (),
+			process=await getProcess (),
+			action=await getAction (),
+			runtime=runtime,
 			)
 	# we can abuse this to get a glimpse at database performance
 	status['status'] = dict (collecttime=(now()-start).total_seconds ())
