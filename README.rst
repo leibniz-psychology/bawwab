@@ -73,3 +73,18 @@ The backend will pick up changes automatically when in debug mode.
 
 .. _guix-zpid: https://github.com/leibniz-psychology/guix-zpid
 
+To ease development it is also possible to override the logged in user,
+removing the need for an OAuth server. You can enable it by adding the
+following lines to your ``config.py``:
+
+.. code:: python
+
+	DEBUG = True
+	DEBUG_USER_OVERRIDE = {"sub":"173d4e4b-a862-4570-a3a9-87f4785ef4eb",
+		"email_verified":True,
+		"name":"Testuser",
+		"preferred_username":"testuser",
+		"given_name":"Testuser",
+		"family_name":"Test",
+		"email":"testuser@invalid"}
+

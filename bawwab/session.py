@@ -179,6 +179,15 @@ async def login (request):
 	if session.oauthInfo:
 		return redirect ('/')
 
+	# development override active?
+	config = app.config
+	isDebug = getattr (config, 'DEBUG', False)
+	userOverride = getattr (config, 'DEBUG_USER_OVERRIDE', None)
+	if isDebug and userOverride is not None:
+		session.oauthInfo = userOverride
+		await session.save (update_fields=('oauthInfo', ))
+		return redirect ('/')
+
 	cbUrl = callbackUrl (request)
 	state = randomSecret ()
 	session.oauthState = state
@@ -233,7 +242,7 @@ async def callback (request):
 		return redirect ('/login/oauth2_' + e.args[0])
 
 	session.oauthInfo = userinfo
-	await session.save ()
+	await session.save (update_fields=('oauthInfo', ))
 
 	request.ctx.logger.info (__name__ + '.login.success',
 			authId=session.authId, session=session.name)
