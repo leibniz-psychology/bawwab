@@ -432,6 +432,10 @@ class ConductorClient {
 				/* make sure the process is dead */
 				const ret = await this.process.wait ();
 				if (ret != 0) {
+					if (!this.error) {
+						this.state = ConductorState.exited;
+						this.error = 'unknown';
+					}
 					throw Error (ret);
 				} else {
 					return;
@@ -881,7 +885,8 @@ class Workspaces {
 		const k = ws.metadata._id + '+' + args.aid;
 		Vue.set (this.applications, k, c);
 		/* keep the application if an error occurred */
-		c.run ().then (function () { if (!c.error) { Vue.delete (this.applications, k); } }.bind (this));
+		const handle = function () { if (!c.error) { Vue.delete (this.applications, k); } }.bind (this);
+		c.run ().then (handle).catch (function (e) { console.log ('application run failed with', e); });
 		return c;
 	}
 
