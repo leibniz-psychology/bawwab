@@ -23,7 +23,7 @@ import socket, os, sys, shutil, traceback, sqlite3, inspect, argparse, re
 import pkg_resources
 import aiohttp
 from sanic import Sanic
-from sanic.response import json, html
+from sanic.response import json, html, file_stream
 from sanic.log import logger
 from sanic.exceptions import SanicException
 from tortoise import Tortoise
@@ -83,6 +83,18 @@ def main ():
 	# this should only be required when debugging
 	minre = re.compile (r'(href|src)="(.*?)[\.-]min\.(css|js)"\s+integrity=".*?"')
 	async def catchall (request, path=None):
+		if path:
+			try:
+				prefix = pkg_resources.resource_filename (__package__, f'assets/')
+				filename = pkg_resources.resource_filename (__package__, f'assets/{path}')
+				# restrict to assets/ directory
+				if os.path.normpath (filename).startswith (prefix):
+					return await file_stream (filename)
+				else:
+					logger.debug (f'{path} is not in assets/')
+			except FileNotFoundError:
+				# fall back to app.html
+				logger.debug (f'cannot find resource {path}, falling back to app.html')
 		with pkg_resources.resource_stream (__package__, 'assets/app.html') as fd:
 			# use non-minified script resources when debugging
 			if config.DEBUG:
