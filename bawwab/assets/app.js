@@ -142,9 +142,6 @@ class Program {
 
 class ProcessManager {
 	constructor(url) {
-		url.protocol = url.protocol == 'http:' ? 'ws:' : 'wss:';
-		console.log ('connecting to', url);
-		this.socket = new WebSocket (url);
 		this.recvWaiting = new Map ();
 		this.recvBuffer = new Map ();
 		/* currently running processes */
@@ -152,14 +149,34 @@ class ProcessManager {
 		this.procsWaiting = new Map ();
 		this.newProcsWaiting = new AsyncNotify ();
 
+		url.protocol = url.protocol == 'http:' ? 'ws:' : 'wss:';
+		this.url = url;
+		this.connectBackoff = 100;
+		this.connect ();
+	}
+
+	connect () {
+		console.log ('connecting to', this.url);
+		this.socket = new WebSocket (this.url);
 		this.socket.addEventListener ('open', this.onOpen.bind (this));
 		this.socket.addEventListener ('message', this.onMessage.bind (this));
+		this.socket.addEventListener ('close', this.doReconnect.bind (this));
+		this.socket.addEventListener ('error', this.doReconnect.bind (this));
 	}
 
 	/* Connection was opened.
 	 */
 	onOpen (event) {
 		console.log ('socket is now open', this);
+		/* reset on successful connect */
+		this.connectBackoff = 100;
+	}
+
+	doReconnect (event) {
+		console.debug ('socket is now closed', this, event);
+		/* delay the reconnect, so we don’t cause a reconnect storm */
+		window.setTimeout (function () { this.connect (); }.bind (this), this.connectBackoff);
+		this.connectBackoff = this.connectBackoff * 2;
 	}
 
 	/* A message was received from the server.
