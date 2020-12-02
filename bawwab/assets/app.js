@@ -340,7 +340,13 @@ class EventManager {
 		}
 
 		const f = this.handler.get (name);
-		const ret = await f (p.extraData.args, p);
+		let ret = null;
+		try {
+			ret = await f (p.extraData.args, p);
+		} catch (e) {
+			/* throw exception into notification */
+			ret = e;
+		}
 		if (this.waiting.has (p.token)) {
 			this.waiting.get (p.token).notify (ret);
 		}
@@ -579,8 +585,12 @@ class AsyncNotify {
 		this.args = args;
 		this.notified = true;
 		for (let i = 0; i < this.waiting.length; i++) {
-			const f = this.waiting[i];
-			await f (args);
+			const [resolve, reject] = this.waiting[i];
+			if (this.args instanceof Error) {
+				reject (this.args);
+			} else {
+				resolve (this.args);
+			}
 		}
 		this.waiting = [];
 	}
@@ -598,12 +608,16 @@ class AsyncNotify {
 		if (this.notified) {
 			/* resolve immediately with stored args */
 			return new Promise (function (resolve, reject) {
-				resolve (this.args);
+				if (this.args instanceof Error) {
+					reject (this.args);
+				} else {
+					resolve (this.args);
+				}
 			}.bind (this));
 		} else {
 			/* queue */
 			return new Promise (function (resolve, reject) {
-				this.waiting.push (resolve);
+				this.waiting.push ([resolve, reject]);
 			}.bind (this));
 		}
 	}
