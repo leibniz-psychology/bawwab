@@ -30,7 +30,7 @@ from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
 from pypika import Query, Table, Field
 
-from . import session, user, action, status, process, csp
+from . import session, user, action, status, process, csp, filesystem
 
 def socketSession (path):
 	conn = aiohttp.UnixConnector (path=path)
@@ -77,6 +77,7 @@ def main ():
 	app.blueprint (status.bp, url_prefix='/api/status')
 	app.blueprint (process.bp, url_prefix='/api/process')
 	app.blueprint (csp.bp, url_prefix='/api/csp')
+	app.blueprint (filesystem.bp, url_prefix='/api/filesystem')
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
 
 	# this should only be required when debugging

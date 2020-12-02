@@ -726,6 +726,7 @@ class Workspaces {
 
 		this.em.register ('workspaces.delete', this.onDelete.bind (this));
 		this.em.register ('workspaces.start', this.onStart.bind (this));
+		this.em.register ('workspaces.export', this.onExport.bind (this));
 	}
 
 	/* Run workspace command with more arguments
@@ -882,6 +883,20 @@ class Workspaces {
 		/* keep the application if an error occurred */
 		c.run ().then (function () { if (!c.error) { Vue.delete (this.applications, k); } }.bind (this));
 		return c;
+	}
+
+	async export (kind, ws) {
+		const args = ['export', kind, `${config.privateData}/${this.user.name}/.cache`];
+		return await this.runWith ('workspaces.export', ws, args);
+	}
+
+	async onExport (args, p) {
+		const ret = await p.wait ();
+		if (ret == 0) {
+			return await p.getObject ();
+		} else {
+			throw Error ('unhandled');
+		}
 	}
 
 	getRunningApplication (ws, a) {
@@ -1108,6 +1123,7 @@ Vue.component('workspace-item', {
 				'cancel': 'Verwerfen',
 				'edit': 'Bearbeiten',
 				'share': 'Teilen',
+				'export': 'Exportieren',
 				'copy': 'Kopieren',
 				'delete': 'Löschen',
 				'hide': 'Verbergen',
@@ -1127,6 +1143,7 @@ Vue.component('workspace-item', {
 				'cancel': 'Cancel',
 				'edit': 'Edit',
 				'share': 'Share',
+				'export': 'Export',
 				'copy': 'Copy',
 				'delete': 'Delete',
 				'hide': 'Hide',
@@ -1154,6 +1171,7 @@ Vue.component('workspace-item', {
 			<li v-if="editable"><action-button icon="window-close" :f="discard" importance="low">{{ t('cancel') }}</action-button></li>
 			<li v-if="!editable && workspace.canWrite ()"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ t('edit') }}</action-button></li>
 			<li><action-button v-if="workspace.canShare ()" icon="share" :f="doShare">{{ t('share') }}</action-button></li>
+			<li><router-link class="btn" v-if="workspace.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ t('export') }}</router-link></li>
 			<li><action-button v-if="workspace.canRead()" icon="copy" :f="doCopy">{{ t('copy') }}</action-button></li>
 			<li><action-button icon="trash" :f="doDelete">{{ workspace.canDelete() ? t('delete') : t('hide') }}</action-button></li>
 		</ul>
@@ -1782,6 +1800,89 @@ const WorkspaceView = Vue.extend ({
 	}
 });
 
+const WorkspaceExportView = Vue.extend ({
+	props: ['wsid'],
+	template: `<div>
+<div v-if="workspace">
+<p><router-link :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}">{{ t('back') }}</router-link></p>
+<h2>{{ t('headline') }}</h2>
+<p>{{ t('description', {project: workspace.metadata.name}) }}</p>
+<label for="kind">{{ t('exportas') }}</label>
+<select v-model="kind" name="kind" id="kind" size="0">
+<option v-for="format in supportedFormats" :key="format" :value="format">{{ t('kind-' + format) }}</option>
+</select>
+<p>{{ t('description-' + kind) }}</p>
+<p><action-button :f="run" icon="file-export" importance="high">{{ path[kind] ? t('download') : t('submit') }}</action-button></p>
+</div>
+<p v-else>{{ t('notfound') }}</p>
+</div>`,
+	data: _ => ({
+		state: store.state,
+		kind: 'zip',
+		path: {},
+		supportedFormats: ['zip', 'tar+lzip'],
+		strings: translations({
+			de: {
+				'back': 'Zurück zum Projekt',
+				'headline': 'Projekt exportieren',
+				'description': 'Hier kann das Projekt %{project} in unterschiedlichen Formaten exportiert werden.',
+				'kind-zip': 'ZIP-Archiv',
+				'description-zip': 'Enthält alle Dateien des Projekts.',
+				'kind-tar+lzip': 'LZIP-komprimierter Tarball',
+				'description-tar+lzip': 'Enthält alle Dateien des Projekts.',
+				'exportas': 'Exportieren als',
+				'submit': 'Exportieren',
+				'download': 'Herunterladen',
+				'notfound': 'Projekt existiert nicht.',
+				},
+			en: {
+				'back': 'Back to project',
+				'headline': 'Export project',
+				'description': 'Here you can export the project %{project} in different formats.',
+				'kind-zip': 'ZIP archive',
+				'description-zip': 'Contains all files of the project.',
+				'kind-tar+lzip': 'LZIP-compressed Tarball',
+				'description-tar+lzip': 'Contains all files of the project.',
+				'exportas': 'Export as',
+				'submit': 'Export',
+				'download': 'Download',
+				'notfound': 'Project does not exist.',
+				},
+			}),
+	}),
+	mixins: [i18nMixin],
+	computed: {
+		workspaces: function () { return this.state.workspaces; },
+		workspace: function () {
+			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
+		},
+	},
+	methods: {
+        run: async function() {
+			const kind = this.kind;
+			if (!this.path[kind]) {
+				const data = await this.workspaces.export (this.kind, this.workspace);
+				Vue.set (this.path, kind, data.path);
+			}
+			const url = new URL (`/api/filesystem${this.path[kind]}`, window.location.href);
+			window.location.assign (url.toString ());
+        },
+	},
+	/* Delete the export file created when leaving the page */
+	beforeDestroy: async function () {
+		console.log ('destroying', this.path);
+		for (let k in this.path) {
+			let r = await fetch (`/api/filesystem${this.path[k]}`, {
+				'method': 'DELETE'
+			});
+			if (r.ok) {
+				/* this is fine */
+			} else {
+				console.log('cannot destroy export', r);
+			}
+		}
+	}
+})
 const TermsOfServiceView = Vue.extend ({
 	props: ['next'],
 	template: `<div><h2>Nutzungsbedingungen</h2>
@@ -2223,6 +2324,7 @@ const routes = [
 	{ path: '/legal', component: LegalView, name: 'legal' },
 	{ path: '/workspaces', component: WorkspacesView, name: 'workspaces' },
 	{ path: '/workspaces/:wsid', component: WorkspaceView, name: 'workspace', props: true },
+	{ path: '/workspaces/:wsid/export', component: WorkspaceExportView, name: 'workspaceExport', props: true },
 	{ path: '/workspaces/:wsid/:appid/:appPath*',
 		component: ApplicationView,
 		name: 'application',
