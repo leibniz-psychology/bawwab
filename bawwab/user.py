@@ -53,7 +53,10 @@ class UserConnectionManager:
 
 	async def get (self, user):
 		conn = self._conns.get (user, None)
-		if not conn:
+		# XXX: accessing asyncssh internals here, but there is no way to check
+		# whether a connection is closed
+		if not conn or conn._close_event.is_set ():
+			logger.debug (f'establishing new SSH connection for {user}')
 			conn = await asyncssh.connect (
 					host=self.host,
 					port=22,
