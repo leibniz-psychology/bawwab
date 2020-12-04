@@ -1,3 +1,28 @@
+/* overrides for purecss */
+table.pure-table {
+	border-radius: 0.5em;
+	box-shadow: 0 0 0.3em rgba(0,0,0,0.2);
+	border: 0;
+}
+
+.pure-table thead {
+	background-color: var(--gray-light);
+	color: inherit;
+}
+
+.pure-table-striped tr:nth-child(2n-1) td {
+	background-color: transparent;
+}
+
+.pure-table-striped tr:nth-child(2n) td {
+	background-color: var(--gray-light);
+}
+
+.pure-table-horizontal td, .pure-table-horizontal th, .pure-table {
+	border-color: var(--gray-base);
+	border: 0;
+}
+
 /* notebook-specific styling */
 .workspaceItem .wsactions {
 	margin-bottom: 1em;
@@ -128,6 +153,11 @@ span.placeholder {
 	padding: 0;
 }
 
+.workspaceItem .title {
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
 .workspaceItem .shared ul li, .workspaceItem .owners ul li {
 	display: inline;
 }
@@ -233,7 +263,7 @@ span.placeholder {
 	background-color: var(--magenta-dark-base);
 	color: white;
 	font-weight: bold;
-	border-radius: 50%;
+	border-radius: 0.7em;
 	padding: 0.3em;
 }
 
@@ -245,6 +275,7 @@ details > summary {
 	display: block;
 	/* Remove outline when focused, Google Chrome */
 	outline: none;
+	cursor: pointer;
 }
 /* remove triangle for chrome */
 details > summary::-webkit-details-marker {
@@ -253,6 +284,8 @@ details > summary::-webkit-details-marker {
 
 details.usermenu ul {
 	position: absolute;
+	top: 2rem;
+	right: -1rem;
 	background-color: white;
 	padding: 0.6em;
 	box-shadow: 0 0 0.3em rgba(0,0,0,0.2);
@@ -274,9 +307,7 @@ dl dd {
 
 form.filter {
 	border-bottom: 0.1em solid var(--gray-base);
-	/*text-align: center;*/
-	/* 2em at the bottom, because we’re moving the divs down */
-	margin: 1em 0 2em 0;
+	padding: 0 0.5em;
 }
 
 form.filter input[type="radio"] {
@@ -284,46 +315,43 @@ form.filter input[type="radio"] {
 }
 
 form.filter div {
-	display: inline;
+	display: inline-block;
 	position: relative;
-	top: 0.5em;
+	bottom: -0.1em;
 }
 
 form.filter input[type="radio"] ~ label {
-	padding: 0.3em;
-	background-color: white;
+	padding: 0.5em;
+	background-color: var(--gray-light);
 	cursor: pointer;
 	border: 0.1em solid var(--gray-base);
+	border-radius: 0.5em 0.5em 0 0;
+	display: inline-block;
 }
 
 form.filter input[type="radio"]:checked ~ label {
-	background-color: var(--gray-base);
+	background-color: white;
+	border-bottom: 0.1em solid white;
 }
 
 table.workspaces {
 	width: 100%;
 	margin: 1em 0;
-	border-collapse: collapse;
 }
 
 table.workspaces tr td {
-	border-bottom: 0.05em solid var(--gray-base);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
 	max-width: 0;
 }
 
-table.workspaces .title {
+table.workspaces td.title {
 	text-align: left;
+	font-weight: 500;
 }
 table.workspaces .description {
 	text-align: left;
-}
-/* fill entire cell and make it clickable */
-table.workspaces .title a, table.workspaces .description a {
-	display: inline-block;
-	padding: 0.7em 0;
 }
 table.workspaces .actions {
 	text-align: center;

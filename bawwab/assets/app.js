@@ -1344,7 +1344,7 @@ Vue.component('login-item', {
 		<a href="/api/session/login">{{ t('login') }}</a></li>
 		<li v-else>
 			<details class="usermenu">
-				<summary><span class="initials">{{ initials }}</span></summary>
+				<summary><span class="initials">{{ initials }} <i class="fas fa-caret-down"></i></span></summary>
 				<ul>
 					<li><router-link :to="{name: 'account'}">{{ t('account') }}</router-link></li>
 					<li><router-link :to="{name: 'logout'}">{{ t('logout') }}</router-link></li>
@@ -1362,7 +1362,7 @@ Vue.component('login-item', {
 				return `${info.given_name[0]}${info.family_name[0]}`;
 			}
 		}
-	}
+	},
 });
 
 /*	Simple modal, which closes (or rather: emits an event) when clicking
@@ -1547,6 +1547,7 @@ const WorkspacesView = Vue.extend ({
 		</div>
 		</div>
 		<form class="filter">
+		<!--<input type="search" id="filtersearch" v-model="filtertext">-->
 		<div>
 			<input type="radio" name="filter" value="mine" id="filtermine" v-model="filter">
 			<label for="filtermine">{{ t('myprojects') }}</label>
@@ -1556,7 +1557,7 @@ const WorkspacesView = Vue.extend ({
 			<label for="filtershared">{{ t('sharedprojects') }}</label>
 		</div>
 		</form>
-		<table class="workspaces" v-if="filteredWorkspaces.length > 0">
+		<table class="workspaces pure-table pure-table-striped pure-table-horizontal" v-if="filteredWorkspaces.length > 0">
 		<thead>
 			<tr>
 				<th class="title">{{ t('thtitle') }}</th>
@@ -1595,6 +1596,7 @@ const WorkspacesView = Vue.extend ({
 		state: store.state,
 		name: '',
 		filter: 'mine',
+		filtertext: '',
 		strings: translations({
 			de: {
 				'projects': 'Projekte',
@@ -1630,8 +1632,19 @@ const WorkspacesView = Vue.extend ({
 				mine: w => w.canShare (),
 				shared: w => !w.canShare(),
 				};
+			const searchFunc = function (w) {
+				const s = this.filtertext;
+				if (s) {
+					const sl = s.toLowerCase ();
+					const searchFields = ['name', 'description'];
+					return searchFields.reduce ((last, name) => last || w.metadata[name].toLowerCase().indexOf (sl) != -1, false);
+				} else {
+					return true;
+				}
+			}.bind (this);
 			if (!this.disabled) {
-				return this.state.workspaces.all().filter (filterFunc[this.filter]).sort (Workspace.compareName);
+				const f = w => [filterFunc[this.filter], searchFunc].reduce ((last, f) => last && f(w), true)
+				return this.state.workspaces.all().filter (f).sort (Workspace.compareName);
 			} else {
 				return [];
 			}},
