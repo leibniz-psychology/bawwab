@@ -161,7 +161,9 @@ class ProcessManager {
 		this.socket.addEventListener ('open', this.onOpen.bind (this));
 		this.socket.addEventListener ('message', this.onMessage.bind (this));
 		this.socket.addEventListener ('close', this.doReconnect.bind (this));
-		this.socket.addEventListener ('error', this.doReconnect.bind (this));
+		/* onclose is called after an error, so no need to reconnect onerror
+		 * too */
+		//this.socket.addEventListener ('error', this.doReconnect.bind (this));
 	}
 
 	/* Connection was opened.
@@ -176,7 +178,7 @@ class ProcessManager {
 		console.debug ('socket is now closed', this, event);
 		/* delay the reconnect, so we don’t cause a reconnect storm */
 		window.setTimeout (function () { this.connect (); }.bind (this), this.connectBackoff);
-		this.connectBackoff = this.connectBackoff * 2;
+		this.connectBackoff = Math.min (this.connectBackoff * 2, 5*1000);
 	}
 
 	/* A message was received from the server.
