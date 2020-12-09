@@ -41,6 +41,8 @@ import asyncssh
 from .util import randomSecret, now
 from . import audit
 
+logger = logger.getChild (__name__)
+
 bp = Blueprint ('user')
 
 class UserConnectionManager:

@@ -26,10 +26,11 @@ from sanic import Blueprint
 from sanic.log import logger
 from sanic.response import html, json
 
+logger = logger.getChild (__name__)
 bp = Blueprint ('csp')
 
 @bp.route ('/', methods=['POST'])
 async def report (request):
-	logger.error (f'CSP report: {request.json}')
+	logger.error (f'{request.json}')
 	return json ({})
 

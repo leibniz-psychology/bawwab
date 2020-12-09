@@ -38,6 +38,8 @@ from .user import User
 from .action import getAction
 from .util import randomSecret
 
+logger = logger.getChild (__name__)
+
 bp = Blueprint('process')
 
 # all sockets for a single user, so we can broadcast messages

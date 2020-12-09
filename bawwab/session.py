@@ -39,6 +39,7 @@ from .util import now, randomSecret
 from .oauth2 import KeycloakClient, Oauth2Error
 from . import audit
 
+logger = logger.getChild (__name__)
 # do not change this value unless you know how to migrate your database
 sessionNameLen = 32
 

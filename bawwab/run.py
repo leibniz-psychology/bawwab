@@ -32,6 +32,8 @@ from pypika import Query, Table, Field
 
 from . import session, user, action, status, process, csp, filesystem
 
+logger = logger.getChild (__name__)
+
 def socketSession (path):
 	conn = aiohttp.UnixConnector (path=path)
 	return aiohttp.ClientSession(connector=conn)

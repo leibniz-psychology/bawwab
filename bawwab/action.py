@@ -37,6 +37,8 @@ from tortoise import fields
 from . import audit
 from .util import now, randomSecret
 
+logger = logger.getChild (__name__)
+
 class Action (Model):
 	# token is hashed, so a database breach does not expose all actions and
 	# hexencoded, so SQL-lookups work
