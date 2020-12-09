@@ -53,11 +53,9 @@ class UserConnectionManager:
 		self.host = host
 		self.knownHosts = knownHosts
 
-	async def get (self, user):
+	async def _getConnection (self, user):
 		conn = self._conns.get (user, None)
-		# XXX: accessing asyncssh internals here, but there is no way to check
-		# whether a connection is closed
-		if not conn or conn._close_event.is_set ():
+		if conn is None:
 			logger.debug (f'establishing new SSH connection for {user}')
 			conn = await asyncssh.connect (
 					host=self.host,
@@ -68,6 +66,22 @@ class UserConnectionManager:
 					)
 			self._conns[user] = conn
 		return conn
+
+	async def _invalidate (self, user):
+		conn = self._conns.pop (user)
+		conn.close ()
+		await conn.wait_closed ()
+
+	async def getChannel (self, user, kind, *args, **kwargs):
+		for i in range (10):
+			try:
+				conn = await self._getConnection (user)
+				f = getattr (conn, kind)
+				return await f (*args, **kwargs)
+			except asyncssh.misc.ChannelOpenError:
+				logger.error (f'channel {kind} for {user!r} was invalid, opening new connection')
+				await self._invalidate (user)
+		raise Exception ('bug')
 
 	async def aclose (self):
 		for c in self._conns.values ():
@@ -98,8 +112,8 @@ class User (Model):
 	def password (self, password):
 		self.passwordEncrypted = self.crypter.encrypt (password.encode ('utf-8'))
 
-	async def getConnection (self):
-		return await connmgr.get (self)
+	async def getChannel (self, kind, *args, **kwargs):
+		return await connmgr.getChannel (self, kind, *args, **kwargs)
 
 async def getStatus ():
 	""" Get module status information """
@@ -191,19 +205,18 @@ async def userDelete (request):
 	if data:
 		# create the file
 		token = data['token']
-		try:
-			conn = await user.getConnection ()
-		except asyncssh.misc.PermissionDenied:
-			raise Forbidden ('locked_out')
 		command = ['touch', token]
 		logger.debug (f'running command {command}')
-		p = await conn.create_process (shlex.join (command))
-		await p.wait ()
-		p.close ()
-		await p.wait_closed ()
-		
-		# call again to confirm
-		await callDelete ('ok')
+		try:
+			p = await user.getChannel ('create_process', shlex.join (command))
+			await p.wait ()
+			p.close ()
+			await p.wait_closed ()
+
+			# call again to confirm
+			await callDelete ('ok')
+		except asyncssh.misc.PermissionDenied:
+			raise Forbidden ('locked_out')
 
 	audit.log ('user.delete', user=user.name, authId=authId)
 	await user.delete ()

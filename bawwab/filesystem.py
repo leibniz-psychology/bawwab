@@ -46,8 +46,6 @@ def translateSSHError ():
 		raise Forbidden ('permissiondenied')
 	except asyncssh.sftp.SFTPFailure:
 		raise ServerError ('error')
-	except asyncssh.misc.ChannelOpenError:
-		raise ServerError ('openchannel')
 
 @bp.route ('/<path:path>', methods=['GET', 'DELETE', 'PUT'], stream=True)
 async def fileGetDelete (request, path):
@@ -67,9 +65,7 @@ async def fileGetDelete (request, path):
 	path = '/' + path
 	filename = path.split ('/')[-1]
 	logger.debug (f'user {user} is requesting file {path}')
-	conn = await user.getConnection ()
-	with translateSSHError ():
-		client = await conn.start_sftp_client ()
+	client = await user.getChannel ('start_sftp_client')
 
 	if request.method == 'GET':
 		with translateSSHError ():

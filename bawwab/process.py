@@ -48,12 +48,12 @@ perUserSockets = defaultdict (list)
 perUserProcesses = defaultdict (dict)
 
 class WebsocketProcess:
-	__slots__ = ('token', 'connection', 'broadcast', 'command',
+	__slots__ = ('token', 'user', 'broadcast', 'command',
 			'messages', 'task', 'process', 'extraData')
 
-	def __init__ (self, token, connection, broadcastFunc, command, extraData):
+	def __init__ (self, token, user, broadcastFunc, command, extraData):
 		self.token = token
-		self.connection = connection
+		self.user = user
 		self.broadcast = broadcastFunc
 		self.command = command
 		self.extraData = extraData
@@ -64,7 +64,7 @@ class WebsocketProcess:
 		self.process = None
 
 	def __repr__ (self):
-		return f'<WebsocketProcess {self.command}, {len (self.messages)} messages>'
+		return f'<WebsocketProcess {self.user!r} {self.command}, {len (self.messages)} messages>'
 
 	async def send (self, msg):
 		self.messages.append (msg)
@@ -110,7 +110,7 @@ class WebsocketProcess:
 				extraData=self.extraData,
 				)
 		await self.send (msg)
-		self.process = p = await self.connection.create_process (shlex.join (self.command))
+		self.process = p = await self.user.getChannel ('create_process', shlex.join (self.command))
 		asyncio.create_task (sendOutput ('stdout', p.stdout))
 		asyncio.create_task (sendOutput ('stderr', p.stderr))
 
@@ -171,25 +171,21 @@ async def processRun (request):
 	else:
 		processes = perUserProcesses[authenticatedUser]
 
-		try:
-			conn = await user.getConnection ()
-		except asyncssh.misc.PermissionDenied:
-			# we have no real way of telling what went wrong, so we just assume
-			# the account is locked.
-			raise Forbidden ('locked_out')
-
 		while True:
 			token = randomSecret ()
 			if token not in processes:
 				break
 
-		p = WebsocketProcess (token, conn,
+		p = WebsocketProcess (token, authenticatedUser,
 				broadcastFunc=partial (broadcast, authenticatedUser),
 				command=command,
 				extraData=extraData)
-		await p.run ()
-		processes[token] = p
-		return jsonResponse ({'status': 'ok', 'token': token})
+		try:
+			await p.run ()
+			processes[token] = p
+			return jsonResponse ({'status': 'ok', 'token': token})
+		except asyncssh.misc.PermissionDenied:
+			raise Forbidden ('locked_out')
 
 @bp.route ('/<token>', methods=['DELETE'])
 async def processKill (request, token):
