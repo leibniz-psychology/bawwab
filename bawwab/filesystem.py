@@ -34,6 +34,7 @@ import asyncssh
 from .user import User
 
 bp = Blueprint('filesystem')
+logger = logger.getChild (__name__)
 
 @contextmanager
 def translateSSHError ():
@@ -45,8 +46,10 @@ def translateSSHError ():
 		raise Forbidden ('permissiondenied')
 	except asyncssh.sftp.SFTPFailure:
 		raise ServerError ('error')
+	except asyncssh.misc.ChannelOpenError:
+		raise ServerError ('openchannel')
 
-@bp.route ('/<path:path>', methods=['GET', 'DELETE'])
+@bp.route ('/<path:path>', methods=['GET', 'DELETE', 'PUT'], stream=True)
 async def fileGetDelete (request, path):
 	"""
 	Fetch or delete a file
@@ -65,7 +68,8 @@ async def fileGetDelete (request, path):
 	filename = path.split ('/')[-1]
 	logger.debug (f'user {user} is requesting file {path}')
 	conn = await user.getConnection ()
-	client = await conn.start_sftp_client ()
+	with translateSSHError ():
+		client = await conn.start_sftp_client ()
 
 	if request.method == 'GET':
 		with translateSSHError ():
@@ -101,6 +105,17 @@ async def fileGetDelete (request, path):
 				# disable chunked, because we know the file-size and thus the
 				# browser can show progress
 				chunked=False)
+	elif request.method == 'PUT':
+		with translateSSHError ():
+			fd = await client.open (path, 'wb')
+			while True:
+				buf = await request.stream.read ()
+				if buf is None:
+					break
+				logger.debug (f'got {len (buf)} bytes')
+				await fd.write (buf)
+			await fd.close ()
+			return json ({'status': 'ok'})
 	elif request.method == 'DELETE':
 		with translateSSHError ():
 			await client.remove (path)

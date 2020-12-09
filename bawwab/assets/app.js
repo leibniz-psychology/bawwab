@@ -720,6 +720,7 @@ class Workspaces {
 		registerRunWithCb ('workspaces.create', this.onCreate);
 		/* use same callback */
 		registerRunWithCb ('workspaces.copy', this.onCreate);
+		registerRunWithCb ('workspaces.import', this.onCreate);
 
 		registerRunWithCb ('workspaces.update', this.onUpdate);
 		/* use the same callback */
@@ -904,6 +905,11 @@ class Workspaces {
 		}
 	}
 
+	async import (path) {
+		const args = ['import', path, `${config.publicData}/${this.user.name}`];
+		return await this.runWith ('workspaces.import', null, args);
+	}
+
 	getRunningApplication (ws, a) {
 		const k = ws.metadata._id + '+' + a._id;
 		return this.applications[k];
@@ -1079,7 +1085,7 @@ Vue.component ('language-switcher', {
 Vue.component('action-button', {
 	props: ['icon', 'f', 'importance'],
 	data: function () { return {busy: false, ret: null} },
-	template: `<button v-on:click="clicked" :class="btnclass"><i :class="iconclass"></i> <slot></slot></button>`,
+	template: `<button v-on:click="clicked" :class="btnclass" :disabled="busy"><i :class="iconclass"></i> <slot></slot></button>`,
 	computed: {
 		iconclass: function () {
 			if (this.ret) {
@@ -1167,7 +1173,7 @@ Vue.component('workspace-item', {
 	}),
 	mixins: [i18nMixin],
     template: `<div class="workspaceItem">
-		<div class="wsactions">
+		<div class="actionbar">
 		<ul class="left">
 			<li><router-link :to="{name: 'workspaces'}">{{ t('back') }}</router-link></li>
 		</ul>
@@ -1540,11 +1546,14 @@ Vue.component ('dynamic-footer', {
 const WorkspacesView = Vue.extend ({
 	template: `<div class="workspace-list">
 		<h2>{{ t('projects') }}</h2>
-		<div style="display: flex">
-		<div style="flex-grow: 2"><p>{{ t('description') }}</p></div>
-		<div style="" v-if="!disabled">
-			<p><action-button icon="plus-square" :f="createWorkspace" importance="high">{{ t('create') }}</action-button></p>
-		</div>
+		<div class="actionbar" v-if="!disabled">
+			<div class="left" style="max-width: 50em">
+				<p>{{ t('description') }}</p>
+			</div>
+			<div class="right">
+				<router-link class="btn low" :to="{name: 'workspaceImport'}"><i class="fas fa-file-import"></i> {{ t('import') }}</router-link>
+				<action-button icon="plus-square" :f="createWorkspace" importance="high">{{ t('create') }}</action-button>
+			</div>
 		</div>
 		<form class="filter">
 		<!--<input type="search" id="filtersearch" v-model="filtertext">-->
@@ -1609,6 +1618,7 @@ const WorkspacesView = Vue.extend ({
 				'thtitle': 'Titel',
 				'thdescription': 'Beschreibung',
 				'thactions': 'Aktionen',
+				'import': 'Projekt importieren',
 				},
 			en: {
 				'projects': 'Projects',
@@ -1621,6 +1631,7 @@ const WorkspacesView = Vue.extend ({
 				'thtitle': 'Title',
 				'thdescription': 'Description',
 				'thactions': 'Actions',
+				'import': 'Import project',
 				},
 			}),
 		}),
@@ -1650,7 +1661,7 @@ const WorkspacesView = Vue.extend ({
 			}},
 	},
 	methods: {
-        createWorkspace: async function(data) {
+        createWorkspace: async function() {
 			const w = await this.state.workspaces.create (this.name);
 			this.$router.push ({name: 'workspace', params: {wsid: w.metadata._id}});
         },
@@ -1901,6 +1912,87 @@ const WorkspaceExportView = Vue.extend ({
 		}
 	}
 })
+
+const WorkspaceImportView = Vue.extend ({
+	props: [],
+	template: `<div>
+			<p><router-link :to="{name: 'workspaces'}">{{ t('back') }}</router-link></p>
+			<h2>{{ t('headline') }}</h2>
+			<p>{{ t('description') }}</p>
+			<p>
+				<label for="importFiles">{{ t('fromfile') }}:</label>
+				<input type="file" id="importFiles" @change="validate" :disabled="busy"><br>
+			</p>
+			<p>
+				<action-button icon="file-import" :f="run" importance="high" :disabled="!valid" class="submit">{{ t('submit') }}</action-button>
+			</p>
+</div>`,
+	data: _ => ({
+		state: store.state,
+		path: [],
+		valid: false,
+		busy: false,
+		strings: translations({
+			de: {
+				'back': 'Zurück zur Übersicht',
+				'headline': 'Projekt importieren',
+				'fromfile': 'Aus Datei importieren',
+				'description': 'Hier können Projekte importiert werden. Der Import kann einige Minuten in Anspruch nehmen.',
+				'submit': 'Importieren',
+				},
+			en: {
+				'back': 'Back to overview',
+				'headline': 'Import project',
+				'fromfile': 'Import from file',
+				'description': 'Here you can import projects. The process may take a few minutes.',
+				'submit': 'Import',
+				},
+			}),
+	}),
+	mixins: [i18nMixin],
+	methods: {
+		/* cannot make this reactive (i.e. computed method) for some reason */
+		validate: function () {
+			const filePicker = document.getElementById ('importFiles');
+			this.valid = filePicker.length != 1 && this.state.workspaces;
+		},
+        run: async function() {
+			this.busy = true;
+
+			const filePicker = document.getElementById ('importFiles');
+			const f = filePicker.files[0];
+			/* XXX do not hardcode homedir */
+			const path = `${config.privateData}/${this.state.user.name}/.cache/${f.name}`;
+			const url = new URL (`/api/filesystem${path}`, window.location.href);
+			const r = await fetch (url.toString (), {method: 'PUT', body: f});
+			const j = await r.json();
+			if (r.ok) {
+				this.path.push (path);
+				const ws = await this.state.workspaces.import (path);
+				this.busy = false;
+				this.$router.push ({name: 'workspace', params: {wsid: ws.metadata._id}});
+			} else {
+				this.busy = false;
+				throw Error (j.status);
+			}
+		},
+	},
+	/* Delete temporary files created when leaving the page */
+	beforeDestroy: async function () {
+		console.log ('destroying', this.path);
+		for (let k in this.path) {
+			let r = await fetch (`/api/filesystem${this.path[k]}`, {
+				'method': 'DELETE'
+			});
+			if (r.ok) {
+				/* this is fine */
+			} else {
+				console.log('cannot destroy export', r);
+			}
+		}
+	}
+})
+
 const TermsOfServiceView = Vue.extend ({
 	props: ['next'],
 	template: `<div><h2>Nutzungsbedingungen</h2>
@@ -2341,6 +2433,7 @@ const routes = [
 	{ path: '/terms', component: TermsOfServiceView, name: 'terms', props: (route) => ({ next: route.query.next }) },
 	{ path: '/legal', component: LegalView, name: 'legal' },
 	{ path: '/workspaces', component: WorkspacesView, name: 'workspaces' },
+	{ path: '/workspaces/import', component: WorkspaceImportView, name: 'workspaceImport' },
 	{ path: '/workspaces/:wsid', component: WorkspaceView, name: 'workspace', props: true },
 	{ path: '/workspaces/:wsid/export', component: WorkspaceExportView, name: 'workspaceExport', props: true },
 	{ path: '/workspaces/:wsid/:appid/:appPath*',
