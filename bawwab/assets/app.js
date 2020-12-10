@@ -671,15 +671,21 @@ class Session {
 /* Unix user
  */
 class User {
-	constructor (name) {
+	constructor (name, motd, canLogin) {
 		this.name = name;
+		this.motd = motd;
+		this.canLogin = canLogin;
+	}
+
+	static fromJson (j) {
+		return new User (j.name, j.motd, j.canLogin);
 	}
 
 	static async get () {
 		const r = await fetch ('/api/user');
 		const j = await r.json ();
 		if (r.ok) {
-			return new User (j.name);
+			return User.fromJson (j);
 		} else {
 			throw Error (j.status);
 		}
@@ -695,7 +701,7 @@ class User {
 				});
 		const j = await r.json ();
 		if (r.ok) {
-			return new User (j.name);
+			return User.fromJson (j);
 		} else {
 			throw Error (j.status);
 		}
@@ -940,12 +946,6 @@ class Workspaces {
 	}
 }
 
-class LockedOutError extends Error {
-	constructor(...params) {
-		super(...params);
-	}
-}
-
 const store = {
 	state: {
 		processes: null,
@@ -979,7 +979,8 @@ const store = {
 				this.state.user = null;
 			}
 		}
-		if (this.state.user) {
+
+		if (this.state.user && this.state.user.canLogin) {
 			this.state.workspaces = new Workspaces (this.state.events, this.state.user);
 		} else {
 			this.state.workspaces = null;
@@ -994,12 +995,8 @@ const store = {
 				await this.state.events.setAllowedHandler (/^workspaces.fetch$/);
 				await this.state.workspaces.fetch ();
 			} catch (e) {
-				if (e.message == 'locked_out') {
-					this.state.workspaces = new LockedOutError ();
-				} else {
-					this.state.workspaces = null;
-					throw e;
-				}
+				this.state.workspaces = null;
+				throw e;
 			}
 		}
 		/* allow all events */
@@ -1008,9 +1005,8 @@ const store = {
 		await this.state.ready.notify ();
 	},
 
-	/* XXX: Move this to a user property that indicates we can run SSH commands */
 	haveWorkspaces: function () {
-		return this.state.workspaces && !(this.state.workspaces instanceof Error);
+		return this.state.workspaces !== null;
 	},
 };
 
@@ -1640,7 +1636,7 @@ const WorkspacesView = Vue.extend ({
 		}),
 	mixins: [i18nMixin],
 	computed: {
-		disabled: function() { return !this.state.workspaces || this.state.workspaces instanceof Error; },
+		disabled: function() { return !this.state.workspaces; },
 		filteredWorkspaces: function () {
 			const filterFunc = {
 				mine: w => w.canShare (),
@@ -2205,11 +2201,12 @@ const AccountView = Vue.extend ({
 		<dt>{{ t('unixaccount') }}</dt>
 		<dd>{{ state.user.name }}</dd>
 	</dl>
-	<h3>{{ t('delete') }}</h3>
-	<p v-if="canDelete">
-		<action-button :f="askDeleteAccount" icon="trash">{{ t('delete') }}</action-button>
-	</p>
-	<p v-else><i class="fa fa-exclamation-triangle"></i> {{ t('locked') }}</p>
+	<div v-if="canDelete">
+		<h3>{{ t('delete') }}</h3>
+		<p>
+			<action-button :f="askDeleteAccount" icon="trash">{{ t('delete') }}</action-button>
+		</p>
+	</div>
 </div>`,
 	data: _ => ({
 		state: store.state,
@@ -2245,7 +2242,7 @@ const AccountView = Vue.extend ({
 			return this.state.session.oauthInfo;
 		},
 		canDelete: function () {
-			return store.haveWorkspaces ();
+			return store.state.user.canLogin;
 		},
 	},
 	methods: {
@@ -2510,10 +2507,13 @@ const app = new Vue({
 			return store.haveWorkspaces ();
 		},
 		isLockedOut: function () {
-			return this.state.workspaces instanceof LockedOutError;
+			return this.state.user && !this.state.user.canLogin;
 		},
 		supportMail: function () {
 			return 'psychnotebook@leibniz-psychology.org';
+		},
+		motd: function () {
+			return this.state.user ? this.state.user.motd : null;
 		},
 	},
 	watch: {

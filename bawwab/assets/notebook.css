@@ -393,14 +393,33 @@ table.workspaces .actions li {
   }
 }
 
-.accountLocked {
-	background-color: var(--magenta-base);
+.message {
 	color: white;
 	padding: 1em;
 	margin: 1em 0;
+	display: flex;
+	align-items: center;
 }
 
-.accountLocked a {
+.message a {
 	color: white;
+}
+
+.message.warning {
+	background-color: var(--magenta-base);
+}
+
+.message.info {
+	background-color: var(--green-base);
+}
+
+.message i.fa {
+	font-size: 1.5em;
+	margin-right: 0.5em;
+	text-decoration: underline;
+}
+
+.message pre {
+	margin: 0;
 }
 

@@ -25,6 +25,7 @@ User management.
 import asyncio, shlex
 from functools import wraps
 from datetime import timedelta
+from collections import namedtuple
 
 from tortoise.models import Model
 from tortoise import fields
@@ -45,6 +46,8 @@ logger = logger.getChild (__name__)
 
 bp = Blueprint ('user')
 
+UserConnection = namedtuple ('UserConnection', ['conn', 'motd'])
+
 class UserConnectionManager:
 	""" Manage per-user SSH connection """
 
@@ -54,8 +57,8 @@ class UserConnectionManager:
 		self.knownHosts = knownHosts
 
 	async def _getConnection (self, user):
-		conn = self._conns.get (user, None)
-		if conn is None:
+		c = self._conns.get (user, None)
+		if c is None:
 			logger.debug (f'establishing new SSH connection for {user}')
 			conn = await asyncssh.connect (
 					host=self.host,
@@ -64,18 +67,30 @@ class UserConnectionManager:
 					password=user.password,
 					options=asyncssh.SSHClientConnectionOptions (known_hosts=self.knownHosts),
 					)
-			self._conns[user] = conn
-		return conn
+			try:
+				stdin, stdout, stderr = await conn.open_session ()
+			except asyncssh.misc.ChannelOpenError:
+				raise Exception ('channel_open')
+
+			# get motd
+			try:
+				motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
+				logger.debug (f'got motd for {user}: {motd}')
+			except asyncio.TimeoutError:
+				motd = None
+
+			c = self._conns[user] = UserConnection (conn=conn, motd=motd)
+		return c
 
 	async def _invalidate (self, user):
-		conn = self._conns.pop (user)
-		conn.close ()
-		await conn.wait_closed ()
+		c = self._conns.pop (user)
+		c.conn.close ()
+		await c.conn.wait_closed ()
 
 	async def getChannel (self, user, kind, *args, **kwargs):
 		for i in range (10):
 			try:
-				conn = await self._getConnection (user)
+				conn = (await self._getConnection (user)).conn
 				f = getattr (conn, kind)
 				return await f (*args, **kwargs)
 			except asyncssh.misc.ChannelOpenError:
@@ -83,10 +98,14 @@ class UserConnectionManager:
 				await self._invalidate (user)
 		raise Exception ('bug')
 
+	async def getMotd (self, user):
+		c = await self._getConnection (user)
+		return c.motd
+
 	async def aclose (self):
 		for c in self._conns.values ():
-			c.close ()
-			await c.wait_closed ()
+			c.conn.close ()
+			await c.conn.wait_closed ()
 
 class User (Model):
 	crypter = None
@@ -115,6 +134,9 @@ class User (Model):
 	async def getChannel (self, kind, *args, **kwargs):
 		return await connmgr.getChannel (self, kind, *args, **kwargs)
 
+	async def getMotd (self):
+		return await connmgr.getMotd (self)
+
 def authenticated (f):
 	@wraps(f)
 	async def wrapper (request, *args, **kwds):
@@ -134,6 +156,21 @@ async def getStatus ():
 			total=await User.filter().count (),
 			)
 
+async def makeUserResponse (user):
+	try:
+		motd = await user.getMotd ()
+		canLogin = True
+	except asyncssh.misc.PermissionDenied:
+		motd = None
+		canLogin = False
+
+	return json (dict (
+		name=user.name,
+		password=user.password,
+		motd=motd,
+		canLogin=canLogin,
+		))
+
 @bp.route ('/', methods=['GET'])
 async def userGet (request):
 	session = request.ctx.session
@@ -142,10 +179,8 @@ async def userGet (request):
 	if authId is not None:
 		user = await User.get_or_none (authId=session.authId)
 		if user is not None:
-			return json (dict (
-				name=user.name,
-				password=user.password,
-				))
+			return await makeUserResponse (user)
+
 	raise NotFound ('nonexistent')
 
 @bp.route ('/', methods=['POST'])
@@ -177,10 +212,7 @@ async def userCreate (request):
 	user.password = data['password']
 	await user.save ()
 
-	return json (dict (
-		name=user.name,
-		password=user.password,
-		))
+	return await makeUserResponse (user)
 
 @bp.route ('/', methods=['DELETE'])
 @authenticated

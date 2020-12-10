@@ -77,7 +77,8 @@
         <div class="wrapped pure-g">
           <div class="pure-u-1">
             <main>
-				<div v-if="isLockedOut" class="accountLocked"><i class="fa fa-exclamation-triangle"></i> <span v-html="t('locked', {mail: supportMail})"></span></div>
+				<div v-if="isLockedOut" class="message warning"><i class="fa fa-exclamation-triangle"></i> <span v-html="t('locked', {mail: supportMail})"></span></div>
+				<div v-if="motd" class="message info"><i class="fa fa-info"></i><pre>{{ motd }}</pre></div>
 				<p style="text-align: center" v-if="loading">{{ t('loading') }}<br><spinner :big="true"></spinner></p>
 				<router-view v-else></router-view>
             </main>
