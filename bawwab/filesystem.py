@@ -31,7 +31,7 @@ from sanic.log import logger
 from sanic.exceptions import Forbidden, NotFound, ServerError
 import asyncssh
 
-from .user import User
+from .user import User, authenticated
 
 bp = Blueprint('filesystem')
 logger = logger.getChild (__name__)
@@ -48,19 +48,11 @@ def translateSSHError ():
 		raise ServerError ('error')
 
 @bp.route ('/<path:path>', methods=['GET', 'DELETE', 'PUT'], stream=True)
-async def fileGetDelete (request, path):
+@authenticated
+async def fileGetDelete (request, user, path):
 	"""
 	Fetch or delete a file
 	"""
-
-	session = request.ctx.session
-	try:
-		authenticatedAuthId = session.authId
-	except KeyError:
-		raise Forbidden ('unauthenticated')
-	user = await User.get_or_none (authId=authenticatedAuthId)
-	if user is None:
-		raise Forbidden ('unauthenticated')
 
 	path = '/' + path
 	filename = path.split ('/')[-1]

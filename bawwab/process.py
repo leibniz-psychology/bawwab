@@ -34,7 +34,7 @@ from sanic.exceptions import Forbidden, InvalidUsage, ServerError
 
 import asyncssh
 
-from .user import User
+from .user import User, authenticated
 from .action import getAction
 from .util import randomSecret
 
@@ -130,16 +130,10 @@ async def getStatus ():
 		)
 
 @bp.route ('/', methods=['POST'])
-async def processRun (request):
+@authenticated
+async def processRun (request, authenticatedUser):
 	def substitute (s):
 		return s.format (user=authenticatedUser.name)
-
-	session = request.ctx.session
-	try:
-		authenticatedAuthId = session.authId
-	except KeyError:
-		raise Forbidden ('unauthenticated')
-	authenticatedUser = await User.get_or_none (authId=authenticatedAuthId)
 
 	reqData = request.json
 	actionToken = reqData.get ('action', None)
@@ -150,9 +144,7 @@ async def processRun (request):
 	isCommand = bool (command)
 
 	user = None
-	if authenticatedUser is None:
-		raise Forbidden ('unauthenticated')
-	elif isAction and isCommand:
+	if isAction and isCommand:
 		# cannot have both at the same time
 		raise InvalidUsage ('make_up_your_mind')
 	elif isAction:
@@ -199,40 +191,31 @@ async def broadcast (recipient, msg):
 		logger.debug (f'no sockets for {recipient}')
 
 @bp.websocket('/notify')
-async def processNotify (request, ws):
-	session = request.ctx.session
-	try:
-		authenticatedAuthId = session.authId
-	except KeyError:
-		raise Forbidden ('unauthenticated')
-	authenticatedUser = await User.get_or_none (authId=authenticatedAuthId)
-
+@authenticated
+async def processNotify (request, user, ws):
 	# first send the process state
-	if authenticatedUser is not None:
-		processes = perUserProcesses[authenticatedUser]
-		for k, p in processes.items ():
-			# do not replay if dead
-			if p.process.is_closing ():
-				continue
-			logger.debug (f'replaying messages for {p}')
-			# must be in order
-			for msg in p.messages:
-				await ws.send (json.dumps (msg))
+	processes = perUserProcesses[user]
+	for k, p in processes.items ():
+		# do not replay if dead
+		if p.process.is_closing ():
+			continue
+		logger.debug (f'replaying messages for {p}')
+		# must be in order
+		for msg in p.messages:
+			await ws.send (json.dumps (msg))
 
 	# then add the socket to broadcast
-	if authenticatedUser is not None:
-		perUserSockets[authenticatedUser].append (ws)
+	perUserSockets[user].append (ws)
 
 	try:
 		while True:
 			# we don’t support any requests and discard any data sent
 			data = await ws.recv ()
 	finally:
-		if authenticatedUser is not None:
-			l = perUserSockets[authenticatedUser]
-			l.remove (ws)
-			if len (l) == 0:
-				perUserSockets.pop (authenticatedUser)
+		l = perUserSockets[user]
+		l.remove (ws)
+		if len (l) == 0:
+			perUserSockets.pop (user)
 
 async def cleanupJob ():
 	""" Cleanup dead processes from the perUserProcess store """

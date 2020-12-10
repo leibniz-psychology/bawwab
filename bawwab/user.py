@@ -115,6 +115,18 @@ class User (Model):
 	async def getChannel (self, kind, *args, **kwargs):
 		return await connmgr.getChannel (self, kind, *args, **kwargs)
 
+def authenticated (f):
+	@wraps(f)
+	async def wrapper (request, *args, **kwds):
+		session = request.ctx.session
+		authId = getattr (session, 'authId', None)
+		if authId is not None:
+			user = await User.get_or_none (authId=authId)
+			if user is not None:
+				return await f (request, user, *args, **kwds)
+		raise Forbidden ('unauthenticated')
+	return wrapper
+
 async def getStatus ():
 	""" Get module status information """
 	activeSince = now() - timedelta (days=1)
@@ -126,31 +138,29 @@ async def getStatus ():
 async def userGet (request):
 	session = request.ctx.session
 
-	try:
-		user = await User.filter (authId=session.authId).first ()
-	except KeyError:
-		raise NotFound ('anonymous')
-
-	if not user:
-		raise NotFound ('nonexistent')
-
-	return json (dict (
-		name=user.name,
-		password=user.password,
-		))
+	authId = getattr (session, 'authId', None)
+	if authId is not None:
+		user = await User.get_or_none (authId=session.authId)
+		if user is not None:
+			return json (dict (
+				name=user.name,
+				password=user.password,
+				))
+	raise NotFound ('nonexistent')
 
 @bp.route ('/', methods=['POST'])
 async def userCreate (request):
 	session = request.ctx.session
 	form = request.json
 
-	try:
-		form['authorization'] = session.authId
-	except KeyError:
+	authId = getattr (session, 'authId', None)
+	if authId is None:
 		raise Forbidden ('anonymous')
 
-	user = await User.filter (authId=session.authId).first ()
-	if user:
+	form['authorization'] = authId
+
+	user = await User.get_or_none (authId=authId)
+	if user is not None:
 		raise Forbidden ('exists')
 
 	try:
@@ -163,7 +173,7 @@ async def userCreate (request):
 		audit.log ('user.create.usermgrd_connect_failure')
 		raise ServiceUnavailable ('backend')
 
-	user = User (authId=session.authId, name=data['user'])
+	user = User (authId=authId, name=data['user'])
 	user.password = data['password']
 	await user.save ()
 
@@ -173,7 +183,8 @@ async def userCreate (request):
 		))
 
 @bp.route ('/', methods=['DELETE'])
-async def userDelete (request):
+@authenticated
+async def userDelete (request, user):
 	async def callDelete (expectedStatus):
 		try:
 			logger.debug (f'calling delete user for {user.name}')
@@ -194,13 +205,6 @@ async def userDelete (request):
 					authId=authId)
 			raise ServiceUnavailable ('backend')
 
-	session = request.ctx.session
-
-	authId = session.authId
-	user = await User.filter (authId=authId).first ()
-	if not user:
-		raise NotFound ('nonexistent')
-
 	data = await callDelete ('again')
 	if data:
 		# create the file
@@ -218,7 +222,8 @@ async def userDelete (request):
 		except asyncssh.misc.PermissionDenied:
 			raise Forbidden ('locked_out')
 
-	audit.log ('user.delete', user=user.name, authId=authId)
+	session = request.ctx.session
+	audit.log ('user.delete', user=user.name, authId=session.authId)
 	await user.delete ()
 
 	return json ({}, status=200)

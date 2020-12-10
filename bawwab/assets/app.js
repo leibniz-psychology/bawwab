@@ -170,8 +170,6 @@ class ProcessManager {
 	 */
 	onOpen (event) {
 		console.log ('socket is now open', this);
-		/* reset on successful connect */
-		this.connectBackoff = 100;
 	}
 
 	doReconnect (event) {
@@ -184,6 +182,9 @@ class ProcessManager {
 	/* A message was received from the server.
 	 */
 	onMessage (event) {
+		/* reset if we receive a message (i.e. server is alive) */
+		this.connectBackoff = 100;
+
 		const data = JSON.parse (event.data);
 		const token = data.token;
 		console.log ('got message with token', token);

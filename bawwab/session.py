@@ -55,7 +55,7 @@ class Session (Model):
 		if self.oauthInfo and 'sub' in self.oauthInfo:
 			return self.oauthInfo['sub']
 		else:
-			raise KeyError ()
+			raise AttributeError ()
 
 bp = Blueprint ('session')
 
