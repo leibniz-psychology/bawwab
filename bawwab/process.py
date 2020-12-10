@@ -180,8 +180,14 @@ async def processRun (request, authenticatedUser):
 			raise Forbidden ('locked_out')
 
 @bp.route ('/<token>', methods=['DELETE'])
-async def processKill (request, token):
-	pass
+@authenticated
+async def processKill (request, user, token):
+	processes = perUserProcesses[user]
+	p = processes.get (token, None)
+	if p is None:
+		raise NotFound ('notfound')
+	p.process.terminate ()
+	return jsonResponse (dict (status='ok'))
 
 async def broadcast (recipient, msg):
 	if len (perUserSockets[recipient]) > 0:

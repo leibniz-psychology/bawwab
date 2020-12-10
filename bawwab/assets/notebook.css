@@ -214,6 +214,10 @@ span.placeholder {
 	text-align: right;
 }
 
+.appoverlay header .btn {
+	padding: 0 1em;
+}
+
 .appoverlay iframe {
 	flex: 1;
 }

@@ -138,6 +138,16 @@ class Program {
 		}
 		return this.exitStatus;
 	}
+
+	async terminate () {
+		const r = await fetch (`/api/process/${this.token}`, {method: 'DELETE'});
+		const j = await r.json ();
+		if (r.ok) {
+			return true;
+		} else {
+			throw Error (j.status);
+		}
+	}
 }
 
 class ProcessManager {
@@ -470,6 +480,10 @@ class ConductorClient {
 				}
 			}
 		}
+	}
+
+	async terminate () {
+		return await this.process.terminate ();
 	}
 }
 
@@ -2007,6 +2021,7 @@ const ApplicationView = Vue.extend ({
 						   <router-link :to="{name: 'workspaces'}">{{ t('projects') }}</router-link>
 				   </div>
 				   <div class="pure-u-3-5 title">
+							<action-button v-if="program && program.state != ConductorState.exited" :f="terminate" icon="stop">{{ t('stop') }}</action-button>
 						   <router-link v-if="workspace" :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><img :src="icon"> {{ workspace.metadata.name }}</router-link>
 				   </div>
 				   <div class="pure-u-1-5 logo">
@@ -2039,6 +2054,7 @@ const ApplicationView = Vue.extend ({
 				'failed': 'Anwendung konnte nicht ausgeführt werden. (%{reason})',
 				'projects': 'Projekte',
 				'reset': 'Neustarten',
+				'stop': 'Beenden',
 				},
 			en: {
 				'nonexistent': 'Application does not exist.',
@@ -2048,6 +2064,7 @@ const ApplicationView = Vue.extend ({
 				'failed': 'Application failed to run. (%{reason})',
 				'projects': 'Projects',
 				'reset': 'Restart',
+				'stop': 'Stop',
 				},
 		}),
 	}),
@@ -2056,6 +2073,9 @@ const ApplicationView = Vue.extend ({
 		reset: function () {
 			this.state.workspaces.resetRunningApplication (this.workspace, this.application);
 		},
+		terminate: async function () {
+			await this.program.terminate ();
+		}
 	},
 	computed: {
 		/* argument is a string */
