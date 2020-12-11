@@ -1298,6 +1298,20 @@ Vue.component('application-list', {
 	</div>`,
 });
 
+/* Display desktop icon for application */
+Vue.component('application-icon', {
+    props: ['workspace', 'application', 'height'],
+    template: `<img :src="icon" :style="style">`,
+	computed: {
+		icon() {
+			return this.application.icon ? `/api/filesystem${this.workspace.path}/.guix-profile/share/icons/hicolor/scalable/apps/${this.application.icon}.svg?inline=1` : null;
+		},
+		style() {
+			return `height: ${this.height}; vertical-align: middle;`;
+		}
+	},
+});
+
 Vue.component('application-item', {
     props: ['workspace', 'application'],
 	mixins: [i18nMixin],
@@ -1314,7 +1328,7 @@ Vue.component('application-item', {
 		}),
     template: `<div class="pure-g application">
 		<div class="pure-u-md-4-5 pure-u-1">
-			<img v-if="icon" :src="icon" style="height: 3em; vertical-align: middle;">
+			<application-icon :workspace="workspace" :application="application" height="3em"></application-icon>
 			{{ name }}. {{ description }}
 		</div>
 		<div class="pure-u-md-1-5 pure-u-1 actions">
@@ -1323,9 +1337,6 @@ Vue.component('application-item', {
 		</router-link>
 		</div></div>`,
 	computed: {
-		icon() {
-			return this.application.icon ? `/assets/img/${this.application.icon}.svg` : null;
-		},
 		name() {
 			let name = this.application[`name[${this.language}]`];
 			if (!name) {
@@ -1605,7 +1616,7 @@ const WorkspacesView = Vue.extend ({
 				<ul>
 					<li v-for="a in w.runnableApplications ()" :key="a._id">
 						<router-link :to="{name: 'application', params: {wsid: w.metadata._id, appid: a._id}}">
-							<img v-if="icon(a)" :src="icon(a)" style="height: 1.5em; vertical-align: middle;">
+							<application-icon :workspace="w" :application="a" height="1.5em"></application-icon>
 						</router-link>
 					</li>
 				</ul>
@@ -1680,9 +1691,6 @@ const WorkspacesView = Vue.extend ({
         },
 		formatDate: function (d) {
 			return new Intl.DateTimeFormat ('de-DE', {day: 'numeric', month: 'long', year: 'numeric'}).format(d);
-		},
-		icon(a) {
-			return a.icon ? `/assets/img/${a.icon}.svg` : null;
 		},
 		goTo(wsid) {
 			this.$router.push ({name: 'workspace', params: {wsid: wsid}});
@@ -2022,7 +2030,7 @@ const ApplicationView = Vue.extend ({
 				   </div>
 				   <div class="pure-u-3-5 title">
 							<action-button v-if="program && program.state != ConductorState.exited" :f="terminate" icon="stop">{{ t('stop') }}</action-button>
-						   <router-link v-if="workspace" :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><img :src="icon"> {{ workspace.metadata.name }}</router-link>
+						   <router-link v-if="workspace" :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><application-icon :workspace="workspace" :application="application"></application-icon> {{ workspace.metadata.name }}</router-link>
 				   </div>
 				   <div class="pure-u-1-5 logo">
 						   <router-link :to="{name: 'index'}"><img src="https://www.lifp.de/assets/images/psychnotebook.svg" style="height: 1.5em; filter: invert(100%) opacity(50%);"></router-link>
@@ -2093,9 +2101,6 @@ const ApplicationView = Vue.extend ({
 				return null;
 			}
 			return workspace.applications.filter(elem => elem._id == this.appid)[0];
-		},
-		icon: function () {
-			return this.application && this.application.icon ? `/assets/img/${this.application.icon}.svg` : null;
 		},
 		url: function () {
 			console.log ('program is', this.program);

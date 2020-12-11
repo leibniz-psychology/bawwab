@@ -22,7 +22,7 @@
 File I/O through SSH
 """
 
-import stat
+import stat, mimetypes
 from contextlib import contextmanager
 
 from sanic import Blueprint
@@ -84,12 +84,21 @@ async def fileGetDelete (request, user, path):
 			client.exit ()
 			await client.wait_closed ()
 
-		return stream (doStream,
-				headers={
-				'Content-Disposition': f'attachment; filename="{filename}"',
+		mimetype, encoding = mimetypes.guess_type (filename)
+		headers = {
 				'Content-Length': f'{s.size}',
-				},
-				content_type='application/octet-stream',
+				# implement strict security policy, essentially disallowing
+				# everything (running scripts, submitting forms, …). Hopefully
+				# this make serving content from the same origin secure.
+				'Content-Security-Policy': "sandbox; default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+				}
+		inlineAllowed = {'image/svg+xml', }
+		inline = 'inline' in request.args and mimetype in inlineAllowed
+		if not inline:
+			headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+		return stream (doStream,
+				headers=headers,
+				content_type=mimetype,
 				# disable chunked, because we know the file-size and thus the
 				# browser can show progress
 				chunked=False)
