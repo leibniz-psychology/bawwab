@@ -168,7 +168,7 @@ async def processRun (request, authenticatedUser):
 			if token not in processes:
 				break
 
-		p = WebsocketProcess (token, authenticatedUser,
+		p = WebsocketProcess (token, user,
 				broadcastFunc=partial (broadcast, authenticatedUser),
 				command=command,
 				extraData=extraData)
