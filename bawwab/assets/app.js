@@ -1493,8 +1493,7 @@ Vue.component ('dynamic-footer', {
             </h3>
             <address>
               <p>
-                Leibniz-Zentrum für Psychologische Information und
-                Dokumentation (ZPID)<br>
+				Leibniz-Institut für Psychologie (ZPID)<br>
                 Universitätsring 15<br>
                 54296 Trier
               </p>
