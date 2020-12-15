@@ -163,8 +163,12 @@ async def makeUserResponse (user):
 	except asyncssh.misc.PermissionDenied:
 		motd = None
 		canLogin = False
+	except OSError:
+		# SSH is down
+		return json (dict (status='unavailable'), status=503)
 
 	return json (dict (
+		status='ok',
 		name=user.name,
 		password=user.password,
 		motd=motd,
