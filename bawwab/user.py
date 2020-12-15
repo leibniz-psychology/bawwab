@@ -46,7 +46,11 @@ logger = logger.getChild (__name__)
 
 bp = Blueprint ('user')
 
-UserConnection = namedtuple ('UserConnection', ['conn', 'motd'])
+class UserConnection:
+	def __init__ (self, conn, motd=None, sftp=None):
+		self.conn = conn
+		self.motd = motd
+		self.sftp = sftp
 
 class UserConnectionManager:
 	""" Manage per-user SSH connection """
@@ -79,24 +83,36 @@ class UserConnectionManager:
 			except asyncio.TimeoutError:
 				motd = None
 
-			c = self._conns[user] = UserConnection (conn=conn, motd=motd)
+			c = self._conns[user] = UserConnection (conn=conn, motd=motd, sftp=None)
 		return c
 
 	async def _invalidate (self, user):
 		c = self._conns.pop (user)
+		if c.sftp:
+			c.sftp.exit ()
+			await c.ftp.wait_closed ()
 		c.conn.close ()
 		await c.conn.wait_closed ()
 
 	async def getChannel (self, user, kind, *args, **kwargs):
 		for i in range (10):
 			try:
-				conn = (await self._getConnection (user)).conn
-				f = getattr (conn, kind)
-				return await f (*args, **kwargs)
+				c = await self._getConnection (user)
+				if kind == 'start_sftp_client' and c.sftp:
+					return c.sftp
+				f = getattr (c.conn, kind)
+				ret = await f (*args, **kwargs)
+				if kind == 'start_sftp_client':
+					c.sftp = ret
+				return ret
 			except asyncssh.misc.ChannelOpenError:
 				logger.error (f'channel {kind} for {user!r} was invalid, opening new connection')
 				await self._invalidate (user)
 		raise Exception ('bug')
+
+	async def getSftp (self, user):
+		""" Cached sftp client """
+		return await self.getChannel (user, 'start_sftp_client')
 
 	async def getMotd (self, user):
 		c = await self._getConnection (user)
@@ -136,6 +152,9 @@ class User (Model):
 
 	async def getMotd (self):
 		return await connmgr.getMotd (self)
+
+	async def getSftp (self):
+		return await connmgr.getSftp (self)
 
 def authenticated (f):
 	@wraps(f)

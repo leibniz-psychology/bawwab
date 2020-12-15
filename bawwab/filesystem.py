@@ -57,7 +57,7 @@ async def fileGetDelete (request, user, path):
 	path = '/' + path
 	filename = path.split ('/')[-1]
 	logger.debug (f'user {user} is requesting file {path}')
-	client = await user.getChannel ('start_sftp_client')
+	client = await user.getSftp ()
 
 	if request.method == 'GET':
 		with translateSSHError ():
@@ -81,8 +81,6 @@ async def fileGetDelete (request, user, path):
 					break
 				await response.write (buf)
 			await fd.close ()
-			client.exit ()
-			await client.wait_closed ()
 
 		mimetype, encoding = mimetypes.guess_type (filename)
 		headers = {
