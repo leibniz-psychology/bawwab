@@ -407,6 +407,7 @@ table.workspaces .actions li {
 
 .message a {
 	color: white;
+	text-decoration: underline;
 }
 
 .message.warning {
@@ -417,13 +418,19 @@ table.workspaces .actions li {
 	background-color: var(--green-base);
 }
 
-.message i.fa {
+.message i.icn {
 	font-size: 1.5em;
 	margin-right: 0.5em;
-	text-decoration: underline;
 }
 
 .message pre {
 	margin: 0;
+	white-space: pre-wrap;
+}
+
+.message .close {
+	cursor: pointer;
+	text-align: right;
+	flex-grow: 2;
 }
 
