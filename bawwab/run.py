@@ -90,7 +90,7 @@ def main ():
 				prefix = pkg_resources.resource_filename (__package__, f'assets/')
 				filename = pkg_resources.resource_filename (__package__, f'assets/{path}')
 				# restrict to assets/ directory
-				if os.path.normpath (filename).startswith (prefix):
+				if os.path.normpath (filename).startswith (prefix) and os.path.isfile (filename):
 					return await file_stream (filename)
 				else:
 					logger.debug (f'{path} is not in assets/')
