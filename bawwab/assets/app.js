@@ -1057,6 +1057,24 @@ const i18nMixin = {
 	},
 };
 
+/* taken from https://stackoverflow.com/a/42389266 (CC BY-SA 4.0) */
+Vue.directive('click-outside', {
+  bind: function (el, binding, vnode) {
+    el.clickOutsideEvent = function (event) {
+      // here I check that click was outside the el and his children
+      if (!(el == event.target || el.contains(event.target))) {
+        // and if it did, call method provided in attribute value
+        vnode.context[binding.expression](event);
+      }
+    };
+    document.body.addEventListener('click', el.clickOutsideEvent)
+  },
+  unbind: function (el) {
+    document.body.removeEventListener('click', el.clickOutsideEvent)
+  },
+});
+/* end copy */
+
 Vue.component ('spinner', {
 	props: ['big'],
 	template: `<img src="/assets/img/spinner.svg" :class="cls">`,
@@ -1400,7 +1418,7 @@ Vue.component('login-item', {
     template: `<li v-if="session === null || !session.authenticated ()">
 		<a href="/api/session/login">{{ t('login') }}</a></li>
 		<li v-else>
-			<details class="usermenu">
+			<details class="usermenu" v-click-outside="close">
 				<summary><span class="initials">{{ initials }} <i class="fas fa-caret-down"></i></span></summary>
 				<ul>
 					<li><router-link :to="{name: 'account'}">{{ t('account') }}</router-link></li>
@@ -1420,6 +1438,12 @@ Vue.component('login-item', {
 			}
 		}
 	},
+	methods: {
+		close: function () {
+			console.log ("clicked outside");
+			this.$el.querySelector (".usermenu").open = false;
+		},
+	}
 });
 
 /*	Simple modal, which closes (or rather: emits an event) when clicking
