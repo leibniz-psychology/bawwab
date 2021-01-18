@@ -446,6 +446,14 @@ table.workspaces .actions li {
 	align-items: stretch;
 }
 
+.packageSearch > * {
+	margin-right: 0.5em;
+}
+
+.packageSearch > *:last-child {
+	margin-right: 0;
+}
+
 .package p {
 	margin: 0;
 }

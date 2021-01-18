@@ -750,6 +750,7 @@ class Workspaces {
 		registerRunWithCb ('workspaces.share', this.onUpdate);
 		registerRunWithCb ('workspaces.unshare', this.onUpdate);
 		registerRunWithCb ('workspaces.packageModify', this.onUpdate);
+		registerRunWithCb ('workspaces.packageUpgrade', this.onUpdate);
 
 		registerRunWithCb ('workspaces.ignore', this.onIgnore);
 
@@ -948,6 +949,11 @@ class Workspaces {
 	async packageModify (ws, packages) {
 		const args = ['package', 'modify', '--'].concat (packages);
 		return await this.runWith ('workspaces.packageModify', ws, args);
+	}
+
+	async packageUpgrade (ws) {
+		const args = ['package', 'upgrade']
+		return await this.runWith ('workspaces.packageUpgrade', ws, args);
 	}
 
 	getRunningApplication (ws, a) {
@@ -1208,7 +1214,7 @@ Vue.component('package-list', {
 		packages: [],
 		packageFilter: ['installed', 'add', 'remove'],
 		/* Currently applying changes */
-		applying: false,
+		busy: false,
 		strings: translations ({
 			de: {
 				'apply': [
@@ -1223,6 +1229,7 @@ Vue.component('package-list', {
 				'removePackage': 'Entfernen',
 				'addPackage': 'Installieren',
 				'searchPackage': 'Paket suchen',
+				'upgrade': 'Alle Pakete aktualisieren',
 				},
 			en: {
 				'apply': [
@@ -1237,15 +1244,17 @@ Vue.component('package-list', {
 				'removePackage': 'Remove',
 				'addPackage': 'Install',
 				'searchPackage': 'Search package',
+				'upgrade': 'Upgrade all packages',
 				},
 			}),
 	}),
 	mixins: [i18nMixin],
     template: `<div class="packageList">
 		<div class="packageSearch">
-			<input type="search" :placeholder="t('searchPackage')" :disabled="applying" v-model="searchExp">
+			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="searchExp">
 			<spinner v-show="searching"></spinner>
 			<action-button icon="check" :f="doPackageModify" :disabled="!haveModifications" :importance="haveModifications ? 'high' : 'low'">{{ t('apply', packageTransforms.length) }}</action-button>
+			<action-button icon="sync" :f="doPackageUpgrade" importance="medium">{{ t('upgrade') }}</action-button>
 		</div>
 		<div class="packages">
 			<div v-for="ps of filteredPackages" class="package">
@@ -1255,13 +1264,13 @@ Vue.component('package-list', {
 					<span v-if="ps.state.add">{{ t('packageStateAdd') }}</span>
 					<span v-else-if="ps.state.remove">{{ t('packageStateRemove') }}</span>
 					<span v-else-if="ps.state.installed">{{ t('packageStateInstalled') }}</span>
-					<action-button v-if="ps.state.add || ps.state.remove" icon="undo" :disabled="applying" :f="_ => undoPackageAction(ps)">{{ t('undo') }}</action-button>
+					<action-button v-if="ps.state.add || ps.state.remove" icon="undo" :disabled="busy" :f="_ => undoPackageAction(ps)">{{ t('undo') }}</action-button>
 				</p>
 				<p v-if="ps.p.synopsis">{{ ps.p.synopsis }}</p>
 				</div>
 				<div class="right">
-				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="applying" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
-				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="applying" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
+				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="busy" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
+				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
 				</div>
 			</div>
 		</div>
@@ -1299,12 +1308,22 @@ Vue.component('package-list', {
 		}
 	},
     methods: {
+		doPackageUpgrade: async function () {
+			this.busy = true;
+			try {
+				await this.state.workspaces.packageUpgrade (this.workspace);
+			} finally {
+				this.busy = false;
+			}
+			this.packageFilter = ['installed', 'add', 'remove'];
+			this.searchExp = '';
+		},
 		doPackageModify: async function () {
-			this.applying = true;
+			this.busy = true;
 			try {
 				await this.state.workspaces.packageModify (this.workspace, this.packageTransforms);
 			} finally {
-				this.applying = false;
+				this.busy = false;
 			}
 			this.packageFilter = ['installed', 'add', 'remove'];
 			this.searchExp = '';
