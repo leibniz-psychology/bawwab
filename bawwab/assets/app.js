@@ -1,4 +1,4 @@
-/* Copyright 2019–2020 Leibniz Institute for Psychology
+/* Copyright 2019–2021 Leibniz Institute for Psychology
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -749,8 +749,11 @@ class Workspaces {
 		/* use the same callback */
 		registerRunWithCb ('workspaces.share', this.onUpdate);
 		registerRunWithCb ('workspaces.unshare', this.onUpdate);
+		registerRunWithCb ('workspaces.packageModify', this.onUpdate);
 
 		registerRunWithCb ('workspaces.ignore', this.onIgnore);
+
+		registerRunWithCb ('workspaces.packageSearch', this.onPackageSearch);
 
 		this.em.register ('workspaces.delete', this.onDelete.bind (this));
 		this.em.register ('workspaces.start', this.onStart.bind (this));
@@ -931,6 +934,20 @@ class Workspaces {
 	async import (path) {
 		const args = ['import', path, `${config.publicData}/${this.user.name}`];
 		return await this.runWith ('workspaces.import', null, args);
+	}
+
+	async packageSearch (ws, expression) {
+		const args = ['package', 'search', expression];
+		return await this.runWith ('workspaces.packageSearch', ws, args);
+	}
+
+	async onPackageSearch (args, ret) {
+		return ret;
+	}
+
+	async packageModify (ws, packages) {
+		const args = ['package', 'modify', '--'].concat (packages);
+		return await this.runWith ('workspaces.packageModify', ws, args);
 	}
 
 	getRunningApplication (ws, a) {
@@ -1181,6 +1198,197 @@ Vue.component('action-button', {
 	}
 });
 
+Vue.component('package-list', {
+    props: ['workspace'],
+	data: _ => ({
+		searchExp: '',
+		searching: false,
+		searchId: null,
+		/* Package state cache, list of {p: <package>, state: <state>} */
+		packages: [],
+		packageFilter: ['installed', 'add', 'remove'],
+		/* Currently applying changes */
+		applying: false,
+		strings: translations ({
+			de: {
+				'apply': [
+					[0, 0, 'Keine Änderungen'],
+					[1, 1, '%n Änderung anwenden'],
+					[2, null, '%n Änderungen anwenden'],
+					],
+				'undo': 'Rückgängig',
+				'packageStateInstalled': 'Installiert',
+				'packageStateAdd': 'Wird hinzugefügt',
+				'packageStateRemove': 'Wird entfernt',
+				'removePackage': 'Entfernen',
+				'addPackage': 'Installieren',
+				'searchPackage': 'Paket suchen',
+				},
+			en: {
+				'apply': [
+					[0, 0, 'No changes'],
+					[1, 1, 'Apply %n change'],
+					[2, null, 'Apply %n changes'],
+					],
+				'undo': 'Undo',
+				'packageStateInstalled': 'Installed',
+				'packageStateAdd': 'Will be added',
+				'packageStateRemove': 'Will be removed',
+				'removePackage': 'Remove',
+				'addPackage': 'Install',
+				'searchPackage': 'Search package',
+				},
+			}),
+	}),
+	mixins: [i18nMixin],
+    template: `<div class="packageList">
+		<div class="packageSearch">
+			<input type="search" :placeholder="t('searchPackage')" :disabled="applying" v-model="searchExp">
+			<spinner v-show="searching"></spinner>
+			<action-button icon="check" :f="doPackageModify" :disabled="!haveModifications" :importance="haveModifications ? 'high' : 'low'">{{ t('apply', packageTransforms.length) }}</action-button>
+		</div>
+		<div class="packages">
+			<div v-for="ps of filteredPackages" class="package">
+				<div class="left">
+				<p><strong class="name">{{ ps.p.name }}</strong> <small class="version">{{ ps.p.version }}</small></p>
+				<p class="state">
+					<span v-if="ps.state.add">{{ t('packageStateAdd') }}</span>
+					<span v-else-if="ps.state.remove">{{ t('packageStateRemove') }}</span>
+					<span v-else-if="ps.state.installed">{{ t('packageStateInstalled') }}</span>
+					<action-button v-if="ps.state.add || ps.state.remove" icon="undo" :disabled="applying" :f="_ => undoPackageAction(ps)">{{ t('undo') }}</action-button>
+				</p>
+				<p v-if="ps.p.synopsis">{{ ps.p.synopsis }}</p>
+				</div>
+				<div class="right">
+				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="applying" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
+				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="applying" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
+				</div>
+			</div>
+		</div>
+	</div>`,
+	computed: {
+		haveModifications: function () { return this.packageTransforms.length > 0; },
+		filteredPackages: function () {
+			function compare (a, b) {
+				/* changed packages at the top */
+				if ((a.state.add || a.state.remove) && !(b.state.add || b.state.remove)) {
+					return -1;
+				} else if (!(a.state.add || a.state.remove) && (b.state.add || b.state.remove)) {
+					return 1;
+				} else {
+					/* if there’s a relevance score, sort by it */
+					if (a.p.relevance && b.p.relevance) {
+						return b.p.relevance - a.p.relelance;
+					} else {
+						return a.p.name.localeCompare (b.p.name);
+					}
+				}
+			}
+			return this.packages.filter (ps => this.packageFilter.reduce ((accum, f) => accum || ps.state[f], false)).sort (compare);
+		},
+		packageTransforms: function() {
+			return this.packages.reduce (function (accum, ps) {
+				const ret = [];
+				if (ps.state.remove) {
+					ret.push ('-' + ps.p.name);
+				} else if (ps.state.add) {
+					ret.push ('+' + ps.p.name);
+				}
+				return accum.concat (ret);
+			}, []);
+		}
+	},
+    methods: {
+		doPackageModify: async function () {
+			this.applying = true;
+			try {
+				await this.state.workspaces.packageModify (this.workspace, this.packageTransforms);
+			} finally {
+				this.applying = false;
+			}
+			this.packageFilter = ['installed', 'add', 'remove'];
+			this.searchExp = '';
+		},
+		addPackage: function (ps) {
+			if (!ps.state.installed) {
+				ps.state.add = true;
+			}
+			ps.state.remove = false;
+		},
+		removePackage: function (ps) {
+			if (ps.state.installed) {
+				ps.state.remove = true;
+			}
+			ps.state.add = false;
+		},
+		undoPackageAction: function (ps) {
+			ps.state.add = false;
+			ps.state.remove = false;
+		},
+		mergePackageList (l, state) {
+			for (const p of l) {
+				/* XXX: match version too? */
+				const ps = this.packages.find (ps => ps.p.name == p.name);
+				if (!ps) {
+					const s = Object.assign ({installed: false, add: false, remove: false, fromSearch: false}, state);
+					this.packages.push ({state: s, p: p});
+				} else {
+					Object.assign (ps.state, state);
+					Object.assign (ps.p, p);
+				}
+			}
+		},
+		runSearch: function () {
+			const minSearchLen = 3;
+			const debounceMs = 350;
+			if (this.searchExp.length >= minSearchLen) {
+				if (this.searchId) {
+					window.clearTimeout (this.searchId);
+					this.searchId = null;
+				}
+				/* simple debounce */
+				this.searchId = window.setTimeout (function () {
+					/* we cannot cancel search, so store the expression and compare it later */
+					const searchFor = this.searchExp;
+					this.searching = true;
+					this.packages.map (function (ps) { ps.state.fromSearch = false });
+					this.state.workspaces.packageSearch (this.workspace, this.searchExp)
+						.then (function (ret) {
+							/* only apply changes if the expression is still
+							 * the same, otherwise forget results */
+							console.log ('got packages', ret);
+							if (this.searchExp == searchFor) {
+								this.mergePackageList (ret, {fromSearch: true});
+								this.packageFilter = ['fromSearch'];
+								this.searching = false;
+							}
+						}.bind (this));
+				}.bind (this), debounceMs);
+			} else {
+				this.packageFilter = ['installed', 'add', 'remove'];
+				this.packages.map (function (ps) { ps.state.fromSearch = false });
+			}
+		},
+
+    },
+	created: function () {
+		console.log ('updating package cache');
+		this.packages = [];
+		this.mergePackageList (this.workspace.packages, {installed: true});
+	},
+	watch: {
+		searchExp: function () {
+			this.runSearch ();
+		},
+		workspace: function () {
+			/* reset package view */
+			console.log ('updating package cache');
+			this.packages = [];
+			this.mergePackageList (this.workspace.packages, {installed: true});
+		},
+	}
+});
+
 /* XXX Rename to something more sensible? workspace-details? */
 Vue.component('workspace-item', {
     props: ['workspace', 'onDelete', 'onUpdate', 'onShare', 'onDeleteShare', 'onCopy'],
@@ -1206,6 +1414,8 @@ Vue.component('workspace-item', {
 				'noaccess': 'kein Zugriff',
 				'noTitle': 'Klicken, um einen Titel hinzuzufügen',
 				'noDescription': 'Klicken, um eine Beschreibung hinzuzufügen.',
+				'packages': 'Softwarepakete',
+				'applications': 'Anwendungen',
 				},
 			en: {
 				'save': 'Save',
@@ -1226,6 +1436,8 @@ Vue.component('workspace-item', {
 				'noaccess': 'no access',
 				'noTitle': 'Click to add a title',
 				'noDescription': 'Click to add a description.',
+				'packages': 'Packages',
+				'applications': 'Applications',
 				},
 			}),
 	}),
@@ -1275,7 +1487,12 @@ Vue.component('workspace-item', {
 			<span v-else-if="hasDescription" v-text="description"></span>
 			<span v-else class="placeholder" @click="makeDescriptionEditable">{{ t('noDescription') }}</span>
 		</p>
+
+		<h4>{{ t('applications') }}</h4>
 		<application-list :workspace="workspace"></application-list>
+
+		<h4>{{ t('packages') }}</h4>
+		<package-list :workspace="workspace"></package-list>
 	</div>`,
 	computed: {
 		name: function () { return this.workspace.metadata.name },
@@ -1329,7 +1546,7 @@ Vue.component('workspace-item', {
 			}
 			return this.t('noaccess');
 		},
-    }
+    },
 });
 
 Vue.component('application-list', {
@@ -1440,7 +1657,6 @@ Vue.component('login-item', {
 	},
 	methods: {
 		close: function () {
-			console.log ("clicked outside");
 			this.$el.querySelector (".usermenu").open = false;
 		},
 	}

@@ -108,7 +108,11 @@ a {
 	transition-duration: 0.4s;
 }
 
-.btn:disabled, .btn.high:disabled, .btn.high:hover:disabled {
+.btn:disabled:hover {
+	color: inherit;
+}
+
+.btn:disabled, .btn.high:disabled {
 	background-color: var(--gray-base);
 	cursor: not-allowed;
 }
@@ -120,6 +124,9 @@ a {
 
 .btn.high:hover {
 	background-color: #443787;
+}
+.btn.high:disabled:hover {
+	background-color: var(--gray-base);
 }
 
 .btn.small {
@@ -137,7 +144,7 @@ a {
 	color: var(--magenta-text);
 }
 
-input[type="text"], textarea {
+input[type="text"], input[type="search"], textarea {
 	width: 100%;
 	border: 0.1em solid #352071;
 	padding: 0.2em;
@@ -433,4 +440,45 @@ table.workspaces .actions li {
 	text-align: right;
 	flex-grow: 2;
 }
+
+.packageSearch {
+	display: flex;
+	align-items: stretch;
+}
+
+.package p {
+	margin: 0;
+}
+
+.package .version {
+	opacity: 0.7;
+	font-size: 0.8em;
+}
+
+.package {
+	display: flex;
+	padding: 1em;
+}
+
+.package .state {
+	margin: 0;
+}
+
+.package .left {
+	text-align: left;
+	flex-grow: 1;
+}
+.package .right {
+	text-align: right;
+	flex-grow: 3;
+}
+
+.packages div.package:nth-child(2n-1) {
+	background-color: transparent;
+}
+
+.packages div.package:nth-child(2n) {
+	background-color: var(--gray-light);
+}
+
 

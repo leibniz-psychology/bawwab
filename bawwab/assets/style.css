@@ -78,7 +78,7 @@ a:hover {
 h1, h2, h3, h4, h5, h6, .abstract {
 	font-weight: normal;
 	font-family: var(--font-header);
-	margin-top: 0;
+	margin-top: 1em;
 }
 
 h1 {
@@ -86,7 +86,7 @@ h1 {
 	line-height: 1.1em;
 }
 
-h2, #main p.abstract {
+h2, .main p.abstract {
 	font-size: 2.2em;
 	line-height: 1.2em;
 }
@@ -98,13 +98,19 @@ h3 {
 	font-weight: 500;
 }
 
+h4 {
+	font-size: 1.2em;
+	line-height: 1.3em;
+	font-weight: 500;
+}
+
 address {
 	font-style: normal;
 }
 
-#main p,
+.main p,
 footer p,
-#main ul,
+.main ul,
 footer ul {
 	line-height: 1.7em;
 }
@@ -136,7 +142,7 @@ li {
 	color: #FFFFFF !important;
 }
 
-#main p {
+.main p {
 	margin-bottom: 1.6em;
 }
 
@@ -264,7 +270,7 @@ header .product-logo img {
 	color: var(--magenta-text);
 }
 
-#main {
+.main {
 	padding-top: 3em;
 	padding-bottom: 3em;
 	background-color: white;
