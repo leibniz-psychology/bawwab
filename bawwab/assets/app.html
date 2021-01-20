@@ -30,6 +30,7 @@
   </head>
   <body>
 	<div id="app" v-cloak>
+	<router-view v-if="!loading" name="overlay" class="overlay"></router-view>
     <div id="topline">
       <div class="wrapped pure-g">
         <div class="pure-u-1-2">

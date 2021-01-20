@@ -1204,213 +1204,9 @@ Vue.component('action-button', {
 	}
 });
 
-Vue.component('package-list', {
-    props: ['workspace'],
-	data: _ => ({
-		searchExp: '',
-		searching: false,
-		searchId: null,
-		/* Package state cache, list of {p: <package>, state: <state>} */
-		packages: [],
-		packageFilter: ['installed', 'add', 'remove'],
-		/* Currently applying changes */
-		busy: false,
-		strings: translations ({
-			de: {
-				'apply': [
-					[0, 0, 'Keine Änderungen'],
-					[1, 1, '%n Änderung anwenden'],
-					[2, null, '%n Änderungen anwenden'],
-					],
-				'undo': 'Rückgängig',
-				'packageStateInstalled': 'Installiert',
-				'packageStateAdd': 'Wird hinzugefügt',
-				'packageStateRemove': 'Wird entfernt',
-				'removePackage': 'Entfernen',
-				'addPackage': 'Installieren',
-				'searchPackage': 'Paket suchen',
-				'upgrade': 'Alle Pakete aktualisieren',
-				},
-			en: {
-				'apply': [
-					[0, 0, 'No changes'],
-					[1, 1, 'Apply %n change'],
-					[2, null, 'Apply %n changes'],
-					],
-				'undo': 'Undo',
-				'packageStateInstalled': 'Installed',
-				'packageStateAdd': 'Will be added',
-				'packageStateRemove': 'Will be removed',
-				'removePackage': 'Remove',
-				'addPackage': 'Install',
-				'searchPackage': 'Search package',
-				'upgrade': 'Upgrade all packages',
-				},
-			}),
-	}),
-	mixins: [i18nMixin],
-    template: `<div class="packageList">
-		<div class="packageSearch">
-			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="searchExp">
-			<spinner v-show="searching"></spinner>
-			<action-button icon="check" :f="doPackageModify" :disabled="!haveModifications" :importance="haveModifications ? 'high' : 'low'">{{ t('apply', packageTransforms.length) }}</action-button>
-			<action-button icon="sync" :f="doPackageUpgrade" importance="medium">{{ t('upgrade') }}</action-button>
-		</div>
-		<div class="packages">
-			<div v-for="ps of filteredPackages" class="package">
-				<div class="left">
-				<p><strong class="name">{{ ps.p.name }}</strong> <small class="version">{{ ps.p.version }}</small></p>
-				<p class="state">
-					<span v-if="ps.state.add">{{ t('packageStateAdd') }}</span>
-					<span v-else-if="ps.state.remove">{{ t('packageStateRemove') }}</span>
-					<span v-else-if="ps.state.installed">{{ t('packageStateInstalled') }}</span>
-					<action-button v-if="ps.state.add || ps.state.remove" icon="undo" :disabled="busy" :f="_ => undoPackageAction(ps)">{{ t('undo') }}</action-button>
-				</p>
-				<p v-if="ps.p.synopsis">{{ ps.p.synopsis }}</p>
-				</div>
-				<div class="right">
-				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="busy" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
-				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
-				</div>
-			</div>
-		</div>
-	</div>`,
-	computed: {
-		haveModifications: function () { return this.packageTransforms.length > 0; },
-		filteredPackages: function () {
-			function compare (a, b) {
-				/* changed packages at the top */
-				if ((a.state.add || a.state.remove) && !(b.state.add || b.state.remove)) {
-					return -1;
-				} else if (!(a.state.add || a.state.remove) && (b.state.add || b.state.remove)) {
-					return 1;
-				} else {
-					/* if there’s a relevance score, sort by it */
-					if (a.p.relevance && b.p.relevance) {
-						return b.p.relevance - a.p.relelance;
-					} else {
-						return a.p.name.localeCompare (b.p.name);
-					}
-				}
-			}
-			return this.packages.filter (ps => this.packageFilter.reduce ((accum, f) => accum || ps.state[f], false)).sort (compare);
-		},
-		packageTransforms: function() {
-			return this.packages.reduce (function (accum, ps) {
-				const ret = [];
-				if (ps.state.remove) {
-					ret.push ('-' + ps.p.name);
-				} else if (ps.state.add) {
-					ret.push ('+' + ps.p.name);
-				}
-				return accum.concat (ret);
-			}, []);
-		}
-	},
-    methods: {
-		doPackageUpgrade: async function () {
-			this.busy = true;
-			try {
-				await this.state.workspaces.packageUpgrade (this.workspace);
-			} finally {
-				this.busy = false;
-			}
-			this.packageFilter = ['installed', 'add', 'remove'];
-			this.searchExp = '';
-		},
-		doPackageModify: async function () {
-			this.busy = true;
-			try {
-				await this.state.workspaces.packageModify (this.workspace, this.packageTransforms);
-			} finally {
-				this.busy = false;
-			}
-			this.packageFilter = ['installed', 'add', 'remove'];
-			this.searchExp = '';
-		},
-		addPackage: function (ps) {
-			if (!ps.state.installed) {
-				ps.state.add = true;
-			}
-			ps.state.remove = false;
-		},
-		removePackage: function (ps) {
-			if (ps.state.installed) {
-				ps.state.remove = true;
-			}
-			ps.state.add = false;
-		},
-		undoPackageAction: function (ps) {
-			ps.state.add = false;
-			ps.state.remove = false;
-		},
-		mergePackageList (l, state) {
-			for (const p of l) {
-				/* XXX: match version too? */
-				const ps = this.packages.find (ps => ps.p.name == p.name);
-				if (!ps) {
-					const s = Object.assign ({installed: false, add: false, remove: false, fromSearch: false}, state);
-					this.packages.push ({state: s, p: p});
-				} else {
-					Object.assign (ps.state, state);
-					Object.assign (ps.p, p);
-				}
-			}
-		},
-		runSearch: function () {
-			const minSearchLen = 3;
-			const debounceMs = 350;
-			if (this.searchExp.length >= minSearchLen) {
-				if (this.searchId) {
-					window.clearTimeout (this.searchId);
-					this.searchId = null;
-				}
-				/* simple debounce */
-				this.searchId = window.setTimeout (function () {
-					/* we cannot cancel search, so store the expression and compare it later */
-					const searchFor = this.searchExp;
-					this.searching = true;
-					this.packages.map (function (ps) { ps.state.fromSearch = false });
-					this.state.workspaces.packageSearch (this.workspace, this.searchExp)
-						.then (function (ret) {
-							/* only apply changes if the expression is still
-							 * the same, otherwise forget results */
-							console.log ('got packages', ret);
-							if (this.searchExp == searchFor) {
-								this.mergePackageList (ret, {fromSearch: true});
-								this.packageFilter = ['fromSearch'];
-								this.searching = false;
-							}
-						}.bind (this));
-				}.bind (this), debounceMs);
-			} else {
-				this.packageFilter = ['installed', 'add', 'remove'];
-				this.packages.map (function (ps) { ps.state.fromSearch = false });
-			}
-		},
-
-    },
-	created: function () {
-		console.log ('updating package cache');
-		this.packages = [];
-		this.mergePackageList (this.workspace.packages, {installed: true});
-	},
-	watch: {
-		searchExp: function () {
-			this.runSearch ();
-		},
-		workspace: function () {
-			/* reset package view */
-			console.log ('updating package cache');
-			this.packages = [];
-			this.mergePackageList (this.workspace.packages, {installed: true});
-		},
-	}
-});
-
 /* XXX Rename to something more sensible? workspace-details? */
 Vue.component('workspace-item', {
-    props: ['workspace', 'onDelete', 'onUpdate', 'onShare', 'onDeleteShare', 'onCopy'],
+    props: ['workspace', 'onUpdate', 'onDeleteShare', 'onCopy'],
 	data: _ => ({
 		editable: false,
 		strings: translations ({
@@ -1433,8 +1229,7 @@ Vue.component('workspace-item', {
 				'noaccess': 'kein Zugriff',
 				'noTitle': 'Klicken, um einen Titel hinzuzufügen',
 				'noDescription': 'Klicken, um eine Beschreibung hinzuzufügen.',
-				'packages': 'Softwarepakete',
-				'applications': 'Anwendungen',
+				'editpackages': 'Pakete verwalten',
 				},
 			en: {
 				'save': 'Save',
@@ -1455,8 +1250,7 @@ Vue.component('workspace-item', {
 				'noaccess': 'no access',
 				'noTitle': 'Click to add a title',
 				'noDescription': 'Click to add a description.',
-				'packages': 'Packages',
-				'applications': 'Applications',
+				'editpackages': 'Manage packages',
 				},
 			}),
 	}),
@@ -1470,10 +1264,11 @@ Vue.component('workspace-item', {
 			<li v-if="editable"><action-button icon="save" :f="save" importance="high">{{ t('save') }}</action-button></li>
 			<li v-if="editable"><action-button icon="window-close" :f="discard" importance="low">{{ t('cancel') }}</action-button></li>
 			<li v-if="!editable && workspace.canWrite ()"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ t('edit') }}</action-button></li>
-			<li><action-button v-if="workspace.canShare ()" icon="share" :f="doShare">{{ t('share') }}</action-button></li>
+			<li><router-link class="btn" v-if="workspace.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ t('editpackages') }}</router-link></li>
+			<li><router-link class="btn" v-if="workspace.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ t('share') }}</router-link></li>
 			<li><router-link class="btn" v-if="workspace.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ t('export') }}</router-link></li>
 			<li><action-button v-if="workspace.canRead()" icon="copy" :f="doCopy">{{ t('copy') }}</action-button></li>
-			<li><action-button icon="trash" :f="doDelete">{{ workspace.canDelete() ? t('delete') : t('hide') }}</action-button></li>
+			<li><router-link class="btn low" :to="{name: 'workspaceDelete', params: {wsid: workspace.metadata._id}}"><i class="fas fa-trash"></i> {{ workspace.canDelete() ? t('delete') : t('hide') }}</router-link></li>
 		</ul>
 		</div>
 
@@ -1507,11 +1302,7 @@ Vue.component('workspace-item', {
 			<span v-else class="placeholder" @click="makeDescriptionEditable">{{ t('noDescription') }}</span>
 		</p>
 
-		<h4>{{ t('applications') }}</h4>
 		<application-list :workspace="workspace"></application-list>
-
-		<h4>{{ t('packages') }}</h4>
-		<package-list :workspace="workspace"></package-list>
 	</div>`,
 	computed: {
 		name: function () { return this.workspace.metadata.name },
@@ -1543,14 +1334,8 @@ Vue.component('workspace-item', {
 		discard: async function () {
 			this.editable = false;
 		},
-		doDelete: async function () {
-			await this.onDelete (this.workspace);
-		},
 		doDeleteShare: async function (group) {
 			await this.onDeleteShare (this.workspace, group);
-		},
-		doShare: async function (a) {
-			await this.onShare (this.workspace);
 		},
 		doCopy: async function () {
 			await this.onCopy (this.workspace);
@@ -1685,19 +1470,21 @@ Vue.component('login-item', {
  *	outside of its content box
  */
 Vue.component ('modal', {
-	props: ['visible', 'onHide', 'icon', 'title', 'closename'],
+	props: ['icon', 'title', 'closeName', 'closeLink', 'scaling'],
 	template: `<transition name="fade">
-	<div class="modal-overlay" v-if="visible" @click.self="onHide">
-		<div class="modal-content">
+	<div class="modal">
+		<div :class="frameClass">
 			<div class="icon">
 				<h2><i :class="iconStyle"></i></h2>
 			</div>
-			<div style="flex-grow: 1">
+			<div class="content">
 				<h2>{{ title }}</h2>
-				<slot></slot>
+				<div class="userContent">
+					<slot></slot>
+				</div>
 				<div class="buttons">
 					<slot name="buttons"></slot>
-					<button @click="onHide" class="btn low">{{ closename }}</button>
+					<router-link :to="closeLink" class="btn low">{{ closeName }}</router-link>
 				</div>
 			</div>
 		</div>
@@ -1706,6 +1493,9 @@ Vue.component ('modal', {
 	computed: {
 		iconStyle: function () {
 			return `fas fa-${this.icon}`;
+		},
+		frameClass: function() {
+			return 'frame' + (this.scaling ? ' scaling' : ' fixed');
 		},
 	},
 });
@@ -1986,82 +1776,22 @@ const WorkspacesView = Vue.extend ({
 const WorkspaceView = Vue.extend ({
 	props: ['wsid'],
 	template: `<div>
-		<!-- template content is evaluated even if :visible is false, need to block using v-if -->
-		<modal :visible="queryDelete" :onHide="_ => queryDelete=false" v-if="currentWorkspace" icon="trash" :title="canDelete ? t('deletetitle') : t('hidetitle')" :closename="t('cancel')">
-			<p>{{ canDelete ? t('deletequestion', { name: currentWorkspace.metadata.name }) : t('hidequestion', {name: currentWorkspace.metadata.name}) }}</p>
-			<template v-slot:buttons>
-				<action-button :f="deleteWorkspace" icon="trash" importance="high">{{ canDelete ? t('delete') : t('hide') }}</action-button>
-			</template>
-		</modal>
-		<modal :visible="modalShare" :onHide="_ => modalShare=false" icon="users" :title="t('sharetitle')" :closename="t('close')">
-			<select v-model="selectedShareUrl" name="shareKind" size="0">
-			<option selected="selected" :value="false" class="read">{{ t('read') }}</option>
-			<option :value="true" class="write">{{ t('write') }}</option>
-			</select>
-			<p>{{ shareMeaning }}</p>
-			<div>
-				<label for="shareUrl">{{ t('sharelink') }}</label>
-				<div class="textbutton">
-					<input type="text" v-model="shareUrl[selectedShareUrl]" id="shareUrl" readonly="readonly">
-					<action-button :f="_ => copyToClipboard(shareUrl[selectedShareUrl])" icon="copy" importance="high">{{ t('copy') }}</action-button>
-				</div>
-			</div>
-		</modal>
 		<workspace-item v-if="currentWorkspace"
 			:workspace="currentWorkspace"
-			:onDelete="askDeleteWorkspace"
 			:onUpdate="updateWorkspace"
-			:onShare="shareWorkspace"
 			:onDeleteShare="deleteShare"
 			:onCopy="copyWorkspace"></workspace-item>
 		<p v-else>{{ t('nonexistent') }}</p></div>`,
 	data: _ => ({
 		state: store.state,
-		queryDelete: false,
-		/* share url for reading (false), writing (true) */
-		shareUrl: {false: null, true: null},
-		selectedShareUrl: false,
-		modalShare: false,
 		strings: translations({
 			de: {
-				'deletetitle': 'Projekt löschen',
-				'hidetitle': 'Projekt verbergen',
-				'deletequestion': 'Soll das Projekt %{name} wirklich gelöscht werden?',
-				'hidequestion': 'Soll das Projekt %{name} wirklich verborgen werden?',
-				'delete': 'Löschen',
-				'hide': 'Verbergen',
-				'cancel': 'Abbrechen',
 				'nonexistent': 'Projekt existiert nicht.',
-				'sharetitle': 'Projekt teilen',
-				'share': 'Teilen',
-				'close': 'Schließen',
-				'copy': 'Kopieren',
-				'read': 'Nur Lesen',
-				'readMeaning': 'Der Benutzer kann das Projekt nur kopieren.',
-				'write': 'Schreibzugriff',
-				'writeMeaning': 'Der Benutzer kann das Projekt kopieren, Anwendungen starten und alle Daten ändern oder löschen.',
 				'copyname': 'Kopie von %{name}', /* name after copying a project */
-				'sharelink': 'Teile den folgenden Link',
 				},
 			en: {
-				'deletetitle': 'Delete project',
-				'hidetitle': 'Hide project',
-				'deletequestion': 'Do you really want to delete the project %{name}?',
-				'hidequestion': 'Do you really want to hide the project %{name}?',
-				'delete': 'Delete',
-				'hide': 'Hide',
-				'cancel': 'Cancel',
 				'nonexistent': 'Project does not exist.',
-				'sharetitle': 'Share project',
-				'share': 'Share',
-				'close': 'Close',
-				'copy': 'Copy',
-				'read': 'Read-only',
-				'readMeaning': 'The user can only copy this project.',
-				'write': 'Write access',
-				'writeMeaning': 'The user can copy the project, start applications and modify or delete all data.',
 				'copyname': 'Copy of %{name}', /* name after copying a project */
-				'sharelink': 'Share the link below',
 				},
 			}),
 	}),
@@ -2071,51 +1801,9 @@ const WorkspaceView = Vue.extend ({
 		currentWorkspace: function () {
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
 		},
-		canDelete: function () {
-			return this.currentWorkspace.canDelete ();
-		},
-		shareMeaning: function () {
-			if (!this.selectedShareUrl) {
-				return this.t ('readMeaning');
-			} else {
-				return this.t ('writeMeaning');
-			}
-		}
 	},
 	methods: {
-		askDeleteWorkspace: async function () {
-			this.queryDelete = true;
-		},
-        deleteWorkspace: async function() {
-			if (this.canDelete) {
-				await this.workspaces.delete (this.currentWorkspace);
-			} else {
-				await this.workspaces.ignore (this.currentWorkspace);
-			}
-			this.$router.push ({name: 'workspaces'});
-        },
-        shareWorkspace: async function() {
-			/* async resolve both actions */
-			const keys = [false, true];
-			const values = await Promise.all (keys.map (function (isWrite) {
-				return this.workspaces.shareAction (this.currentWorkspace, isWrite);
-			}.bind (this)));
-			for (let i = 0; i < keys.length; i++) {
-				const isWrite = keys[i];
-				const token = values[i];
-				const ident = 'share-' + (isWrite ? 'write' : 'readonly');
-				this.shareUrl[isWrite] = new URL (`/action/${token}#${ident}`, window.location.href);
-			}
-			this.modalShare = true;
-		},
-		copyToClipboard: async function(text) {
-			if (navigator.clipboard) {
-				const ret = await navigator.clipboard.writeText (text);
-				return true;
-			} else {
-				throw Error ('unsupported');
-			}
-		},
+
         updateWorkspace: async function(name, description) {
 			const w = this.currentWorkspace;
 			Vue.set (w.metadata, 'name', name);
@@ -2137,20 +1825,20 @@ const WorkspaceView = Vue.extend ({
 
 const WorkspaceExportView = Vue.extend ({
 	props: ['wsid'],
-	template: `<div>
+	template: `<modal :title="t('headline')" :closeName="t('back')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" icon="file-export">
 <div v-if="workspace">
-<p><router-link :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}">{{ t('back') }}</router-link></p>
-<h2>{{ t('headline') }}</h2>
 <p>{{ t('description', {project: workspace.metadata.name}) }}</p>
 <label for="kind">{{ t('exportas') }}</label>
 <select v-model="kind" name="kind" id="kind" size="0">
 <option v-for="format in supportedFormats" :key="format" :value="format">{{ t('kind-' + format) }}</option>
 </select>
 <p>{{ t('description-' + kind) }}</p>
-<p><action-button :f="run" icon="file-export" importance="high">{{ path[kind] ? t('download') : t('submit') }}</action-button></p>
 </div>
 <p v-else>{{ t('notfound') }}</p>
-</div>`,
+<template v-slot:buttons>
+	<action-button :f="run" icon="file-export" importance="high">{{ path[kind] ? t('download') : t('submit') }}</action-button>
+</template>
+</modal>`,
 	data: _ => ({
 		state: store.state,
 		kind: 'zip',
@@ -2158,7 +1846,6 @@ const WorkspaceExportView = Vue.extend ({
 		supportedFormats: ['zip', 'tar+lzip'],
 		strings: translations({
 			de: {
-				'back': 'Zurück zum Projekt',
 				'headline': 'Projekt exportieren',
 				'description': 'Hier kann das Projekt %{project} in unterschiedlichen Formaten exportiert werden.',
 				'kind-zip': 'ZIP-Archiv',
@@ -2169,9 +1856,9 @@ const WorkspaceExportView = Vue.extend ({
 				'submit': 'Exportieren',
 				'download': 'Herunterladen',
 				'notfound': 'Projekt existiert nicht.',
+				'back': 'Abbrechen',
 				},
 			en: {
-				'back': 'Back to project',
 				'headline': 'Export project',
 				'description': 'Here you can export the project %{project} in different formats.',
 				'kind-zip': 'ZIP archive',
@@ -2182,6 +1869,7 @@ const WorkspaceExportView = Vue.extend ({
 				'submit': 'Export',
 				'download': 'Download',
 				'notfound': 'Project does not exist.',
+				'back': 'Back',
 				},
 			}),
 	}),
@@ -2217,22 +1905,383 @@ const WorkspaceExportView = Vue.extend ({
 			}
 		}
 	}
-})
+});
+
+const WorkspaceDeleteView = Vue.extend ({
+	props: ['wsid'],
+	template: `<modal :title="canDelete ? t('deletetitle') : t('hidetitle')" :closeName="t('cancel')" icon="trash" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true">
+	<p>{{ canDelete ? t('deletequestion', { name: workspace.metadata.name }) : t('hidequestion', {name: workspace.metadata.name}) }}</p>
+	<template v-slot:buttons>
+		<action-button :f="deleteWorkspace" icon="trash" importance="high">{{ canDelete ? t('delete') : t('hide') }}</action-button>
+	</template>
+</modal>`,
+	data: _ => ({
+		state: store.state,
+		strings: translations({
+			de: {
+				'deletetitle': 'Projekt löschen',
+				'hidetitle': 'Projekt verbergen',
+				'deletequestion': 'Soll das Projekt %{name} wirklich gelöscht werden?',
+				'hidequestion': 'Soll das Projekt %{name} wirklich verborgen werden?',
+				'delete': 'Löschen',
+				'hide': 'Verbergen',
+				'cancel': 'Abbrechen',
+				},
+			en: {
+				'deletetitle': 'Delete project',
+				'hidetitle': 'Hide project',
+				'deletequestion': 'Do you really want to delete the project %{name}?',
+				'hidequestion': 'Do you really want to hide the project %{name}?',
+				'delete': 'Delete',
+				'hide': 'Hide',
+				'cancel': 'Cancel',
+				},
+			}),
+	}),
+	mixins: [i18nMixin],
+	computed: {
+		workspaces: function () { return this.state.workspaces; },
+		workspace: function () {
+			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
+		},
+		canDelete: function () {
+			return this.workspace.canDelete ();
+		},
+	},
+	methods: {
+        deleteWorkspace: async function() {
+			if (this.canDelete) {
+				await this.workspaces.delete (this.workspace);
+			} else {
+				await this.workspaces.ignore (this.workspace);
+			}
+			this.$router.push ({name: 'workspaces'});
+        },
+	}
+});
+
+const WorkspacePackagesView = Vue.extend ({
+	props: ['wsid'],
+	data: _ => ({
+		searchExp: '',
+		searching: false,
+		searchId: null,
+		/* Package state cache, list of {p: <package>, state: <state>} */
+		packages: [],
+		packageFilter: ['installed', 'add', 'remove'],
+		/* Currently applying changes */
+		busy: false,
+		strings: translations ({
+			de: {
+				'apply': [
+					[0, 0, 'Keine Änderungen'],
+					[1, 1, '%n Änderung anwenden'],
+					[2, null, '%n Änderungen anwenden'],
+					],
+				'undo': 'Rückgängig',
+				'packageStateInstalled': 'Installiert',
+				'packageStateAdd': 'Wird hinzugefügt',
+				'packageStateRemove': 'Wird entfernt',
+				'removePackage': 'Entfernen',
+				'addPackage': 'Installieren',
+				'searchPackage': 'Paket suchen',
+				'upgrade': 'Alle Pakete aktualisieren',
+				'cancel': 'Abbrechen',
+				'title': 'Pakete verwalten',
+				'nopackages': 'Keine Pakete gefunden',
+				},
+			en: {
+				'apply': [
+					[0, 0, 'No changes'],
+					[1, 1, 'Apply %n change'],
+					[2, null, 'Apply %n changes'],
+					],
+				'undo': 'Undo',
+				'packageStateInstalled': 'Installed',
+				'packageStateAdd': 'Will be added',
+				'packageStateRemove': 'Will be removed',
+				'removePackage': 'Remove',
+				'addPackage': 'Install',
+				'searchPackage': 'Search package',
+				'upgrade': 'Upgrade all packages',
+				'cancel': 'Cancel',
+				'title': 'Manage packages',
+				'nopackages': 'No packages found',
+				},
+			}),
+	}),
+	mixins: [i18nMixin],
+    template: `<modal :title="t('title')" :closeName="t('back')" icon="box" :closeName="t('cancel')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
+		<div class="packageSearch">
+			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="searchExp">
+			<spinner v-show="searching"></spinner>
+		</div>
+		<div class="packages" v-if="filteredPackages.length > 0">
+			<div v-for="ps of filteredPackages" class="package">
+				<div class="left">
+				<p><strong class="name">{{ ps.p.name }}</strong> <small class="version">{{ ps.p.version }}</small></p>
+				<p class="state">
+					<span v-if="ps.state.add">{{ t('packageStateAdd') }}</span>
+					<span v-else-if="ps.state.remove">{{ t('packageStateRemove') }}</span>
+					<span v-else-if="ps.state.installed">{{ t('packageStateInstalled') }}</span>
+					<action-button v-if="ps.state.add || ps.state.remove" icon="undo" :disabled="busy" :f="_ => undoPackageAction(ps)">{{ t('undo') }}</action-button>
+				</p>
+				<p v-if="ps.p.synopsis">{{ ps.p.synopsis }}</p>
+				</div>
+				<div class="right">
+				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="busy" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
+				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
+				</div>
+			</div>
+		</div>
+		<p v-else>{{ t('nopackages') }}</p>
+	<template v-slot:buttons>
+		<action-button icon="check" :f="doPackageModify" :disabled="!haveModifications" :importance="haveModifications ? 'high' : 'low'">{{ t('apply', packageTransforms.length) }}</action-button>
+		<action-button icon="sync" :f="doPackageUpgrade" :disabled="busy" importance="medium">{{ t('upgrade') }}</action-button>
+	</template>
+</modal>`,
+	computed: {
+		haveModifications: function () { return this.packageTransforms.length > 0; },
+		filteredPackages: function () {
+			function compare (a, b) {
+				/* changed packages at the top */
+				if ((a.state.add || a.state.remove) && !(b.state.add || b.state.remove)) {
+					return -1;
+				} else if (!(a.state.add || a.state.remove) && (b.state.add || b.state.remove)) {
+					return 1;
+				} else {
+					/* if there’s a relevance score, sort by it */
+					if (a.p.relevance && b.p.relevance) {
+						return b.p.relevance - a.p.relelance;
+					} else {
+						return a.p.name.localeCompare (b.p.name);
+					}
+				}
+			}
+			return this.packages.filter (ps => this.packageFilter.reduce ((accum, f) => accum || ps.state[f], false)).sort (compare);
+		},
+		packageTransforms: function() {
+			return this.packages.reduce (function (accum, ps) {
+				const ret = [];
+				if (ps.state.remove) {
+					ret.push ('-' + ps.p.name);
+				} else if (ps.state.add) {
+					ret.push ('+' + ps.p.name);
+				}
+				return accum.concat (ret);
+			}, []);
+		},
+		workspaces: function () { return this.state.workspaces; },
+		workspace: function () {
+			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
+		},
+	},
+    methods: {
+		doPackageUpgrade: async function () {
+			this.busy = true;
+			try {
+				await this.state.workspaces.packageUpgrade (this.workspace);
+				this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
+			} finally {
+				this.busy = false;
+			}
+			this.packageFilter = ['installed', 'add', 'remove'];
+			this.searchExp = '';
+		},
+		doPackageModify: async function () {
+			this.busy = true;
+			try {
+				await this.state.workspaces.packageModify (this.workspace, this.packageTransforms);
+				this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
+			} finally {
+				this.busy = false;
+			}
+			this.packageFilter = ['installed', 'add', 'remove'];
+			this.searchExp = '';
+		},
+		addPackage: function (ps) {
+			if (!ps.state.installed) {
+				ps.state.add = true;
+			}
+			ps.state.remove = false;
+		},
+		removePackage: function (ps) {
+			if (ps.state.installed) {
+				ps.state.remove = true;
+			}
+			ps.state.add = false;
+		},
+		undoPackageAction: function (ps) {
+			ps.state.add = false;
+			ps.state.remove = false;
+		},
+		mergePackageList (l, state) {
+			for (const p of l) {
+				/* XXX: match version too? */
+				const ps = this.packages.find (ps => ps.p.name == p.name);
+				if (!ps) {
+					const s = Object.assign ({installed: false, add: false, remove: false, fromSearch: false}, state);
+					this.packages.push ({state: s, p: p});
+				} else {
+					Object.assign (ps.state, state);
+					Object.assign (ps.p, p);
+				}
+			}
+		},
+		runSearch: function () {
+			const minSearchLen = 3;
+			const debounceMs = 350;
+			if (this.searchExp.length >= minSearchLen) {
+				if (this.searchId) {
+					window.clearTimeout (this.searchId);
+					this.searchId = null;
+				}
+				/* simple debounce */
+				this.searchId = window.setTimeout (function () {
+					/* we cannot cancel search, so store the expression and compare it later */
+					const searchFor = this.searchExp;
+					this.searching = true;
+					this.packages.map (function (ps) { ps.state.fromSearch = false });
+					this.state.workspaces.packageSearch (this.workspace, this.searchExp)
+						.then (function (ret) {
+							/* only apply changes if the expression is still
+							 * the same, otherwise forget results */
+							console.log ('got packages', ret);
+							if (this.searchExp == searchFor) {
+								this.mergePackageList (ret, {fromSearch: true});
+								this.packageFilter = ['fromSearch'];
+								this.searching = false;
+							}
+						}.bind (this));
+				}.bind (this), debounceMs);
+			} else {
+				this.packageFilter = ['installed', 'add', 'remove'];
+				this.packages.map (function (ps) { ps.state.fromSearch = false });
+			}
+		},
+
+    },
+	created: function () {
+		console.log ('updating package cache');
+		this.packages = [];
+		this.mergePackageList (this.workspace.packages, {installed: true});
+	},
+	watch: {
+		searchExp: function () {
+			this.runSearch ();
+		},
+		workspace: function () {
+			/* reset package view */
+			console.log ('updating package cache');
+			this.packages = [];
+			this.mergePackageList (this.workspace.packages, {installed: true});
+		},
+	}
+});
+
+
+const WorkspaceShareView = Vue.extend ({
+	props: ['wsid'],
+	template: `<modal icon="users" :title="t('sharetitle')" :closeName="t('close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true">
+			<select v-model="selectedShareUrl" name="shareKind" size="0">
+			<option selected="selected" :value="false" class="read">{{ t('read') }}</option>
+			<option :value="true" class="write">{{ t('write') }}</option>
+			</select>
+			<p>{{ shareMeaning }}</p>
+			<div v-if="shareUrl[selectedShareUrl]">
+				<label for="shareUrl">{{ t('sharelink') }}</label>
+				<div class="textbutton">
+					<input type="text" v-model="shareUrl[selectedShareUrl]" id="shareUrl" readonly="readonly">
+					<action-button :f="_ => copyToClipboard(shareUrl[selectedShareUrl])" icon="copy" importance="high">{{ t('copy') }}</action-button>
+				</div>
+			</div>
+			<spinner v-else></spinner>
+		</modal>`,
+	data: _ => ({
+		state: store.state,
+
+		/* share url for reading (false), writing (true) */
+		shareUrl: {false: null, true: null},
+		selectedShareUrl: false,
+
+		strings: translations({
+			de: {
+				'cancel': 'Abbrechen',
+				'sharetitle': 'Projekt teilen',
+				'share': 'Teilen',
+				'close': 'Schließen',
+				'copy': 'Kopieren',
+				'read': 'Nur Lesen',
+				'readMeaning': 'Der Benutzer kann das Projekt nur kopieren.',
+				'write': 'Schreibzugriff',
+				'writeMeaning': 'Der Benutzer kann das Projekt kopieren, Anwendungen starten und alle Daten ändern oder löschen.',
+				'sharelink': 'Teile den folgenden Link',
+				},
+			en: {
+				'cancel': 'Cancel',
+				'sharetitle': 'Share project',
+				'share': 'Share',
+				'close': 'Close',
+				'copy': 'Copy',
+				'read': 'Read-only',
+				'readMeaning': 'The user can only copy this project.',
+				'write': 'Write access',
+				'writeMeaning': 'The user can copy the project, start applications and modify or delete all data.',
+				'sharelink': 'Share the link below',
+				},
+			}),
+	}),
+	mixins: [i18nMixin],
+	computed: {
+		workspaces: function () { return this.state.workspaces; },
+		workspace: function () {
+			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
+		},
+		shareMeaning: function () {
+			if (!this.selectedShareUrl) {
+				return this.t ('readMeaning');
+			} else {
+				return this.t ('writeMeaning');
+			}
+		}
+	},
+	created: async function() {
+		/* async resolve both actions */
+		const keys = [false, true];
+		const values = await Promise.all (keys.map (function (isWrite) {
+			return this.workspaces.shareAction (this.workspace, isWrite);
+		}.bind (this)));
+		for (let i = 0; i < keys.length; i++) {
+			const isWrite = keys[i];
+			const token = values[i];
+			const ident = 'share-' + (isWrite ? 'write' : 'readonly');
+			this.shareUrl[isWrite] = new URL (`/action/${token}#${ident}`, window.location.href);
+		}
+	},
+	methods: {
+		copyToClipboard: async function(text) {
+			if (navigator.clipboard) {
+				const ret = await navigator.clipboard.writeText (text);
+				return true;
+			} else {
+				throw Error ('unsupported');
+			}
+		},
+	}
+});
 
 const WorkspaceImportView = Vue.extend ({
 	props: [],
-	template: `<div>
-			<p><router-link :to="{name: 'workspaces'}">{{ t('back') }}</router-link></p>
-			<h2>{{ t('headline') }}</h2>
+	template: `<modal icon="users" :title="t('headline')" :closeName="t('close')" :closeLink="{name: 'workspaces'}" :scaling="true">
 			<p>{{ t('description') }}</p>
 			<p>
 				<label for="importFiles">{{ t('fromfile') }}:</label>
 				<input type="file" id="importFiles" @change="validate" :disabled="busy"><br>
 			</p>
-			<p>
+			<template v-slot:buttons>
 				<action-button icon="file-import" :f="run" importance="high" :disabled="!valid" class="submit">{{ t('submit') }}</action-button>
-			</p>
-</div>`,
+			</template>
+</modal>`,
 	data: _ => ({
 		state: store.state,
 		path: [],
@@ -2240,14 +2289,14 @@ const WorkspaceImportView = Vue.extend ({
 		busy: false,
 		strings: translations({
 			de: {
-				'back': 'Zurück zur Übersicht',
+				'close': 'Abbrechen',
 				'headline': 'Projekt importieren',
 				'fromfile': 'Aus Datei importieren',
 				'description': 'Hier können Projekte importiert werden. Der Import kann einige Minuten in Anspruch nehmen.',
 				'submit': 'Importieren',
 				},
 			en: {
-				'back': 'Back to overview',
+				'close': 'Cancel',
 				'headline': 'Import project',
 				'fromfile': 'Import from file',
 				'description': 'Here you can import projects. The process may take a few minutes.',
@@ -2494,12 +2543,6 @@ const IndexView = Vue.extend ({
 
 const AccountView = Vue.extend ({
 	template: `<div>
-		<modal :visible="queryDelete" :onHide="_ => queryDelete=false" icon="trash" :title="t('delete')" :closename="t('cancel')">
-			<p>{{ t('deletequestion') }}</p>
-			<template v-slot:buttons>
-				<action-button :f="deleteAccount" icon="trash" importance="high">{{ t('dodelete') }}</action-button>
-			</template>
-		</modal>
 	<h2>{{ t('headline') }}</h2>
 	<dl>
 		<dt>{{ t('name') }}</dt>
@@ -2514,7 +2557,7 @@ const AccountView = Vue.extend ({
 	<div v-if="canDelete">
 		<h3>{{ t('delete') }}</h3>
 		<p>
-			<action-button :f="askDeleteAccount" icon="trash">{{ t('delete') }}</action-button>
+			<router-link class="btn" :to="{name: 'accountDelete'}"><i class="fas fa-trash"></i> {{ t('delete') }}</router-link>
 		</p>
 	</div>
 </div>`,
@@ -2525,9 +2568,6 @@ const AccountView = Vue.extend ({
 			de: {
 				'headline': 'Mein Benutzerkonto',
 				'delete': 'Benutzerkonto löschen',
-				'deletequestion': 'Möchtest Du Dein Benutzerkonto und alle gespeicherten Daten wirklich löschen? Die kann nicht rückgängig gemacht werden.',
-				'dodelete': 'Unwiderruflich löschen',
-				'cancel': 'Abbrechen',
 				'name': 'Name',
 				'email': 'E-Mail-Adresse',
 				'unixaccount': 'UNIX-Nutzername',
@@ -2536,16 +2576,12 @@ const AccountView = Vue.extend ({
 			en: {
 				'headline': 'My account',
 				'delete': 'Delete account',
-				'deletequestion': 'Do you want to delete your account and all data? This cannot be undone.',
-				'dodelete': 'Delete permanently',
-				'cancel': 'Cancel',
 				'name': 'Name',
 				'email': 'Email address',
 				'unixaccount': 'UNIX account name',
 				'locked': 'You cannot delete your account at this time.',
 				},
 			}),
-		queryDelete: false,
 	}),
 	computed: {
 		oauthInfo: function () {
@@ -2559,9 +2595,37 @@ const AccountView = Vue.extend ({
 		mailto: function (a) {
 			return `mailto:${a}`;
 		},
-		askDeleteAccount: function () {
-			this.queryDelete = true;
-		},
+	},
+	mixins: [i18nMixin],
+});
+
+const AccountDeleteView = Vue.extend ({
+	template: `<modal icon="trash" :title="t('delete')" :closeName="t('cancel')" :closeLink="{name: 'account'}" :scaling="true">
+	<p>{{ t('deletequestion') }}</p>
+	<template v-slot:buttons>
+		<action-button :f="deleteAccount" icon="trash" importance="high">{{ t('dodelete') }}</action-button>
+	</template>
+</modal>`,
+	data: _ => ({
+		state: store.state,
+		/* application strings */
+		strings: translations ({
+			de: {
+				'delete': 'Benutzerkonto löschen',
+				'deletequestion': 'Möchtest Du Dein Benutzerkonto und alle gespeicherten Daten wirklich löschen? Die kann nicht rückgängig gemacht werden.',
+				'dodelete': 'Unwiderruflich löschen',
+				'cancel': 'Abbrechen',
+				},
+			en: {
+				'headline': 'My account',
+				'delete': 'Delete account',
+				'deletequestion': 'Do you want to delete your account and all data? This cannot be undone.',
+				'dodelete': 'Delete permanently',
+				'cancel': 'Cancel',
+				},
+			}),
+	}),
+	methods: {
 		deleteAccount: async function () {
 			let r = await fetch ('/api/user', {
 				'method': 'DELETE'
@@ -2577,7 +2641,6 @@ const AccountView = Vue.extend ({
 	},
 	mixins: [i18nMixin],
 });
-
 const LogoutView = Vue.extend ({
 	template: `<div><h2>{{ t('logout') }}</h2>
 	<p v-if="!done">{{ t('logout') }} <spinner></spinner></p>
@@ -2743,23 +2806,27 @@ const routes = [
 	{ path: '/terms', component: TermsOfServiceView, name: 'terms', props: (route) => ({ next: route.query.next }) },
 	{ path: '/legal', component: LegalView, name: 'legal' },
 	{ path: '/workspaces', component: WorkspacesView, name: 'workspaces' },
-	{ path: '/workspaces/import', component: WorkspaceImportView, name: 'workspaceImport' },
+	{ path: '/workspaces/import', components: { default: WorkspacesView, overlay: WorkspaceImportView }, name: 'workspaceImport' },
 	{ path: '/workspaces/:wsid', component: WorkspaceView, name: 'workspace', props: true },
-	{ path: '/workspaces/:wsid/export', component: WorkspaceExportView, name: 'workspaceExport', props: true },
+	{ path: '/workspaces/:wsid/delete', components: { default: WorkspaceView, overlay: WorkspaceDeleteView }, name: 'workspaceDelete', props: { default: true, overlay: true }},
+	{ path: '/workspaces/:wsid/share', components: { default: WorkspaceView, overlay: WorkspaceShareView }, name: 'workspaceShare', props: { default: true, overlay: true }},
+	{ path: '/workspaces/:wsid/export', components: { default: WorkspaceView, overlay: WorkspaceExportView}, name: 'workspaceExport', props: { default: true, overlay: true }},
+	{ path: '/workspaces/:wsid/packages', components: { default: WorkspaceView, overlay: WorkspacePackagesView}, name: 'workspacePackages', props: { default: true, overlay: true }},
 	{ path: '/workspaces/:wsid/:appid/:appPath*',
-		component: ApplicationView,
+		components: { overlay: ApplicationView },
 		name: 'application',
-		props: function (route) {
+		props: { overlay: function (route) {
 			console.log ('params', route.params);
 			const appPath = route.params.appPath;
 			let nextUrl = '/' + (appPath ? appPath : '');
 			const params = new URLSearchParams (route.query);
 			nextUrl += '?' + params.toString ();
 			return {wsid: route.params.wsid, appid: route.params.appid, nextUrl: nextUrl};
+		}},
 		},
-		meta: { layout: 'fullscreen' } },
 	{ path: '/action/:token', component: ActionView, name: 'action', props: true },
 	{ path: '/account', component: AccountView, name: 'account' },
+	{ path: '/account/delete', components: { default: AccountView, overlay: AccountDeleteView }, name: 'accountDelete' },
 	{ path: '/logout', component: LogoutView, name: 'logout' },
 	{ path: '/login/:status', component: LoginView, name: 'login', props: true },
 	{ path: '/', component: IndexView, name: 'index' },
@@ -2808,7 +2875,7 @@ const app = new Vue({
 	},
 	computed: {
 		fullscreen: function () {
-			return this.$route.matched[0].meta.layout == 'fullscreen';
+			return this.$route.matched[0].components.overlay;
 		},
 		htmlClass: function () {
 			return this.fullscreen ? 'fullscreen' : '';
