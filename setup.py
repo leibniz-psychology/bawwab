@@ -1,4 +1,23 @@
-from setuptools import setup
+import subprocess
+from setuptools import setup, Command
+from distutils.command.build import build
+
+build.sub_commands.insert (0, ('esbuild', lambda self: True))
+
+class Esbuild (Command):
+	user_options = []
+
+	def initialize_options(self):
+		pass
+
+	def finalize_options (self):
+		pass
+
+	def run(self):
+		subprocess.run (['esbuild', 'bawwab/client/app.js', '--bundle',
+				'--sourcemap', '--minify',
+				'--target=chrome58,firefox57,safari11,edge16',
+				'--outdir=bawwab/assets/'])
 
 setup(
     name='bawwab',
@@ -40,4 +59,5 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
         ],
+	cmdclass={'esbuild': Esbuild},
 )

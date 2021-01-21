@@ -1,3 +1,4 @@
 *.pyc
 *.egg-info
 __pycache__
+bawwab/assets/app.js*
