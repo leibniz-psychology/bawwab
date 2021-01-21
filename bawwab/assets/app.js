@@ -1803,7 +1803,6 @@ const WorkspaceView = Vue.extend ({
 		},
 	},
 	methods: {
-
         updateWorkspace: async function(name, description) {
 			const w = this.currentWorkspace;
 			Vue.set (w.metadata, 'name', name);
@@ -1963,7 +1962,6 @@ const WorkspaceDeleteView = Vue.extend ({
 const WorkspacePackagesView = Vue.extend ({
 	props: ['wsid'],
 	data: _ => ({
-		searchExp: '',
 		searching: false,
 		searchId: null,
 		/* Package state cache, list of {p: <package>, state: <state>} */
@@ -2013,7 +2011,7 @@ const WorkspacePackagesView = Vue.extend ({
 	mixins: [i18nMixin],
     template: `<modal :title="t('title')" :closeName="t('back')" icon="box" :closeName="t('cancel')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
 		<div class="packageSearch">
-			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="searchExp">
+			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="search">
 			<spinner v-show="searching"></spinner>
 		</div>
 		<div class="packages" v-if="filteredPackages.length > 0">
@@ -2075,6 +2073,21 @@ const WorkspacePackagesView = Vue.extend ({
 		workspace: function () {
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
 		},
+		/* inspired by https://stackoverflow.com/a/60786867 */
+		search: {
+			get () {
+				return this.$route.query.search;
+			},
+			set (value) {
+				this.$router.replace ({
+					query: {
+						...this.$route.query,
+						search: value
+					}
+				});
+				this.runSearch ();
+			}
+		},
 	},
     methods: {
 		doPackageUpgrade: async function () {
@@ -2086,7 +2099,7 @@ const WorkspacePackagesView = Vue.extend ({
 				this.busy = false;
 			}
 			this.packageFilter = ['installed', 'add', 'remove'];
-			this.searchExp = '';
+			this.search = '';
 		},
 		doPackageModify: async function () {
 			this.busy = true;
@@ -2097,7 +2110,7 @@ const WorkspacePackagesView = Vue.extend ({
 				this.busy = false;
 			}
 			this.packageFilter = ['installed', 'add', 'remove'];
-			this.searchExp = '';
+			this.search = '';
 		},
 		addPackage: function (ps) {
 			if (!ps.state.installed) {
@@ -2131,7 +2144,7 @@ const WorkspacePackagesView = Vue.extend ({
 		runSearch: function () {
 			const minSearchLen = 3;
 			const debounceMs = 350;
-			if (this.searchExp.length >= minSearchLen) {
+			if (this.search.length >= minSearchLen) {
 				if (this.searchId) {
 					window.clearTimeout (this.searchId);
 					this.searchId = null;
@@ -2139,15 +2152,15 @@ const WorkspacePackagesView = Vue.extend ({
 				/* simple debounce */
 				this.searchId = window.setTimeout (function () {
 					/* we cannot cancel search, so store the expression and compare it later */
-					const searchFor = this.searchExp;
+					const searchFor = this.search;
 					this.searching = true;
 					this.packages.map (function (ps) { ps.state.fromSearch = false });
-					this.state.workspaces.packageSearch (this.workspace, this.searchExp)
+					this.state.workspaces.packageSearch (this.workspace, this.search)
 						.then (function (ret) {
 							/* only apply changes if the expression is still
 							 * the same, otherwise forget results */
 							console.log ('got packages', ret);
-							if (this.searchExp == searchFor) {
+							if (this.search == searchFor) {
 								this.mergePackageList (ret, {fromSearch: true});
 								this.packageFilter = ['fromSearch'];
 								this.searching = false;
@@ -2165,11 +2178,9 @@ const WorkspacePackagesView = Vue.extend ({
 		console.log ('updating package cache');
 		this.packages = [];
 		this.mergePackageList (this.workspace.packages, {installed: true});
+		this.runSearch ();
 	},
 	watch: {
-		searchExp: function () {
-			this.runSearch ();
-		},
 		workspace: function () {
 			/* reset package view */
 			console.log ('updating package cache');
