@@ -7,6 +7,7 @@ import '../component/modal.js';
 export default Vue.extend ({
 	props: ['wsid'],
 	data: _ => ({
+		state: store.state,
 		searching: false,
 		searchId: null,
 		/* Package state cache, list of {p: <package>, state: <state>} */
@@ -54,7 +55,7 @@ export default Vue.extend ({
 			}),
 	}),
 	mixins: [i18nMixin],
-    template: `<modal :title="t('title')" :closeName="t('back')" icon="box" :closeName="t('cancel')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
+    template: `<modal :title="t('title')" icon="box" :closeName="t('cancel')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
 		<div class="packageSearch">
 			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="search">
 			<spinner v-show="searching"></spinner>
@@ -121,7 +122,8 @@ export default Vue.extend ({
 		/* inspired by https://stackoverflow.com/a/60786867 */
 		search: {
 			get () {
-				return this.$route.query.search;
+				const fromQuery = this.$route.query.search;
+				return fromQuery ? fromQuery : '';
 			},
 			set (value) {
 				this.$router.replace ({
