@@ -13,6 +13,7 @@ export default Vue.extend ({
 		/* Package state cache, list of {p: <package>, state: <state>} */
 		packages: [],
 		packageFilter: ['installed', 'add', 'remove'],
+		defaultPackageFilter: ['add', 'remove'],
 		/* Currently applying changes */
 		busy: false,
 		strings: translations ({
@@ -33,6 +34,7 @@ export default Vue.extend ({
 				'cancel': 'Abbrechen',
 				'title': 'Pakete verwalten',
 				'nopackages': 'Keine Pakete gefunden',
+				'description': 'Hier können Pakete zum Projekt hinzugefügt werden. Um das R-Paket <em>beispiel</em> zu suchen, verwende <kbd>^r-beispiel</kbd>.',
 				},
 			en: {
 				'apply': [
@@ -51,11 +53,13 @@ export default Vue.extend ({
 				'cancel': 'Cancel',
 				'title': 'Manage packages',
 				'nopackages': 'No packages found',
+				'description': 'Here you can add packages to your project. Use <kbd>^r-package</kbd> to search for R packages only.',
 				},
 			}),
 	}),
 	mixins: [i18nMixin],
     template: `<modal :title="t('title')" icon="box" :closeName="t('cancel')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
+		<p v-html="t('description')"></p>
 		<div class="packageSearch">
 			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="search">
 			<spinner v-show="searching"></spinner>
@@ -74,7 +78,8 @@ export default Vue.extend ({
 				</div>
 				<div class="right">
 				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="busy" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
-				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
+				<!-- Package removal is disabled by request. -->
+				<action-button v-if="false && ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
 				</div>
 			</div>
 		</div>
@@ -145,7 +150,7 @@ export default Vue.extend ({
 			} finally {
 				this.busy = false;
 			}
-			this.packageFilter = ['installed', 'add', 'remove'];
+			this.packageFilter = this.defaultPackageFilter;
 			this.search = '';
 		},
 		doPackageModify: async function () {
@@ -156,7 +161,7 @@ export default Vue.extend ({
 			} finally {
 				this.busy = false;
 			}
-			this.packageFilter = ['installed', 'add', 'remove'];
+			this.packageFilter = this.defaultPackageFilter;
 			this.search = '';
 		},
 		addPackage: function (ps) {
@@ -215,7 +220,7 @@ export default Vue.extend ({
 						}.bind (this));
 				}.bind (this), debounceMs);
 			} else {
-				this.packageFilter = ['installed', 'add', 'remove'];
+				this.packageFilter = this.defaultPackageFilter;
 				this.packages.map (function (ps) { ps.state.fromSearch = false });
 			}
 		},
