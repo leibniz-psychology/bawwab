@@ -1,3 +1,4 @@
+import i18n from './external/i18n.js';
 import { store } from './app.js';
 
 /* Create translation objects from Maps

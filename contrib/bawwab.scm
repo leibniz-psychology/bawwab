@@ -25,7 +25,11 @@
   (version "0.1")
   (source (local-file %source-dir #:recursive? #t))
   (build-system python-build-system)
-  (arguments `(#:tests? #f))
+  (arguments
+    `(#:tests? #f
+      ;; Required, since guix will set the source directory to r/o and building
+      ;; would re-generate assets.
+      #:configure-flags '("--skip-build")))
   (propagated-inputs
    `(("python-asyncssh" ,python-asyncssh)
      ("python-furl" ,python-furl)

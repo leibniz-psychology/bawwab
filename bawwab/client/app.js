@@ -36,6 +36,9 @@ import './component/actionButton.js';
 import './component/languageSwitcher.js';
 import './component/login.js';
 
+/* also bundle CSS files */
+import './css/style.css';
+
 /* XXX: load config from server */
 export const config = Object.freeze ({
 	publicData: '/storage/public',

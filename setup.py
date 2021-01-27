@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, shutil, os
 from setuptools import setup, Command
 from distutils.command.build import build
 
@@ -14,8 +14,11 @@ class Esbuild (Command):
 		pass
 
 	def run(self):
+		shutil.copy ('bawwab/client/app.html', 'bawwab/assets')
 		subprocess.run (['esbuild', 'bawwab/client/app.js', '--bundle',
 				'--sourcemap', '--minify',
+				'--loader:.png=file',
+				'--loader:.svg=file',
 				'--target=chrome58,firefox57,safari11,edge16',
 				'--outdir=bawwab/assets/'])
 
@@ -51,7 +54,7 @@ setup(
             ],
     },
     package_data={
-            'bawwab': ['assets/*', 'assets/img/*'],
+            'bawwab': ['assets/*'],
     },
     classifiers = [
         'License :: OSI Approved :: MIT License',
