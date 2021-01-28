@@ -12,7 +12,8 @@ export default Vue.extend ({
 		<dd><a :href="mailto(oauthInfo.email)">{{ oauthInfo.email }}</a></dd>
 
 		<dt>{{ t('unixaccount') }}</dt>
-		<dd>{{ state.user.name }}</dd>
+		<dd v-if="state.user">{{ state.user.name }}</dd>
+		<dd v-else>–</dd>
 	</dl>
 	<div v-if="canDelete">
 		<h3>{{ t('delete') }}</h3>
@@ -45,10 +46,10 @@ export default Vue.extend ({
 	}),
 	computed: {
 		oauthInfo: function () {
-			return this.state.session.oauthInfo;
+			return this.state.session && this.state.session.oauthInfo;
 		},
 		canDelete: function () {
-			return store.state.user.canLogin;
+			return this.state.user && this.state.user.canLogin;
 		},
 	},
 	methods: {

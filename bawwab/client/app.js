@@ -80,7 +80,12 @@ export const store = {
 			this.state.user = await User.get ();
 		} catch (e) {
 			if (e.message == 'nonexistent' && this.state.session.authenticated()) {
-				this.state.user = await User.create (this.state.session.oauthInfo);
+				try {
+					this.state.user = await User.create (this.state.session.oauthInfo);
+				} catch (e) {
+					/* if creating a user fails the back-end must be broken */
+					this.state.user = null;
+				}
 			} else {
 				/* just accept the fact */
 				this.state.user = null;
@@ -144,7 +149,7 @@ const app = new Vue({
 	},
 	computed: {
 		fullscreen: function () {
-			return this.$route.matched[0].components.overlay;
+			return this.$route.matched.length > 0 ? this.$route.matched[0].components.overlay : false;
 		},
 		htmlClass: function () {
 			return this.fullscreen ? 'fullscreen' : '';

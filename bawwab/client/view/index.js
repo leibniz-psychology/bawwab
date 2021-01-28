@@ -4,7 +4,7 @@ import { store } from '../app.js';
 export default Vue.extend ({
 	template: `<div>
 	<p>{{ t('description') }}</p>
-	<p v-if="state.user === null || state.user.isAnonymous">
+	<p v-if="state.user === null">
 		<a class="btn high" href="/api/session/login">{{ t('login') }}</a>
 	</p>
 	<p v-else-if="haveWorkspaces"><router-link class="btn high" :to="{name: 'workspaces'}">{{ t('toprojects') }}</router-link></p>

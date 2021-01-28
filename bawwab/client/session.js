@@ -12,7 +12,7 @@ export default class Session {
 		if (r.ok) {
 			return new Session (j.name, j.oauthInfo);
 		} else {
-			throw Error (session.status);
+			throw Error (j.status);
 		}
 	}
 
@@ -20,12 +20,13 @@ export default class Session {
 		const r = await fetch ('/api/session', {
 			'method': 'DELETE'
 		});
+		const j = await r.json();
 		if (r.ok) {
 			this.name = null;
 			this.oauthInfo = null;
 		} else {
-			console.error (r);
-			throw Error ('nope');
+			console.error (j);
+			throw Error (j.status);
 		}
 	}
 
