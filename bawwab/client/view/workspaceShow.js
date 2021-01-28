@@ -154,7 +154,6 @@ export default Vue.extend ({
 			if (focus) {
 				/* make sure the elements are rendered */
 				await Vue.nextTick ();
-				console.log ('focus is', focus, this.$el, this.$el.querySelector (focus));
 				this.$el.querySelector (focus).focus ();
 			}
 		},

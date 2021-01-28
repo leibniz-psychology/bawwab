@@ -67,7 +67,7 @@ export default Vue.extend ({
 	},
 	/* Delete temporary files created when leaving the page */
 	beforeDestroy: async function () {
-		console.log ('destroying', this.path);
+		console.debug ('destroying %s', this.path);
 		for (let k in this.path) {
 			let r = await fetch (`/api/filesystem${this.path[k]}`, {
 				'method': 'DELETE'
@@ -75,7 +75,7 @@ export default Vue.extend ({
 			if (r.ok) {
 				/* this is fine */
 			} else {
-				console.log('cannot destroy export', r);
+				console.error ('cannot destroy export %o', r);
 			}
 		}
 	}

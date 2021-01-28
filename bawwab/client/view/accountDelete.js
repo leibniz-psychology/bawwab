@@ -39,7 +39,7 @@ export default Vue.extend ({
 				await this.state.session.destroy ();
 				this.$router.push ({name: 'index'});
 			} else {
-				console.log(r);
+				console.error (r);
 			}
 		}
 	},

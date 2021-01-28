@@ -33,7 +33,6 @@ export default class Workspace {
 	 */
 	owner () {
 		/* XXX: assuming there can only be one owner */
-		console.log (this.permissions);
 		const l = Object.entries (this.permissions).filter (([k, v]) => v.includes ('T'));
 		if (l.length == 0) {
 			return null;

@@ -211,7 +211,7 @@ export default Vue.extend ({
 						.then (function (ret) {
 							/* only apply changes if the expression is still
 							 * the same, otherwise forget results */
-							console.log ('got packages', ret);
+							console.debug ('got packages', ret);
 							if (this.search == searchFor) {
 								this.mergePackageList (ret, {fromSearch: true});
 								this.packageFilter = ['fromSearch'];
@@ -227,7 +227,7 @@ export default Vue.extend ({
 
     },
 	created: function () {
-		console.log ('updating package cache');
+		console.debug ('updating package cache');
 		this.packages = [];
 		this.mergePackageList (this.workspace.packages, {installed: true});
 		this.runSearch ();
@@ -235,7 +235,7 @@ export default Vue.extend ({
 	watch: {
 		workspace: function () {
 			/* reset package view */
-			console.log ('updating package cache');
+			console.debug ('updating package cache');
 			this.packages = [];
 			this.mergePackageList (this.workspace.packages, {installed: true});
 		},

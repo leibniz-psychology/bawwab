@@ -31,7 +31,7 @@ export default class EventManager {
 		}
 
 		const name = p.extraData.trigger;
-		console.log ('em: got new program', p.token, 'for', name);
+		console.debug ('em: got new program', p.token, 'for', name);
 
 		if (!this.handler.has (name)) {
 			throw Error (`${name} is not registered`);
@@ -39,7 +39,7 @@ export default class EventManager {
 
 		/* defer if not allowed right now */
 		if (!this.allowedHandler.test (name)) {
-			console.log ('deferring', p.token);
+			console.debug ('deferring', p.token);
 			this.deferred.push (p);
 			return false;
 		}
@@ -60,7 +60,7 @@ export default class EventManager {
 	}
 
 	async _listen () {
-		console.log ('starting em listener');
+		console.debug ('starting em listener');
 		/* process existing programs */
 		for (let i = 0; i < this.pm.procs.length; i++) {
 			const p = this.pm.procs[i];
@@ -87,7 +87,7 @@ export default class EventManager {
 	}
 
 	async run (name, args=null, command=null, action=null) {
-		console.log ('em running', name, args, command, action);
+		console.debug ('em running', name, args, command, action);
 		const pm = this.pm;
 		const token = await pm.run (command, action, {trigger: name, args: args});
 		this.waiting.set (token, new AsyncNotify ());

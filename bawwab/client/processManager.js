@@ -18,7 +18,7 @@ export default class ProcessManager {
 	}
 
 	connect () {
-		console.log ('connecting to', this.url);
+		console.debug ('connecting to %s', this.url);
 		this.socket = new WebSocket (this.url);
 		this.socket.addEventListener ('open', this.onOpen.bind (this));
 		this.socket.addEventListener ('message', this.onMessage.bind (this));
@@ -31,7 +31,7 @@ export default class ProcessManager {
 	/* Connection was opened.
 	 */
 	onOpen (event) {
-		console.log ('socket is now open', this);
+		console.debug ('socket is now open', this);
 	}
 
 	doReconnect (event) {
@@ -49,16 +49,16 @@ export default class ProcessManager {
 
 		const data = JSON.parse (event.data);
 		const token = data.token;
-		console.log ('got message with token', token);
+		console.debug ('got message with token', token);
 
 		if (data.notify == 'processStart') {
-			console.log ('got process start for', token);
+			console.debug ('got process start for', token);
 			/* create new process */
 			const p = new Program (this, token, data.command, data.extraData);
 			this.procs.set (token, p);
 			const waiting = this.procsWaiting;
 			if (waiting.has (token)) {
-				console.log ('notifying about arrival of process', token);
+				console.debug ('notifying about arrival of process', token);
 				waiting.get (token).notify (p);
 			}
 			this.newProcsWaiting.notify (p);
@@ -66,14 +66,14 @@ export default class ProcessManager {
 			/* data for existing process */
 			if (this.recvWaiting.has (token)) {
 				/* if someone is waiting, forward directly */
-				console.log ('forwarding message', token, 'to waiting clients', this.recvWaiting);
+				console.debug ('forwarding message', token, 'to waiting clients', this.recvWaiting);
 				this.recvWaiting.get (token).forEach (f => f(data));
 				/* XXX: what if calling f() has the side-effect of adding another waiter? */
 				this.recvWaiting.set (token, []);
 			} else {
 				/* otherwise store, so we do not lose it; XXX: obviously this does
 				 * not handle backpressure correctly */
-				console.log ('no one is waiting for', token, 'storing.')
+				console.debug ('no one is waiting for', token, 'storing.')
 				const buf = this.recvBuffer;
 				if (!buf.has (token)) {
 					buf.set (token, []);
@@ -88,12 +88,12 @@ export default class ProcessManager {
 	async get (token=null) {
 		if (token === null) {
 			/* not looking for something specific */
-			console.log ('looking for new processes');
+			console.debug ('looking for new processes');
 			const ret = await this.newProcsWaiting.wait ();
 			this.newProcsWaiting.reset ();
 			return ret;
 		} else {
-			console.log ('getting process for token', token);
+			console.debug ('getting process for token', token);
 			const procs = this.procs;
 			if (procs.has (token)) {
 				return procs.get (token);
@@ -116,14 +116,14 @@ export default class ProcessManager {
 		let p = null;
 		if (buf.has (token) && buf.get (token).length > 0) {
 			/* resolve immediately */
-			console.log ('have stored message for', token);
+			console.debug ('have stored message for', token);
 			const data = buf.get (token).shift ();
 			p = new Promise ((resolve, reject) => {
 				resolve (data);
 			});
 		} else {
 			/* wait */
-			console.log ('waiting for message for', token);
+			console.debug ('waiting for message for', token);
 			p = new Promise ((resolve, reject) => {
 				if (!this.recvWaiting.has (token)) {
 					this.recvWaiting.set (token, []);
@@ -140,13 +140,13 @@ export default class ProcessManager {
 	async run (command=null, action=null, extraData=null) {
 		const payload = {extraData: extraData};
 		if (command && action) {
-			console.log ('both command and action given', command, action);
+			console.debug ('both command and action given', command, action);
 			throw Error ('bug');
 		} else if (command) {
 			payload.command = command;
-			console.log ('starting run() with command', command);
+			console.debug ('starting run() with command', command);
 		} else if (action) {
-			console.log ('starting run() with action', action);
+			console.debug ('starting run() with action', action);
 			payload.action = action;
 		}
 

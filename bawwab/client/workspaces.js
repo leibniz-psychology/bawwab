@@ -195,7 +195,7 @@ export default class Workspaces {
 		Vue.set (this.applications, k, c);
 		/* keep the application if an error occurred */
 		const handle = function () { if (!c.error) { Vue.delete (this.applications, k); } }.bind (this);
-		c.run ().then (handle).catch (function (e) { console.log ('application run failed with', e); });
+		c.run ().then (handle).catch (function (e) { console.error ('application run failed with', e); });
 		return c;
 	}
 

@@ -87,7 +87,7 @@ export default Vue.extend ({
 			return workspace.applications.filter(elem => elem._id == this.appid)[0];
 		},
 		url: function () {
-			console.log ('program is', this.program);
+			console.debug ('program is %o', this.program);
 			if (!this.program || !this.program.url ()) {
 				return null;
 			}
@@ -98,14 +98,14 @@ export default Vue.extend ({
 			return u.toString ();
 		},
 		program: function () {
-			console.log ('application changed');
 			const workspace = this.workspace;
 			const application = this.application;
+			console.debug ('application changed to %o', application);
 			const p = this.state.workspaces.getRunningApplication (workspace, application);
 			if (p) {
 				return p;
 			}
-			console.log ('starting new instance of', workspace, application);
+			console.debug ('starting new instance of', workspace, application);
 			this.state.workspaces.start (workspace, application);
 			return null;
 		},
@@ -114,7 +114,7 @@ export default Vue.extend ({
 		'program.state': function () {
 			/* go back to workspace if program exited */
 			if (this.program && this.program.state == ConductorState.exited && this.program.error === null) {
-				console.log ('program is gone, going back to workspace', this.workspace);
+				console.debug ('program is gone, going back to workspace %o', this.workspace);
 				this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
 			}
 		},

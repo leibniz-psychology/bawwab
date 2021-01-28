@@ -24,7 +24,7 @@ export default class Session {
 			this.name = null;
 			this.oauthInfo = null;
 		} else {
-			console.log(r);
+			console.error (r);
 			throw Error ('nope');
 		}
 	}

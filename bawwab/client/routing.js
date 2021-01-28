@@ -29,7 +29,7 @@ const routes = [
 		components: { overlay: ApplicationView },
 		name: 'application',
 		props: { overlay: function (route) {
-			console.log ('params', route.params);
+			console.debug ('params', route.params);
 			const appPath = route.params.appPath;
 			let nextUrl = '/' + (appPath ? appPath : '');
 			const params = new URLSearchParams (route.query);

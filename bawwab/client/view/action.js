@@ -34,16 +34,16 @@ export default Vue.extend ({
 	created: async function () {
 		await this.state.ready.wait ();
 
-	 	console.log ('executing action', this.token);
+	 	console.debug ('executing action %s', this.token);
 	 	const r = await fetch ('/api/action/' + this.token);
 	 	try {
 	 		const a = await getResponse (r);
-	 		console.log ('got action', a);
+	 		console.debug ('got action %o', a);
 	 		switch (a.name) {
 	 			case 'run': {
-	 				console.log ('got run action');
+	 				console.debug ('got run action');
 	 				const p = await this.state.processes.get (await this.state.processes.run (null, this.token));
-	 				console.log ('got program', p);
+	 				console.debug ('got program %o', p);
 	 				const newws = new Workspace (await p.getObject (), whoami);
 	 				const ret = await p.wait ();
 	 				if (ret == 0) {
@@ -57,13 +57,13 @@ export default Vue.extend ({
 	 			}
 	 		}
 	    } catch (e) {
-			console.log ('failed', e);
+			console.error ('failed: %o', e);
 			if (e.message == 'unauthenticated') {
 				const url = new URL ('/api/session/login', window.location.href);
 				const next = new URL (this.$route.fullPath, window.location.href);
 				next.hash = '';
 				url.searchParams.append ('next', next.toString ());
-				console.log (url.toString ());
+				console.debug ('unauthicanted, going to %o', url.toString ());
 				document.location = url.toString ();
 			} else {
 				this.message = 'error';

@@ -25,7 +25,7 @@ export default class Program {
 		const msg = await this.mgr.receive (this.token);
 		switch (msg.notify) {
 			case 'processData':
-				console.log ('got more data for', msg.kind, msg.data);
+				console.debug ('got more data for', msg.kind, msg.data);
 				switch (msg.kind) {
 					case 'stdout':
 						this.stdoutBuf += msg.data;
@@ -64,7 +64,6 @@ export default class Program {
 				/* no more data */
 				return null;
 			}
-			console.log ('not found newline, waiting for more data');
 			await this.handleMessages ();
 		}
 		const o = JSON.parse (this.stdoutBuf.slice (0, pos));
