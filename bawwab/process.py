@@ -231,12 +231,13 @@ async def cleanupJob ():
 		for processes in perUserProcesses.values ():
 			for k, v in processes.items ():
 				if v.task.done ():
+					remove.add (k)
 					try:
 						await v.task
-						remove.add (k)
 					except Exception as e:
 						logger.error (f'task raised an exception {e}')
 			for r in remove:
+				logger.debug (f'removing task {r}')
 				del processes[r]
 		await asyncio.sleep (10)
 
