@@ -22,8 +22,9 @@
 Various utility functions
 """
 
-import secrets
+import secrets, asyncio
 from datetime import datetime
+from functools import wraps
 
 import aiohttp, pytz
 
@@ -33,4 +34,21 @@ def randomSecret (n=32):
 
 def now ():
 	return datetime.now (tz=pytz.utc)
+
+def periodic(delay, logger):
+	def decorator(f):
+		@wraps(f)
+		async def wrapper (*args, **kwds):
+			while True:
+				try:
+					logger.debug (f'calling periodic function {f.__name__} (every {delay}s)')
+					await f (*args, **kwds)
+				except asyncio.CancelledError:
+					break
+				except Exception as e:
+					logger.error (f'periodic function {f.__name__} failed: {e}')
+				finally:
+					await asyncio.sleep (delay)
+		return wrapper
+	return decorator
 

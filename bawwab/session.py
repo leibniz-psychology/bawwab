@@ -35,7 +35,7 @@ from sanic.response import json, redirect
 from sanic.exceptions import Forbidden, ServerError
 from furl import furl
 
-from .util import now, randomSecret
+from .util import now, randomSecret, periodic
 from .oauth2 import KeycloakClient, Oauth2Error
 from . import audit
 
@@ -238,16 +238,14 @@ async def callback (request):
 expireJobThread = None
 auth = None
 
+hour = 60*60
+@periodic(1*hour, logger)
 async def expireJob ():
-	hour = 60*60
 
-	while True:
-		oldest = now() - timedelta (days=1)
-		async for s in Session.filter (accessed__lte=oldest):
-			audit.log ('session.expire', session=s.name)
-			await s.delete ()
-
-		await asyncio.sleep (1*hour)
+	oldest = now() - timedelta (days=1)
+	async for s in Session.filter (accessed__lte=oldest):
+		audit.log ('session.expire', session=s.name)
+		await s.delete ()
 
 @bp.listener('before_server_start')
 async def setup (app, loop):

@@ -36,7 +36,7 @@ import asyncssh
 
 from .user import User, authenticated
 from .action import getAction
-from .util import randomSecret
+from .util import randomSecret, periodic
 
 logger = logger.getChild (__name__)
 
@@ -223,6 +223,7 @@ async def processNotify (request, user, ws):
 		if len (l) == 0:
 			perUserSockets.pop (user)
 
+@periodic(10, logger)
 async def cleanupJob ():
 	""" Cleanup dead processes from the perUserProcess store """
 
@@ -247,15 +248,12 @@ async def cleanupJob ():
 				finally:
 					yield k
 
-	while True:
-		for processes in perUserProcesses.values ():
-			removeDictKeys (processes, [x async for x in removeDeadTasks (processes)])
+	for processes in perUserProcesses.values ():
+		removeDictKeys (processes, [x async for x in removeDeadTasks (processes)])
 
-		# gc top-level keys as well
-		removeFalseKeys (perUserProcesses)
-		removeFalseKeys (perUserSockets)
-
-		await asyncio.sleep (10)
+	# gc top-level keys as well
+	removeFalseKeys (perUserProcesses)
+	removeFalseKeys (perUserSockets)
 
 cleanupThread = None
 
