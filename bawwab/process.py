@@ -226,19 +226,35 @@ async def processNotify (request, user, ws):
 async def cleanupJob ():
 	""" Cleanup dead processes from the perUserProcess store """
 
+	def removeDictKeys (d, it):
+		""" Remove all keys it from d """
+		for k in it:
+			if k in d:
+				logger.debug (f'removing key {k}')
+				d.pop (k)
+
+	def removeFalseKeys (d):
+		""" Remove keys from dict that evaluate to False """
+		removeDictKeys (d, list (filter (lambda x: not d[x], d.keys ())))
+
+	async def removeDeadTasks (processes):
+		for k, v in processes.items ():
+			if v.task.done ():
+				try:
+					await v.task
+				except Exception as e:
+					logger.error (f'task raised an exception {e}')
+				finally:
+					yield k
+
 	while True:
-		remove = set ()
 		for processes in perUserProcesses.values ():
-			for k, v in processes.items ():
-				if v.task.done ():
-					remove.add (k)
-					try:
-						await v.task
-					except Exception as e:
-						logger.error (f'task raised an exception {e}')
-			for r in remove:
-				logger.debug (f'removing task {r}')
-				del processes[r]
+			removeDictKeys (processes, [x async for x in removeDeadTasks (processes)])
+
+		# gc top-level keys as well
+		removeFalseKeys (perUserProcesses)
+		removeFalseKeys (perUserSockets)
+
 		await asyncio.sleep (10)
 
 cleanupThread = None
