@@ -252,12 +252,12 @@ async def userDelete (request, user):
 					return None
 				elif status != expectedStatus:
 					audit.log ('user.delete.usermgrd_error', reason=data['status'],
-							authId=authId, user=user.name)
+							authId=user.authId, user=user.name)
 					raise ServerError ('backend')
 				return data
 		except aiohttp.ClientConnectionError:
 			audit.log ('user.delete.usermgrd_connect_failure', user=user.name,
-					authId=authId)
+					authId=user.authId)
 			raise ServiceUnavailable ('backend')
 
 	data = await callDelete ('again')

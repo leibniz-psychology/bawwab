@@ -137,5 +137,5 @@ async def fetchAction (request, token):
 
 	return json (actionToDict (token, action))
 
-__all__ = ['bp', 'runFactory']
+__all__ = ['bp']
 

@@ -30,7 +30,7 @@ from itertools import chain
 from sanic import Blueprint
 from sanic.log import logger
 from sanic.response import json as jsonResponse
-from sanic.exceptions import Forbidden, InvalidUsage, ServerError
+from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound
 
 import asyncssh
 
