@@ -173,7 +173,7 @@ html.cyan header .product-logo {
 }
 
 html.magenta header .product-logo {
-	background-color: var(--magenta-dark-base);
+	background-color: var(--magenta-base);
 }
 
 html.green header .product-logo {
