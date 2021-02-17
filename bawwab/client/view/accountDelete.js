@@ -16,7 +16,7 @@ export default Vue.extend ({
 		strings: translations ({
 			de: {
 				'delete': 'Benutzerkonto löschen',
-				'deletequestion': 'Möchtest Du Dein Benutzerkonto und alle gespeicherten Daten wirklich löschen? Die kann nicht rückgängig gemacht werden.',
+				'deletequestion': 'Möchtest Du Dein Benutzerkonto und alle gespeicherten Daten wirklich löschen? Die Aktion kann nicht rückgängig gemacht werden.',
 				'dodelete': 'Unwiderruflich löschen',
 				'cancel': 'Abbrechen',
 				},
