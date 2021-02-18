@@ -1,0 +1,212 @@
+{
+  "de": [
+    {
+      "name": "Angebote",
+      "links": [
+        [
+          "Informieren/Recherchieren",
+          "https://leibniz-psychology.org/angebote/informierenrecherchieren/"
+        ],
+        [
+          "Studien prä-registrieren",
+          "https://leibniz-psychology.org/angebote/studien-prae-registrieren/"
+        ],
+        [
+          "Studien planen",
+          "https://leibniz-psychology.org/angebote/studien-planen/"
+        ],
+        [
+          "Daten erheben",
+          "https://leibniz-psychology.org/angebote/daten-erheben/"
+        ],
+        [
+          "Daten analysieren",
+          "https://leibniz-psychology.org/angebote/daten-analysieren/"
+        ],
+        [
+          "Archivieren",
+          "https://leibniz-psychology.org/angebote/archivieren/"
+        ],
+        [
+          "Veröffentlichen",
+          "https://leibniz-psychology.org/angebote/veroeffentlichen/"
+        ],
+        [
+          "Jobs",
+          "https://leibniz-psychology.org/angebote/jobs/"
+        ],
+        [
+          "Events",
+          "https://leibniz-psychology.org/angebote/events/"
+        ],
+        [
+          "Mediathek",
+          "https://leibniz-psychology.org/angebote/mediathek/"
+        ]
+      ]
+    },
+    {
+      "name": "Forschung",
+      "links": [
+        [
+          "Forschungsliteralität",
+          "https://leibniz-psychology.org/forschung/forschungsliteralitaet/"
+        ],
+        [
+          "Forschungssynthesen",
+          "https://leibniz-psychology.org/forschung/forschungssynthesen/"
+        ],
+        [
+          "Big Data",
+          "https://leibniz-psychology.org/forschung/big-data/"
+        ]
+      ]
+    },
+    {
+      "name": "Institut",
+      "links": [
+        [
+          "Über uns",
+          "https://leibniz-psychology.org/institut/ueber-uns/"
+        ],
+        [
+          "Entwicklung",
+          "https://leibniz-psychology.org/institut/entwicklung/"
+        ],
+        [
+          "Leitung",
+          "https://leibniz-psychology.org/institut/leitung/"
+        ],
+        [
+          "Mitarbeitende",
+          "https://leibniz-psychology.org/institut/mitarbeitende/"
+        ],
+        [
+          "Organe",
+          "https://leibniz-psychology.org/institut/organe/"
+        ],
+        [
+          "Kooperationspartner",
+          "https://leibniz-psychology.org/institut/kooperationspartner/"
+        ],
+        [
+          "Karrieremöglichkeiten",
+          "https://leibniz-psychology.org/institut/karrieremoeglichkeiten/"
+        ],
+        [
+          "Drittmittelprojekte",
+          "https://leibniz-psychology.org/institut/drittmittelprojekte/"
+        ],
+        [
+          "Veröffentlichungen",
+          "https://leibniz-psychology.org/institut/veroeffentlichungen/"
+        ]
+      ]
+    }
+  ],
+  "en": [
+    {
+      "name": "Services",
+      "links": [
+        [
+          "Information search",
+          "https://leibniz-psychology.org/en/services/information-search/"
+        ],
+        [
+          "Preregistration",
+          "https://leibniz-psychology.org/en/services/preregistration/"
+        ],
+        [
+          "Study planning",
+          "https://leibniz-psychology.org/en/services/study-planning/"
+        ],
+        [
+          "Data collection",
+          "https://leibniz-psychology.org/en/services/data-collection/"
+        ],
+        [
+          "Data analysis",
+          "https://leibniz-psychology.org/en/services/data-analysis/"
+        ],
+        [
+          "Archiving",
+          "https://leibniz-psychology.org/en/services/archiving/"
+        ],
+        [
+          "Publication",
+          "https://leibniz-psychology.org/en/services/publication/"
+        ],
+        [
+          "Jobs",
+          "https://leibniz-psychology.org/en/services/jobs/"
+        ],
+        [
+          "Events",
+          "https://leibniz-psychology.org/en/services/events/"
+        ],
+        [
+          "Media Center",
+          "https://leibniz-psychology.org/en/services/media-center/"
+        ]
+      ]
+    },
+    {
+      "name": "Research",
+      "links": [
+        [
+          "Research literacy",
+          "https://leibniz-psychology.org/en/research/research-literacy/"
+        ],
+        [
+          "Research synthesis",
+          "https://leibniz-psychology.org/en/research/research-synthesis/"
+        ],
+        [
+          "Big data",
+          "https://leibniz-psychology.org/en/research/big-data/"
+        ]
+      ]
+    },
+    {
+      "name": "Institute",
+      "links": [
+        [
+          "About",
+          "https://leibniz-psychology.org/en/institute/about/"
+        ],
+        [
+          "Development",
+          "https://leibniz-psychology.org/en/institute/development/"
+        ],
+        [
+          "Leadership",
+          "https://leibniz-psychology.org/en/institute/leadership/"
+        ],
+        [
+          "Staff",
+          "https://leibniz-psychology.org/en/institute/staff/"
+        ],
+        [
+          "Boards",
+          "https://leibniz-psychology.org/en/institute/boards/"
+        ],
+        [
+          "Cooperation partners",
+          "https://leibniz-psychology.org/en/institute/cooperation-partners/"
+        ],
+        [
+          "Career opportunities",
+          "https://leibniz-psychology.org/en/institute/career-opportunities/"
+        ],
+        [
+          "Third-party funded projects",
+          "https://leibniz-psychology.org/en/institute/third-party-funded-projects/"
+        ],
+        [
+          "Publications",
+          "https://leibniz-psychology.org/en/institute/publications/"
+        ]
+      ]
+    }
+  ]
+}

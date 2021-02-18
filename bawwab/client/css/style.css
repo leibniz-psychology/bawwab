@@ -467,51 +467,84 @@ footer ul {
 	list-style: none;
 }
 
-.footer-stripe-partner {
-	background-color: var(--gray-base);
-	padding: 2em 0;
+footer h3 {
+	margin-top: 0;
+}
+
+.footer-stripe-open {
+	box-shadow: 0 -0.5em 1em -0.3em #b8bdc0;
+	border-bottom: 0.1em solid white;
+	text-align: center;
+	padding: 1em;
+	cursor: pointer;
+}
+
+.footer-stripe-open .arrow-open, .footer-stripe-open .arrow-close {
+	font-size: 3em;
+	margin: 0;
+	padding: 0;
+	line-height: 0.5em;
+}
+
+.footer-stripe-open .arrow-open {
+	margin-top: -0.5em;
+}
+
+.footer-stripe-open .arrow-close {
+	margin-bottom: -0.5em;
+}
+
+.footer-stripe-open img {
+    display: inline-block;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    width: 15rem;
+    border: lightgray solid 1px;
+    border-radius: 50px;
+    padding: .5rem;
+    background-color: white;
+	vertical-align: middle;
 }
 
 .footer-stripe-contact {
 	background-color: var(--gray-base);
-	box-shadow: 0 -0.5em 1em -0.3em #b8bdc0;
+	border-bottom: 0.1em solid white;
+	overflow-y: hidden;
 }
 
 .footer-stripe-partner > .pure-g > .pure-u-1,
 .footer-stripe-contact > .pure-g > .pure-u-1,
 .footer-stripe-navi > .pure-g > .pure-u-1,
 .footer-stripe-imprint > .pure-g > .pure-u-1 {
-	padding: 0 1em;
+	padding: 0 2em;
 }
 
 .footer-stripe-contact > .pure-g > .pure-u-1 {
-	padding: 2em 1em;
+	padding: 2em 2em;
 }
 
 .footer-stripe-contact > .pure-g > .pure-u-1 {
-	border-left: 0.1em solid #FFFFFF;
-	border-bottom: 0.1em solid #FFFFFF;
 }
 
 .footer-stripe-contact > .pure-g > .pure-u-1:first-child {
-	border-left: none;
 }
 
 .footer-stripe-navi {
 	background-color: var(--gray-light);
 	padding: 2.0em 0;
+	border-bottom: 0.1em solid white;
+	overflow-y: hidden;
 }
 
 .footer-stripe-imprint {
 	background-color: var(--gray-base);
-	padding: 0.7em 0;
 }
 
 .footer-stripe-imprint .pure-g {
 	align-items: center;
 }
 
-.footer-stripe-imprint .logos ul li {
+.footer-stripe-imprint ul li {
 	display: inline;
 }
 
@@ -519,9 +552,8 @@ footer ul {
 	text-align: right;
 }
 
-.footer-stripe-imprint ul li {
-	display: inline-block;
-	margin-left: 1.2em;
+.footer-stripe-imprint .links li {
+	margin-left: 1em;
 }
 
 .social-line {
@@ -851,8 +883,19 @@ span.placeholder {
 .fade-enter-active, .fade-leave-active {
   transition: opacity .3s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fade-enter, .fade-leave-to {
   opacity: 0;
+}
+
+.resize-enter-active, .resize-leave-active {
+  transition: all 0.5s;
+}
+.resize-enter, .resize-leave-to {
+	max-height: 0;
+	padding: 0;
+}
+.resize-enter-to, .resize-leave {
+	max-height: 20em;
 }
 
 .initials {

@@ -1,10 +1,20 @@
 import { translations, i18nMixin } from '../i18n.js';
+import sitemap from '../sitemap.json';
 
 Vue.component ('dynamic-footer', {
 	template: `<footer>
-      <div class="footer-stripe-contact">
+      <div class="footer-stripe-open" @click="open=!open">
+		  <p>{{ t('offerby') }}
+			<img src="https://leibniz-psychology.org/fileadmin/docs/img/leibniz_psychology.svg"
+				     alt="Logo Leibniz Psychology">
+			{{ t('learnmore') }}</p>
+			<p class="arrow-open" v-if="!open">⌄</p>
+			<p class="arrow-close" v-else>⌃</p>
+      </div>
+		<transition name="resize" @after-enter="afterOpen">
+      <div class="footer-stripe-contact" v-show="open">
         <div class="wrapped pure-g">
-          <div class="pure-u-md-1-2 pure-u-1">
+          <div class="pure-u-lg-1-2 pure-u-1">
             <div class="pure-g">
               <div class="pure-u-md-2-3 pure-u-1">
                 <h3>
@@ -22,7 +32,7 @@ Vue.component ('dynamic-footer', {
               </div>
             </div>
           </div>
-          <div class="pure-u-md-1-2 pure-u-1">
+          <div class="pure-u-lg-1-2 pure-u-1">
             <div class="pure-g">
               <div class="pure-u-md-2-3 pure-u-1">
                 <h3>
@@ -51,9 +61,11 @@ Vue.component ('dynamic-footer', {
           </div>
         </div>
       </div>
-      <div class="footer-stripe-navi">
+	</transition>
+		<transition name="resize">
+      <div class="footer-stripe-navi" v-show="open">
         <div class="wrapped pure-g">
-          <div class="pure-u-md-1-4 pure-u-1" v-for="col in sitemap">
+          <div class="pure-u-lg-1-4 pure-u-md-1-2 pure-u-1" v-for="col in sitemap">
             <h3>
               {{ col.name }}
             </h3>
@@ -63,7 +75,7 @@ Vue.component ('dynamic-footer', {
               </li>
             </ul>
           </div>
-          <div class="pure-u-md-1-4 pure-u-1">
+          <div class="pure-u-lg-1-4 pure-u-md-1-2 pure-u-1">
             <h3>
               leibniz-psychology.org
             </h3>
@@ -83,18 +95,17 @@ Vue.component ('dynamic-footer', {
           </div>
         </div>
       </div>
+	</transition>
       <div class="footer-stripe-imprint">
         <div class="wrapped pure-g">
-          <div class="pure-u-sm-4-5 pure-u-1">
+          <div class="pure-u-sm-1-5 pure-u-1">
             <ul class="logos">
               <li>
-                <a href="#"><img :src="t('leibnizLogo')"
-                     style="height: 5em"
-                     alt="Leibniz-Gemeinschaft"></a>
+                <img :src="t('leibnizLogo')" style="height: 5em" alt="Leibniz-Gemeinschaft">
               </li>
             </ul>
           </div>
-          <div class="pure-u-sm-1-5 pure-u-1">
+          <div class="pure-u-sm-4-5 pure-u-1">
             <ul class="links">
 			<li><router-link :to="{name: 'terms'}">{{ t('termsofuse') }}</router-link> </li>
 			  <li><router-link :to="{name: 'legal', hash: '#softwarelizenzen'}">{{ t('licenses') }}</router-link></li>
@@ -105,8 +116,11 @@ Vue.component ('dynamic-footer', {
       </div>
     </footer>`,
     data: _ => ({
+		open: false,
 		strings: translations ({
 			de: {
+				'offerby': 'Ein Angebot von',
+				'learnmore': 'Erfahren Sie mehr über uns!',
 				'questions': 'Haben Sie Fragen?',
 				'questionsBody': 'Schreiben Sie uns eine E-Mail. Wir helfen Ihnen gern.',
 				'contact': 'Kontakt',
@@ -118,6 +132,8 @@ Vue.component ('dynamic-footer', {
 				'leibnizLogo': 'https://www.lifp.de/assets/images/Leibniz-Gemeinschaft_Logo.svg',
 				},
 			en: {
+				'offerby': 'A service provided by',
+				'learnmore': 'Learn more about us!',
 				'questions': 'Have a question?',
 				'questionsBody': 'Send us an email. We will be happy to help you.',
 				'contact': 'Contact',
@@ -132,12 +148,13 @@ Vue.component ('dynamic-footer', {
 		}),
 	computed: {
 		sitemap: function () {
-			const data = {
-				'de': [{"name": "Angebote", "links": [["Informieren/Recherchieren", "https://leibniz-psychology.org/angebote/informierenrecherchieren/"], ["Studien pr\u00e4-registrieren", "https://leibniz-psychology.org/angebote/studien-prae-registrieren/"], ["Studien planen", "https://leibniz-psychology.org/angebote/studien-planen/"], ["Daten erheben", "https://leibniz-psychology.org/angebote/daten-erheben/"], ["Daten analysieren", "https://leibniz-psychology.org/angebote/daten-analysieren/"], ["Archivieren", "https://leibniz-psychology.org/angebote/archivieren/"], ["Ver\u00f6ffentlichen", "https://leibniz-psychology.org/angebote/veroeffentlichen/"], ["Jobs", "https://leibniz-psychology.org/angebote/jobs/"], ["Events", "https://leibniz-psychology.org/angebote/events/"], ["Mediathek", "https://leibniz-psychology.org/angebote/mediathek/"]]}, {"name": "Forschung", "links": [["Forschungsliteralit\u00e4t", "https://leibniz-psychology.org/forschung/forschungsliteralitaet/"], ["Forschungssynthesen", "https://leibniz-psychology.org/forschung/forschungssynthesen/"], ["Big Data", "https://leibniz-psychology.org/forschung/big-data/"]]}, {"name": "Institut", "links": [["\u00dcber uns", "https://leibniz-psychology.org/institut/ueber-uns/"], ["Entwicklung", "https://leibniz-psychology.org/institut/entwicklung/"], ["Leitung", "https://leibniz-psychology.org/institut/leitung/"], ["Mitarbeitende", "https://leibniz-psychology.org/institut/mitarbeitende/"], ["Organe", "https://leibniz-psychology.org/institut/organe/"], ["Kooperationspartner", "https://leibniz-psychology.org/institut/kooperationspartner/"], ["Karrierem\u00f6glichkeiten", "https://leibniz-psychology.org/institut/karrieremoeglichkeiten/"], ["Drittmittelprojekte", "https://leibniz-psychology.org/institut/drittmittelprojekte/"], ["Ver\u00f6ffentlichungen", "https://leibniz-psychology.org/institut/veroeffentlichungen/"]]}],
-				'en': [{"name": "Services", "links": [["Information search", "https://leibniz-psychology.org/en/services/information-search/"], ["Preregistration", "https://leibniz-psychology.org/en/services/preregistration/"], ["Study planning", "https://leibniz-psychology.org/en/services/study-planning/"], ["Data collection", "https://leibniz-psychology.org/en/services/data-collection/"], ["Data analysis", "https://leibniz-psychology.org/en/services/data-analysis/"], ["Archiving", "https://leibniz-psychology.org/en/services/archiving/"], ["Publication", "https://leibniz-psychology.org/en/services/publication/"], ["Jobs", "https://leibniz-psychology.org/en/services/jobs/"], ["Events", "https://leibniz-psychology.org/en/services/events/"], ["Media Center", "https://leibniz-psychology.org/en/services/media-center/"]]}, {"name": "Research", "links": [["Research literacy", "https://leibniz-psychology.org/en/research/research-literacy/"], ["Research synthesis", "https://leibniz-psychology.org/en/research/research-synthesis/"], ["Big data", "https://leibniz-psychology.org/en/research/big-data/"]]}, {"name": "Institute", "links": [["About", "https://leibniz-psychology.org/en/institute/about/"], ["Development", "https://leibniz-psychology.org/en/institute/development/"], ["Leadership", "https://leibniz-psychology.org/en/institute/leadership/"], ["Staff", "https://leibniz-psychology.org/en/institute/staff/"], ["Boards", "https://leibniz-psychology.org/en/institute/boards/"], ["Cooperation partners", "https://leibniz-psychology.org/en/institute/cooperation-partners/"], ["Career opportunities", "https://leibniz-psychology.org/en/institute/career-opportunities/"], ["Third-party funded projects", "https://leibniz-psychology.org/en/institute/third-party-funded-projects/"], ["Publications", "https://leibniz-psychology.org/en/institute/publications/"]]}],
-				};
-			return data[this.language];
+			return sitemap[this.language];
 		},
+	},
+	methods: {
+		afterOpen: function () {
+			this.$el.scrollIntoView ({behavior: 'smooth'});
+		}
 	},
 	mixins: [i18nMixin],
 });
