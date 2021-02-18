@@ -8,8 +8,7 @@ export default Vue.extend ({
 	<h2>{{ t('headline') }}</h2>
 	<h3 id="impressum">{{ t('imprint') }}</h3>
 	<address><p>
-	<strong>Leibniz-Zentrum für Psychologische Information
-	und Dokumentation (ZPID)</strong><br>
+	<strong>{{ t('instituteName') }}</strong><br>
 	Universitätsring 15, 54296 Trier<br>
 	Telefon: +49 (0)651 201-2877<br>
 	Fax: +49 (0)651 201-2071<br>
@@ -25,12 +24,14 @@ export default Vue.extend ({
 			de: {
 				'headline': 'Rechtliche Informationen',
 				'imprint': 'Impressum',
+				'instituteName': 'Leibniz-Institut für Psychologie (ZPID)',
 				'softwareLicenses': 'Softwarelizenzen',
 				'softwareLicensesBody': 'Diese Plattform bietet Zugriff auf RStudio Server, welche unter den Bedingungen der <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU Affero General Public License Version 3</a> zur Verfügung gestellt wird. Den Quelltext von RStudio Server findest Du <a href="https://github.com/rstudio/rstudio/">auf GitHub</a>. Unsere Änderungen daran sind in unserem <a href="https://github.com/leibniz-psychology/guix-zpid">guix-Kanal</a> einsehbar.',
 				},
 			en: {
 				'headline': 'Legal notice',
 				'imprint': 'Imprint',
+				'instituteName': 'Leibniz Institute for Psychology (ZPID)',
 				'softwareLicenses': 'Software licenses',
 				'softwareLicensesBody': 'This platform provides access to RStudio Server, released under the terms of the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU Affero General Public License Version 3</a>. The source code is available <a href="https://github.com/rstudio/rstudio/">on GitHub</a>. Our changes are made public via our <a href="https://github.com/leibniz-psychology/guix-zpid">guix channel</a>.',
 				},
