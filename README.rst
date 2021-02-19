@@ -13,11 +13,12 @@ Prerequisites
 
 You’ll need some form of automated user management, which clumsy_ provides, a
 working installation of conductor_, an OAuth2-capable sign-on (only KeyCloak_
-is supported right now) and a recent OpenSSH (>= 7.0) [#]_.
+is supported right now) and a recent OpenSSH (>= 7.0) [#]_. You can use `our
+setup`_ as a reference.
 
 A good method to deploy bawwab is using guix_:
 
-.. code:: bash
+.. code:: console
 
 	guix package -p /usr/local/profiles/bawwab -f contrib/bawwab.scm
 
@@ -29,9 +30,10 @@ Then use the systemd service file provided in ``contrib/bawwab.service`` to run 
 .. _guix: https://guix.gnu.org
 .. _conductor: https://github.com/leibniz-psychology/conductor
 .. _KeyCloak: https://www.keycloak.org/
+.. _our setup: https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/doc/configuration.rst#tiruchirappalli
 
-Design
-------
+Development
+-----------
 
 bawwab is a JavaScript application based on VueJS_ and `VueJS router`_ with a
 Python backend based on sanic_ and tortoise-orm_.
@@ -40,4 +42,34 @@ Python backend based on sanic_ and tortoise-orm_.
 .. _VueJS router: https://router.vuejs.org/
 .. _sanic: https://sanic.readthedocs.io/en/latest/
 .. _tortoise-orm: https://tortoise-orm.readthedocs.io/en/latest/
+
+To get started with the development you need all the prerequisites listed
+above. Additionally you must configure your local Guix to use the channel
+guix-zpid_. Then you can set up a development environment using
+
+.. code:: console
+
+	guix environment -l contrib/bawwab.scm --ad-hoc nss-certs openssl
+	virtualenv -p python3 sandbox
+	source sandbox/bin/activate
+	python setup.py develop
+
+configure it using the example in ``contrib/config.py`` and run bawwab directly
+from that directory
+
+.. code:: console
+
+	export BAWWAB_SETTINGS=/path/to/config.py
+	bawwab
+
+After modifying the client (i.e. anything under ``bawwab/client``) you need to
+recompile the assets using
+
+.. code:: console
+
+	python setup.py esbuild
+
+The backend will pick up changes automatically when in debug mode.
+
+.. _guix-zpid: https://github.com/leibniz-psychology/guix-zpid
 
