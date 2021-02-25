@@ -61,7 +61,7 @@ export const store = {
 		user: null,
 		workspaces: null,
 		/* current language */
-		language: 'de',
+		language: 'en',
 
 		/* notify when the store is fully initialized */
 		ready: new AsyncNotify (),
