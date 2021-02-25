@@ -10,6 +10,7 @@
   #:use-module (gnu packages shellutils)
   #:use-module (gnu packages ssh)
   #:use-module (gnu packages web)
+  #:use-module (gnu packages mail)
   #:use-module ((zpid packages tortoise) #:prefix zpid:)
   #:use-module (guix packages)
   #:use-module (guix download)
@@ -17,6 +18,37 @@
   #:use-module (guix gexp)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26))
+
+(define-public python-aiosmtplib
+  (package
+    (name "python-aiosmtplib")
+    (version "1.1.4")
+    (source
+      (origin
+        (method url-fetch)
+        (uri (pypi-uri "aiosmtplib" version))
+        (sha256
+          (base32
+            "0ha5n8fwm2rx86clhas5s1cnq7was3xm9jbg4ywhbakmcjhd0w42"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:tests? #f ; Tests fail.
+       #:phases
+       (modify-phases %standard-phases
+         (replace 'check
+           (lambda* (#:key tests? inputs outputs #:allow-other-keys)
+            (when tests?
+             (add-installed-pythonpath inputs outputs)
+             (invoke "pytest" "-vv"))
+             #t)))))
+    (native-inputs
+      `(("python-pytest" ,python-pytest)
+        ("python-pytest-asyncio" ,python-pytest-asyncio)
+        ("python-aiosmtpd" ,python-aiosmtpd)))
+    (home-page "https://github.com/cole/aiosmtplib")
+    (synopsis "asyncio SMTP client")
+    (description "asyncio SMTP client")
+    (license license:expat)))
 
 (define %source-dir (dirname (dirname (current-filename))))
 
@@ -39,7 +71,8 @@
      ("python-pytz" ,python-pytz)
      ("font-awesome" ,font-awesome)
      ("python-tortoise-orm" ,zpid:python-tortoise-orm)
-     ("python-aiosqlite" ,python-aiosqlite)))
+     ("python-aiosqlite" ,python-aiosqlite)
+     ("python-aiosmtplib" ,python-aiosmtplib)))
   (native-inputs `(("esbuild" ,esbuild)))
   (home-page #f)
   (synopsis #f)

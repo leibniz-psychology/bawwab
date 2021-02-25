@@ -1,7 +1,7 @@
 Vue.component('action-button', {
-	props: ['icon', 'f', 'importance'],
+	props: ['icon', 'f', 'importance', 'disabled'],
 	data: function () { return {busy: false, ret: null} },
-	template: `<button v-on:click="clicked" :class="btnclass" :disabled="busy"><i :class="iconclass"></i> <slot></slot></button>`,
+	template: `<button v-on:click="clicked" :class="btnclass" :disabled="disabled || busy"><i :class="iconclass"></i> <slot></slot></button>`,
 	computed: {
 		iconclass: function () {
 			if (this.ret) {

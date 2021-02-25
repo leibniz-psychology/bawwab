@@ -678,10 +678,11 @@ a {
 
 .modal .frame .userContent {
 	flex-grow: 3;
-	flex-shrink: 1;
+	/*flex-shrink: 1;*/
 	display: flex;
 	flex-direction: column;
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .modal .frame .buttons {
@@ -751,7 +752,8 @@ a {
 }
 
 input[type="text"], input[type="search"], textarea {
-	width: 100%;
+	/* better use flexboxes */
+	/*width: 100%;*/
 	border: 0.1em solid #352071;
 	padding: 0.2em;
 }
@@ -774,6 +776,14 @@ span.placeholder {
 .workspaceItem .title {
 	text-overflow: ellipsis;
 	overflow: hidden;
+}
+
+.workspaceItem .title, .workspaceItem .description {
+	display: flex;
+}
+
+.workspaceItem .title > *, .workspaceItem .description > * {
+	flex-grow: 1;
 }
 
 .workspaceItem .shared ul li, .workspaceItem .owners ul li {
@@ -1065,6 +1075,7 @@ table.workspaces .actions li {
 
 .packageSearch > * {
 	margin-right: 0.5em;
+	flex-grow: 1;
 }
 
 .packageSearch > *:last-child {
@@ -1112,4 +1123,12 @@ table.workspaces .actions li {
 	background-color: var(--gray-light);
 }
 
+.share .kind {
+	margin: 1em 0;
+}
+
+.mailpreview {
+	word-break: break-all;
+	white-space: pre-wrap;
+}
 

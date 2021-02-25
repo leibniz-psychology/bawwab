@@ -39,16 +39,9 @@ SSH_HOST = 'ssh.example.com'
 # URL running conductor, python format string, which expands variables key and user
 PROXY_HOST = 'https://{key}.{user}.user.example.com'
 
-# default permissions for unauthenticated roles
-ANON_PERMISSIONS = dict (
-	canCreateWorkspace=False,
-	canUpdateTos=False,
-	canRegister=False,
-	)
-# permissions for default authenticated role
-AUTH_PERMISSIONS = dict (
-	canCreateWorkspace=True,
-	canUpdateTos=False,
-	canRegister=False,
-	)
-
+EMAIL = dict(
+    server="mail.example.com",
+    port = 587,
+    sender = "noreply@example.com",
+    password = '123',
+    )

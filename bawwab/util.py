@@ -26,7 +26,7 @@ import secrets, asyncio
 from datetime import datetime
 from functools import wraps
 
-import aiohttp, pytz
+import pytz
 
 def randomSecret (n=32):
 	alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'

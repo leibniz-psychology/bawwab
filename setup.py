@@ -45,6 +45,7 @@ setup(
 		# for migrations
 		'pypika',
 		'pyyaml',
+		'aiosmtplib',
     ],
     python_requires='>=3.7',
     entry_points={
