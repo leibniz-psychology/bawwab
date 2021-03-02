@@ -41,7 +41,7 @@ export default Vue.extend ({
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
 		},
 		permissions: function () {
-			return this.workspace?.getPermissions (this.state.user?.name);
+			return this.workspace?.getPermissions (this.state.user?.name)[0];
 		},
 		canDelete: function () {
 			return this.permissions?.canDelete () ?? false;

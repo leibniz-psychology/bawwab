@@ -47,6 +47,11 @@ export default Vue.extend ({
 				</li>
 			</ul>
 			</li>
+
+			<li v-if="isPublic" class="public">
+			<i class="fa fa-globe"></i>
+			{{ t('publicproject') }}
+			</li>
 		</ul>
 
 		<p class="description">
@@ -82,6 +87,7 @@ export default Vue.extend ({
 				'back': 'Zurück zur Übersicht',
 				'projectname': 'Name des Projekts',
 				'sharedwith': 'Geteilt mit Gruppen',
+				'publicproject': 'Öffentliches Projekt',
 				'ownedby': 'Gehört',
 				'projectdescription': 'Beschreibung des Projekts',
 				'readonly': 'nur Lesen',
@@ -105,6 +111,7 @@ export default Vue.extend ({
 				'back': 'Back to projects',
 				'projectname': 'Name of the project',
 				'sharedwith': 'Shared with',
+				'publicproject': 'Public project',
 				'ownedby': 'Owned by',
 				'projectdescription': 'Description of the project',
 				'readonly': 'read-only',
@@ -124,7 +131,7 @@ export default Vue.extend ({
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
 		},
 		permissions: function () {
-			return this.workspace?.getPermissions (this.username);
+			return this.workspace?.getPermissions (this.username)[0];
 		},
 		name: function () { return this.workspace.metadata.name },
 		hasName: function () { return this.editable || this.workspace.metadata.name },
@@ -134,7 +141,7 @@ export default Vue.extend ({
 		owners: function () { return this.workspace.owner ().filter (name => name != this.username); },
 		/* XXX: this is accidentally quadratic, assuming username==groupname */
 		sharedWith: function () { return Object.entries (this.workspace.permissions.group).filter (([k, v]) => this.owners.indexOf (k) == -1 && k != this.username) },
-
+		isPublic: function () { return this.workspace.permissions.other.canRead (); },
 	},
 	methods: {
         save: async function () {

@@ -26,6 +26,10 @@ export default Vue.extend ({
 			<input type="radio" name="filter" value="shared" id="filtershared" v-model="filter">
 			<label for="filtershared">{{ t('sharedprojects') }}</label>
 		</div>
+		<div>
+			<input type="radio" name="filter" value="world" id="filterworld" v-model="filter">
+			<label for="filterworld">{{ t('publicprojects') }}</label>
+		</div>
 		</form>
 		<table class="workspaces pure-table pure-table-striped pure-table-horizontal" v-if="filteredWorkspaces.length > 0">
 		<thead>
@@ -76,6 +80,7 @@ export default Vue.extend ({
 				'unnamed': 'Unbenanntes Projekt',
 				'myprojects': 'Meine Projekte',
 				'sharedprojects': 'Geteilte Projekte',
+				'publicprojects': 'Öffentliche Projekte',
 				'thtitle': 'Titel',
 				'thdescription': 'Beschreibung',
 				'thactions': 'Aktionen',
@@ -89,6 +94,7 @@ export default Vue.extend ({
 				'unnamed': 'Unnamed project',
 				'myprojects': 'My projects',
 				'sharedprojects': 'Shared projects',
+				'publicprojects': 'Public projects',
 				'thtitle': 'Title',
 				'thdescription': 'Description',
 				'thactions': 'Actions',
@@ -102,8 +108,9 @@ export default Vue.extend ({
 		username: function () { return this.state.user?.name; },
 		filteredWorkspaces: function () {
 			const filterFunc = {
-				mine: w => w.getPermissions (this.username).canShare (),
-				shared: w => !w.getPermissions (this.username).canShare(),
+				mine: w => w.getPermissions (this.username)[0].canShare (),
+				shared: w => w.getPermissions (this.username)[1] == 'group',
+				world: w => w.getPermissions (this.username)[1] == 'other',
 				};
 			const searchFunc = function (w) {
 				const s = this.filtertext;

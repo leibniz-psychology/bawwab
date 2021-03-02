@@ -6,11 +6,12 @@ export default class Workspace {
 	constructor (o) {
 		Object.assign (this, o);
 
-		for (const cat in this.permissions) {
+		for (const cat of ['user', 'group']) {
 			for (const id in this.permissions[cat]) {
 				this.permissions[cat][id] = new Permissions (this.permissions[cat][id]);
 			}
 		}
+		this.permissions.other = new Permissions (this.permissions.other);
 	}
 
 	/* Compare workspace names for .sort()
@@ -27,19 +28,20 @@ export default class Workspace {
 		}
 	}
 
+	/* Return [permissions, source] for user */
 	getPermissions (user) {
 		/* first check user fields */
 		let perms = Object.entries (this.permissions.user).filter (([k, v]) => k == user);
 		if (perms.length >= 1) {
-			return perms[0][1];
+			return [perms[0][1], 'user'];
 		}
 		/* assuming user==group */
 		perms = Object.entries (this.permissions.group).filter (([k, v]) => k == user);
 		if (perms.length >= 1) {
-			return perms[0][1];
+			return [perms[0][1], 'group'];
 		}
 		/* this should always exist */
-		return this.permissions.other;
+		return [this.permissions.other, 'other'];
 	}
 
 	/* Retrive the owners of this workspace.
@@ -52,7 +54,7 @@ export default class Workspace {
 	 */
 	runnableApplications (user) {
 		const ret = [];
-		if (!this.getPermissions (user).canRun ()) {
+		if (!this.getPermissions (user)[0].canRun ()) {
 			return ret;
 		}
 		for (const a of this.applications) {
