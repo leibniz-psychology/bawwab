@@ -1,5 +1,5 @@
 import { translations, i18nMixin } from '../i18n.js';
-import { store, whoami } from '../app.js';
+import { store } from '../app.js';
 import { getResponse } from '../helper.js';
 import Workspace from '../workspace.js';
 
@@ -44,7 +44,7 @@ export default Vue.extend ({
 	 				console.debug ('got run action');
 	 				const p = await this.state.processes.get (await this.state.processes.run (null, this.token));
 	 				console.debug ('got program %o', p);
-	 				const newws = new Workspace (await p.getObject (), whoami);
+	 				const newws = new Workspace (await p.getObject ());
 	 				const ret = await p.wait ();
 	 				if (ret == 0) {
 	 					this.state.workspaces.workspaces.push (newws);

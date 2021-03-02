@@ -1,6 +1,6 @@
 import Workspace from './workspace.js';
 import { ConductorClient } from './conductor.js';
-import { config, whoami } from './app.js';
+import { config } from './app.js';
 import { postData, getResponse } from './helper.js';
 
 export default class Workspaces {
@@ -66,7 +66,7 @@ export default class Workspaces {
 		const workspaces = await p.getAllObjects ();
 		const ret = await p.wait ();
 		if (ret == 0) {
-			return workspaces.map (o => new Workspace (o, whoami));
+			return workspaces.map (o => new Workspace (o));
 		} else {
 			throw Error ('unhandled');
 		}

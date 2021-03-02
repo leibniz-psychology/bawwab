@@ -40,8 +40,11 @@ export default Vue.extend ({
 		workspace: function () {
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
 		},
+		permissions: function () {
+			return this.workspace?.getPermissions (this.state.user?.name);
+		},
 		canDelete: function () {
-			return this.workspace.canDelete ();
+			return this.permissions?.canDelete () ?? false;
 		},
 	},
 	methods: {

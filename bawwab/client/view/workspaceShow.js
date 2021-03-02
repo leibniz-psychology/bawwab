@@ -14,12 +14,12 @@ export default Vue.extend ({
 		<ul class="right">
 			<li v-if="editable"><action-button icon="save" :f="save" importance="high">{{ t('save') }}</action-button></li>
 			<li v-if="editable"><action-button icon="window-close" :f="discard" importance="low">{{ t('cancel') }}</action-button></li>
-			<li v-if="!editable && workspace.canWrite ()"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ t('edit') }}</action-button></li>
-			<li><router-link class="btn" v-if="workspace.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ t('editpackages') }}</router-link></li>
-			<li><router-link class="btn" v-if="workspace.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ t('share') }}</router-link></li>
-			<li><router-link class="btn" v-if="workspace.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ t('export') }}</router-link></li>
-			<li><action-button v-if="workspace.canRead()" icon="copy" :f="copy">{{ t('copy') }}</action-button></li>
-			<li><router-link class="btn low" :to="{name: 'workspaceDelete', params: {wsid: workspace.metadata._id}}"><i class="fas fa-trash"></i> {{ workspace.canDelete() ? t('delete') : t('hide') }}</router-link></li>
+			<li v-if="!editable && permissions.canWrite ()"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ t('edit') }}</action-button></li>
+			<li><router-link class="btn" v-if="permissions.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ t('editpackages') }}</router-link></li>
+			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ t('share') }}</router-link></li>
+			<li><router-link class="btn" v-if="permissions.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ t('export') }}</router-link></li>
+			<li><action-button v-if="permissions.canRead()" icon="copy" :f="copy">{{ t('copy') }}</action-button></li>
+			<li><router-link class="btn low" :to="{name: 'workspaceDelete', params: {wsid: workspace.metadata._id}}"><i class="fas fa-trash"></i> {{ permissions.canDelete() ? t('delete') : t('hide') }}</router-link></li>
 		</ul>
 		</div>
 
@@ -30,10 +30,12 @@ export default Vue.extend ({
 		</h3>
 
 		<ul class="metadata">
-			<li class="owners">
+			<li class="owners" v-if="owners.length > 0">
 				<i class="fa fa-user"></i>
 				{{ t('ownedby') }}
-				{{ workspace.owner () }}
+				<span v-for="o of owners">
+					{{ o }}
+				</span>
 			</li>
 			<li v-if="sharedWith.length > 0" class="shared">
 			<i class="fa fa-users"></i>
@@ -41,7 +43,7 @@ export default Vue.extend ({
 			<ul>
 				<li v-for="[k, v] of sharedWith">
 				{{ k }} ({{ permissionsToHuman (v) }})
-				<action-button v-if="workspace.canShare()" icon="trash" :f="_ => deleteShare (k)" importance="small"></action-button>
+				<action-button v-if="permissions.canShare()" icon="trash" :f="_ => deleteShare (k)" importance="small"></action-button>
 				</li>
 			</ul>
 			</li>
@@ -55,7 +57,7 @@ export default Vue.extend ({
 
 		<div class="applications">
 	<application-item
-		v-for="a in workspace.runnableApplications()"
+		v-for="a in workspace.runnableApplications(username)"
 		:application="a"
 		:workspace="workspace"
 		:key="a._id"></application-item>
@@ -117,14 +119,21 @@ export default Vue.extend ({
 	mixins: [i18nMixin],
 	computed: {
 		workspaces: function () { return this.state.workspaces; },
+		username: function () { return this.state.user?.name; },
 		workspace: function () {
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
+		},
+		permissions: function () {
+			return this.workspace?.getPermissions (this.username);
 		},
 		name: function () { return this.workspace.metadata.name },
 		hasName: function () { return this.editable || this.workspace.metadata.name },
 		description: function () { return this.workspace.metadata.description },
 		hasDescription: function () { return this.editable || this.workspace.metadata.description },
-		sharedWith: function () { return Object.entries (this.workspace.permissions).filter (([k, v]) => (!v.includes ('t'))) },
+		/* owners without us */
+		owners: function () { return this.workspace.owner ().filter (name => name != this.username); },
+		/* XXX: this is accidentally quadratic, assuming username==groupname */
+		sharedWith: function () { return Object.entries (this.workspace.permissions.group).filter (([k, v]) => this.owners.indexOf (k) == -1 && k != this.username) },
 
 	},
 	methods: {
@@ -167,8 +176,8 @@ export default Vue.extend ({
 			this.editable = false;
 		},
 		permissionsToHuman: function (p) {
-			const canRead = p.includes ('r');
-			const canWrite = p.includes ('w');
+			const canRead = p.canRead ();
+			const canWrite = p.canWrite ();
 			if (canRead && canWrite) {
 				return this.t('readwrite');
 			} else if (canRead) {

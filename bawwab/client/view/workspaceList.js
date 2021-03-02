@@ -51,7 +51,7 @@ export default Vue.extend ({
 			</td>
 			<td class="actions">
 				<ul>
-					<li v-for="a in w.runnableApplications ()" :key="a._id">
+					<li v-for="a in w.runnableApplications (username)" :key="a._id">
 						<router-link :to="{name: 'application', params: {wsid: w.metadata._id, appid: a._id}}">
 							<application-icon :workspace="w" :application="a" height="1.5em"></application-icon>
 						</router-link>
@@ -99,10 +99,11 @@ export default Vue.extend ({
 	mixins: [i18nMixin],
 	computed: {
 		disabled: function() { return !this.state.workspaces; },
+		username: function () { return this.state.user?.name; },
 		filteredWorkspaces: function () {
 			const filterFunc = {
-				mine: w => w.canShare (),
-				shared: w => !w.canShare(),
+				mine: w => w.getPermissions (this.username).canShare (),
+				shared: w => !w.getPermissions (this.username).canShare(),
 				};
 			const searchFunc = function (w) {
 				const s = this.filtertext;

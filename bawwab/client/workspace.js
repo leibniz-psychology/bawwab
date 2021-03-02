@@ -1,9 +1,16 @@
+import Permissions from './permissions.js';
+
 /* A single workspace.
  */
 export default class Workspace {
-	constructor (o, whoami) {
+	constructor (o) {
 		Object.assign (this, o);
-		this.whoami = whoami;
+
+		for (const cat in this.permissions) {
+			for (const id in this.permissions[cat]) {
+				this.permissions[cat][id] = new Permissions (this.permissions[cat][id]);
+			}
+		}
 	}
 
 	/* Compare workspace names for .sort()
@@ -20,61 +27,32 @@ export default class Workspace {
 		}
 	}
 
-	myPermissions () {
-		const me = this.whoami ();
-		const perms = Object.entries (this.permissions).filter (([k, v]) => k == me);
-		if (perms.length < 1) {
-			return '';
+	getPermissions (user) {
+		/* first check user fields */
+		let perms = Object.entries (this.permissions.user).filter (([k, v]) => k == user);
+		if (perms.length >= 1) {
+			return perms[0][1];
 		}
-		return perms[0][1];
+		/* assuming user==group */
+		perms = Object.entries (this.permissions.group).filter (([k, v]) => k == user);
+		if (perms.length >= 1) {
+			return perms[0][1];
+		}
+		/* this should always exist */
+		return this.permissions.other;
 	}
 
-	/* Retrive the owner of this workspace.
+	/* Retrive the owners of this workspace.
 	 */
 	owner () {
-		/* XXX: assuming there can only be one owner */
-		const l = Object.entries (this.permissions).filter (([k, v]) => v.includes ('T'));
-		if (l.length == 0) {
-			return null;
-		}
-		return l[0][0];
-	}
-
-	/* Current user is allowed to read files of this project.
-	 */
-	canRead () {
-		return this.myPermissions ().includes ('r');
-	}
-
-	/* Current user is allowed to write files of this project.
-	 */
-	canWrite () {
-		return this.myPermissions ().includes ('w');
-	}
-
-	/* Current user can run applications.
-	 */
-	canRun () {
-		return this.canWrite ();
-	}
-
-	/* Current user can share project with other users. (Only owner can.)
-	 */
-	canShare () {
-		return this.myPermissions ().includes ('T');
-	}
-
-	/* Current user can delete files. In theory having 'w' is enough, but don’t
-	 * advertise it. */
-	canDelete () {
-		return this.canShare ();
+		return Object.entries (this.permissions.user).filter (([k, v]) => v.canShare ()).map (([k, v]) => k);
 	}
 
 	/* All applications runnable in the web client
 	 */
-	runnableApplications () {
+	runnableApplications (user) {
 		const ret = [];
-		if (!this.canRun ()) {
+		if (!this.getPermissions (user).canRun ()) {
 			return ret;
 		}
 		for (const a of this.applications) {
