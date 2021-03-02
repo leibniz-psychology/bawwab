@@ -31,7 +31,7 @@ export default Vue.extend ({
 				'addPackage': 'Installieren',
 				'searchPackage': 'Paket suchen',
 				'upgrade': 'Alle Pakete aktualisieren',
-				'cancel': 'Abbrechen',
+				'close': 'Schließen',
 				'title': 'Pakete verwalten',
 				'nopackages': 'Keine Pakete gefunden',
 				'description': 'Hier können Pakete zum Projekt hinzugefügt werden. Um das R-Paket <em>beispiel</em> zu suchen, verwende <kbd>^r-beispiel</kbd>.',
@@ -50,7 +50,7 @@ export default Vue.extend ({
 				'addPackage': 'Install',
 				'searchPackage': 'Search package',
 				'upgrade': 'Upgrade all packages',
-				'cancel': 'Cancel',
+				'close': 'Close',
 				'title': 'Manage packages',
 				'nopackages': 'No packages found',
 				'description': 'Here you can add packages to your project. Use <kbd>^r-package</kbd> to search for R packages only.',
@@ -58,7 +58,7 @@ export default Vue.extend ({
 			}),
 	}),
 	mixins: [i18nMixin],
-    template: `<modal :title="t('title')" icon="box" :closeName="t('cancel')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
+    template: `<modal :title="t('title')" icon="box" :closeName="t('close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
 		<p v-html="t('description')"></p>
 		<div class="packageSearch">
 			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="search">
@@ -146,7 +146,6 @@ export default Vue.extend ({
 			this.busy = true;
 			try {
 				await this.state.workspaces.packageUpgrade (this.workspace);
-				this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
 			} finally {
 				this.busy = false;
 			}
