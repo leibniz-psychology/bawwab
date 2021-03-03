@@ -14,7 +14,7 @@ export default Vue.extend ({
 		<ul class="right">
 			<li v-if="editable"><action-button icon="save" :f="save" importance="high">{{ t('save') }}</action-button></li>
 			<li v-if="editable"><action-button icon="window-close" :f="discard" importance="low">{{ t('cancel') }}</action-button></li>
-			<li v-if="!editable && permissions.canWrite ()"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ t('edit') }}</action-button></li>
+			<li v-if="!editable && canEditMeta"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ t('edit') }}</action-button></li>
 			<li><router-link class="btn" v-if="permissions.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ t('editpackages') }}</router-link></li>
 			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ t('share') }}</router-link></li>
 			<li><router-link class="btn" v-if="permissions.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ t('export') }}</router-link></li>
@@ -26,7 +26,7 @@ export default Vue.extend ({
 		<h3 class="title">
 			<input type="text" v-if="editable" :placeholder="t('projectname')" :value="name">
 			<span v-else-if="hasName" v-text="name"></span>
-			<span v-else class="placeholder" @click="makeTitleEditable">{{ t('noTitle') }}</span>
+			<span v-else-if="canEditMeta" class="placeholder" @click="makeTitleEditable">{{ t('noTitle') }}</span>
 		</h3>
 
 		<ul class="metadata">
@@ -57,7 +57,7 @@ export default Vue.extend ({
 		<p class="description">
 			<textarea v-if="editable" :placeholder="t('projectdescription')" v-text="description"></textarea>
 			<span v-else-if="hasDescription" v-text="description"></span>
-			<span v-else class="placeholder" @click="makeDescriptionEditable">{{ t('noDescription') }}</span>
+			<span v-else-if="canEditMeta" class="placeholder" @click="makeDescriptionEditable">{{ t('noDescription') }}</span>
 		</p>
 
 		<div class="applications">
@@ -142,6 +142,8 @@ export default Vue.extend ({
 		/* XXX: this is accidentally quadratic, assuming username==groupname */
 		sharedWith: function () { return Object.entries (this.workspace.permissions.group).filter (([k, v]) => this.owners.indexOf (k) == -1 && k != this.username) },
 		isPublic: function () { return this.workspace.permissions.other.canRead (); },
+		/* user can edit project metadata */
+		canEditMeta: function () { return this.permissions.canWrite (); },
 	},
 	methods: {
         save: async function () {
@@ -166,6 +168,9 @@ export default Vue.extend ({
 			this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
 		},
 		makeEditable: async function (focus) {
+			if (!this.canEditMeta) {
+				return;
+			}
 			this.editable = true;
 			if (focus) {
 				/* make sure the elements are rendered */
