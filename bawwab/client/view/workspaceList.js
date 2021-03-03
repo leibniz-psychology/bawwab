@@ -69,7 +69,6 @@ export default Vue.extend ({
 	data: _ => ({
 		state: store.state,
 		name: '',
-		filter: 'mine',
 		filtertext: '',
 		strings: translations({
 			de: {
@@ -128,6 +127,20 @@ export default Vue.extend ({
 			} else {
 				return [];
 			}},
+		filter: {
+			get () {
+				const fromQuery = this.$route.query.filter;
+				return fromQuery ?? 'mine';
+			},
+			set (value) {
+				this.$router.replace ({
+					query: {
+						...this.$route.query,
+						filter: value
+					}
+				});
+			}
+		},
 	},
 	methods: {
         createWorkspace: async function() {
