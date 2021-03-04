@@ -115,13 +115,13 @@ export default Vue.extend ({
 				if (s) {
 					const sl = s.toLowerCase ();
 					const searchFields = ['name', 'description'];
-					return searchFields.reduce ((last, name) => last || w.metadata[name].toLowerCase().indexOf (sl) != -1, false);
+					return searchFields.reduce ((last, name) => last || w.metadata[name]?.toLowerCase().indexOf (sl) != -1, false);
 				} else {
 					return true;
 				}
 			}.bind (this);
 			if (!this.disabled) {
-				const f = w => [filterFunc[this.filter], searchFunc].reduce ((last, f) => last && f(w), true)
+				const f = w => [filterFunc[this.filter], searchFunc].reduce ((last, g) => last && g(w), true)
 				return this.state.workspaces.all().filter (f).sort (Workspace.compareName);
 			} else {
 				return [];
