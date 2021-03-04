@@ -69,7 +69,6 @@ export default Vue.extend ({
 	data: _ => ({
 		state: store.state,
 		name: '',
-		filtertext: '',
 		strings: translations({
 			de: {
 				'projects': 'Projekte',
@@ -137,6 +136,20 @@ export default Vue.extend ({
 					query: {
 						...this.$route.query,
 						filter: value
+					}
+				});
+			}
+		},
+		filtertext: {
+			get () {
+				const fromQuery = this.$route.query.search;
+				return fromQuery ?? '';
+			},
+			set (value) {
+				this.$router.replace ({
+					query: {
+						...this.$route.query,
+						search: value
 					}
 				});
 			}
