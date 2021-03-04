@@ -35,11 +35,10 @@ export default class Workspaces {
 
 		registerRunWithCb ('workspaces.ignore', this.onIgnore);
 
-		registerRunWithCb ('workspaces.packageSearch', this.onPackageSearch);
-
 		this.em.register ('workspaces.delete', this.onDelete.bind (this));
 		this.em.register ('workspaces.start', this.onStart.bind (this));
 		this.em.register ('workspaces.export', this.onExport.bind (this));
+		this.em.register ('workspaces.packageSearch', this.onPackageSearch.bind (this));
 	}
 
 	/* Run workspace command with more arguments
@@ -223,8 +222,14 @@ export default class Workspaces {
 		return await this.runWith ('workspaces.packageSearch', ws, args);
 	}
 
-	async onPackageSearch (args, ret) {
-		return ret;
+	async onPackageSearch (args, p) {
+		const results = await p.getAllObjects ();
+		const ret = await p.wait ();
+		if (ret == 0) {
+			return results;
+		} else {
+			throw Error ('unhandled');
+		}
 	}
 
 	async packageModify (ws, packages) {
