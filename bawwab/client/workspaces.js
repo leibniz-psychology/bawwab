@@ -135,10 +135,10 @@ export default class Workspaces {
 		}
 	}
 
-	/* share workspace with a group
+	/* share workspace with a user, group or others
 	 */
-	async share (ws, group, isWrite) {
-		const args = ['share', group];
+	async share (ws, spec, isWrite) {
+		const args = ['share', spec];
 		if (isWrite) {
 			args.push ('-w');
 		}
@@ -148,7 +148,7 @@ export default class Workspaces {
 	/* Implicitly share a workspace through an action link
 	 */
 	async shareAction (ws, isWrite) {
-		const command = ['workspace', '-d', ws.path, '-f', 'json', 'share', '{user}'];
+		const command = ['workspace', '-d', ws.path, '-f', 'json', 'share', 'g:{user}'];
 		if (isWrite) {
 			command.push ('-w');
 		}
@@ -163,8 +163,8 @@ export default class Workspaces {
 		return action.token;
 	}
 
-	async unshare (ws, group) {
-		const args = ['share', '-x', group];
+	async unshare (ws, spec) {
+		const args = ['share', '-x', spec];
 		return await this.runWith ('workspaces.unshare', ws, args);
 	}
 

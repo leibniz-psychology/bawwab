@@ -17,6 +17,7 @@ export default Vue.extend ({
 			<li v-if="!editable && canEditMeta"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ t('edit') }}</action-button></li>
 			<li><router-link class="btn" v-if="permissions.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ t('editpackages') }}</router-link></li>
 			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ t('share') }}</router-link></li>
+			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspacePublish', params: {wsid: workspace.metadata._id}}"><i class="fas fa-globe"></i> {{ t('publish') }}</router-link></li>
 			<li><router-link class="btn" v-if="permissions.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ t('export') }}</router-link></li>
 			<li><action-button v-if="permissions.canRead()" icon="copy" :f="copy">{{ t('copy') }}</action-button></li>
 			<li><router-link class="btn low" :to="{name: 'workspaceDelete', params: {wsid: workspace.metadata._id}}"><i class="fas fa-trash"></i> {{ permissions.canDelete() ? t('delete') : t('hide') }}</router-link></li>
@@ -80,6 +81,7 @@ export default Vue.extend ({
 				'cancel': 'Verwerfen',
 				'edit': 'Bearbeiten',
 				'share': 'Teilen',
+				'publish': 'Veröffentlichen',
 				'export': 'Exportieren',
 				'copy': 'Kopieren',
 				'delete': 'Löschen',
@@ -104,6 +106,7 @@ export default Vue.extend ({
 				'cancel': 'Cancel',
 				'edit': 'Edit',
 				'share': 'Share',
+				'publish': 'Publish',
 				'export': 'Export',
 				'copy': 'Copy',
 				'delete': 'Delete',
@@ -158,7 +161,7 @@ export default Vue.extend ({
 			this.editable = false;
 		},
 		deleteShare: async function (group) {
-			await this.workspaces.unshare (this.workspace, group);
+			await this.workspaces.unshare (this.workspace, `g:${group}`);
 		},
 		copy: async function () {
 			const newws = await this.workspaces.copy (this.workspace);

@@ -10,6 +10,7 @@ import NotFoundView from './view/notFound.js';
 import TermsOfServiceView from './view/tos.js';
 import WorkspaceImportView from './view/workspaceImport.js';
 import WorkspaceShareView from './view/workspaceShare.js';
+import WorkspacePublishView from './view/workspacePublish.js';
 import WorkspaceListView from './view/workspaceList.js';
 import WorkspaceShowView from './view/workspaceShow.js';
 import WorkspaceExportView from './view/workspaceExport.js';
@@ -22,6 +23,7 @@ const routes = [
 	{ path: '/workspaces/:wsid', component: WorkspaceShowView, name: 'workspace', props: true },
 	{ path: '/workspaces/:wsid/delete', components: { default: WorkspaceShowView, overlay: WorkspaceDeleteView }, name: 'workspaceDelete', props: { default: true, overlay: true }},
 	{ path: '/workspaces/:wsid/share', components: { default: WorkspaceShowView, overlay: WorkspaceShareView }, name: 'workspaceShare', props: { default: true, overlay: true }},
+	{ path: '/workspaces/:wsid/publish', components: { default: WorkspaceShowView, overlay: WorkspacePublishView }, name: 'workspacePublish', props: { default: true, overlay: true }},
 	{ path: '/workspaces/:wsid/export', components: { default: WorkspaceShowView, overlay: WorkspaceExportView}, name: 'workspaceExport', props: { default: true, overlay: true }},
 	{ path: '/workspaces/:wsid/packages', components: { default: WorkspaceShowView, overlay: WorkspacePackagesView}, name: 'workspacePackages', props: { default: true, overlay: true }},
 	{ path: '/terms', component: TermsOfServiceView, name: 'terms', props: (route) => ({ next: route.query.next }) },
