@@ -49,10 +49,6 @@ html, button, input, select, textarea,
 	box-sizing: border-box;
 }
 
-html {
-	line-height: 1;
-}
-
 body {
 	/* use the same color as the last footer stripe, so a short site does not
 	 * have a strange white space at the bottom */
@@ -108,10 +104,8 @@ address {
 	font-style: normal;
 }
 
-.main p,
-footer p,
-.main ul,
-footer ul {
+p,
+ul {
 	line-height: 1.7em;
 }
 
