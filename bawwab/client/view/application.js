@@ -8,7 +8,8 @@ import '../component/application.js';
 export default Vue.extend ({
 	props: ['wsid', 'appid', 'nextUrl'],
 	template: `<aside class="appoverlay">
-		   <header class="pure-g">
+		   <header>
+				<nav class="pure-g">
 				   <div class="pure-u-1-5 back">
 						   <router-link :to="{name: 'workspaces'}">{{ t('projects') }}</router-link>
 				   </div>
@@ -19,6 +20,8 @@ export default Vue.extend ({
 				   <div class="pure-u-1-5 logo">
 						   <router-link :to="{name: 'index'}"><img src="https://www.lifp.de/assets/images/psychnotebook.svg" style="height: 1.5em; filter: invert(100%) opacity(50%);"></router-link>
 				   </div>
+				</nav>
+				<message v-if="needRestart" kind="warning">{{ t('needrestart') }}</message>
 		   </header>
 		<p v-if="!workspace">{{ t('nonexistentws') }}</p>
 		<p v-else-if="!application">{{ t('nonexistent') }}</p>
@@ -47,6 +50,7 @@ export default Vue.extend ({
 				'projects': 'Projekte',
 				'reset': 'Neustarten',
 				'stop': 'Beenden',
+				'needrestart': 'Die Änderungen am Projekt werden für diese Anwendung erst sichbar, wenn sie neugestartet wird.',
 				},
 			en: {
 				'nonexistent': 'Application does not exist.',
@@ -57,6 +61,7 @@ export default Vue.extend ({
 				'projects': 'Projects',
 				'reset': 'Restart',
 				'stop': 'Stop',
+				'needrestart': 'Changes made to the project apply to this application only after a restart.',
 				},
 		}),
 	}),
@@ -103,12 +108,21 @@ export default Vue.extend ({
 			console.debug ('application changed to %o', application);
 			const p = this.state.workspaces.getRunningApplication (workspace, application);
 			if (p) {
-				return p;
+				return p.conductor;
 			}
 			console.debug ('starting new instance of', workspace, application);
 			this.state.workspaces.start (workspace, application);
 			return null;
 		},
+		/* wheck whether the application’s exec has changed */
+		needRestart: function () {
+			const p = this.state.workspaces.getRunningApplication (this.workspace, this.application);
+			if (!p) {
+				/* we don’t know, but probably not */
+				return false;
+			}
+			return p.profilePath != this.workspace.profilePath;
+		}
 	},
 	watch: {
 		'program.state': function () {

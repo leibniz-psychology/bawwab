@@ -184,18 +184,23 @@ export default class Workspaces {
 	}
 
 	async start (ws, a) {
-		return await this.runWith ('workspaces.start', ws, ['run', a._id], {aid: a._id});
+		return await this.runWith ('workspaces.start', ws, ['run', a._id],
+				{aid: a._id,
+				/* need to persist the path, so send it to the server */
+				profilePath: ws.profilePath});
 	}
 
 	async onStart (args, p) {
 		const ws = this.getByPath (args.path);
 		const c = new ConductorClient (p);
 		const k = ws.metadata._id + '+' + args.aid;
-		Vue.set (this.applications, k, c);
+		const a = ws.applications.filter (a => a._id == args.aid)[0];
+		const v = {profilePath: args.profilePath, conductor: c};
+		Vue.set (this.applications, k, v);
 		/* keep the application if an error occurred */
 		const handle = function () { if (!c.error) { Vue.delete (this.applications, k); } }.bind (this);
 		c.run ().then (handle).catch (function (e) { console.error ('application run failed with', e); });
-		return c;
+		return v;
 	}
 
 	async export (kind, ws) {

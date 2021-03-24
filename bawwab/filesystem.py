@@ -47,7 +47,7 @@ def translateSSHError ():
 	except asyncssh.sftp.SFTPFailure:
 		raise ServerError ('error')
 
-@bp.route ('/<path:path>', methods=['GET', 'DELETE', 'PUT'], stream=True)
+@bp.route ('/<path:path>', methods=['GET', 'STAT', 'DELETE', 'PUT'], stream=True)
 @authenticated
 async def fileGetDelete (request, user, path):
 	"""
@@ -100,6 +100,17 @@ async def fileGetDelete (request, user, path):
 				# disable chunked, because we know the file-size and thus the
 				# browser can show progress
 				chunked=False)
+	elif request.method == 'STAT':
+		with translateSSHError ():
+			follow = int (request.args.get ('follow', 1)) != 0
+			if follow:
+				s = await client.stat (path)
+			else:
+				s = await client.lstat (path)
+			ret = dict (size=s.size)
+			if stat.S_ISLNK (s.permissions):
+				s['target'] = await client.readlink (path)
+			return ret
 	elif request.method == 'PUT':
 		with translateSSHError ():
 			fd = await client.open (path, 'wb')

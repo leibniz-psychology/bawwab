@@ -864,6 +864,10 @@ span.placeholder {
 	padding: 0.5em;
 }
 
+.appoverlay .message {
+	margin: 0;
+}
+
 .fullscreen {
 	overflow: hidden;
 }
