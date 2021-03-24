@@ -138,7 +138,7 @@ async def submit (request, user):
 		raise SanicException ('recipient_invalid', status_code=400)
 	if not senderName or not senderAddress:
 		raise Forbidden ('sender_invalid')
-	if link.netloc != request.app.config.LISTEN:
+	if link.host != request.server_name:
 		raise Forbidden ('link_invalid')
 
 	values['senderName'] = senderName
