@@ -108,7 +108,7 @@ export default Vue.extend ({
 			const filterFunc = {
 				mine: w => w.getPermissions (this.username)[0].canShare (),
 				shared: w => w.getPermissions (this.username)[1] == 'group',
-				world: w => w.getPermissions (this.username)[1] == 'other',
+				world: w => w.getPermissions (this.username)[1] == 'other' || w.isPublic,
 				};
 			const searchFunc = function (w) {
 				const s = this.filtertext;
