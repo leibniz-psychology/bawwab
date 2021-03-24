@@ -9,7 +9,7 @@ export default Vue.extend ({
 	template: `<modal icon="globe" :title="t('title')" :closeName="t('cancel')" :closeLink="backRoute" :scaling="true">
 			<p>{{ t('explain') }}</p>
 			<template v-slot:buttons>
-				<action-button v-if="!isPublic" icon="globe" :f="sharePublic" importance="high">{{ t('sharepublic') }}</action-button>
+				<action-button v-if="!workspace.isPublic" icon="globe" :f="sharePublic" importance="high">{{ t('sharepublic') }}</action-button>
 				<action-button v-else icon="globe" :f="unsharePublic" importance="high">{{ t('unsharepublic') }}</action-button>
 			</template>
 		</modal>`,
@@ -43,7 +43,6 @@ export default Vue.extend ({
 		workspace: function () {
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
 		},
-		isPublic: function () { return this.workspace.permissions.other.canRead (); },
 		backRoute: function () { return {name: 'workspace', params: {wsid: this.workspace.metadata._id}}; },
 	},
 	methods: {

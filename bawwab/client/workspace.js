@@ -44,6 +44,10 @@ export default class Workspace {
 		return [this.permissions.other, 'other'];
 	}
 
+	get isPublic () {
+		return this.permissions.other.canRead ();
+	}
+
 	/* Retrive the owners of this workspace.
 	 */
 	owner () {

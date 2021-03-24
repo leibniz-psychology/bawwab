@@ -49,7 +49,7 @@ export default Vue.extend ({
 			</ul>
 			</li>
 
-			<li v-if="isPublic" class="public">
+			<li v-if="workspace.isPublic" class="public">
 			<i class="fa fa-globe"></i>
 			{{ t('publicproject') }}
 			</li>
@@ -144,7 +144,6 @@ export default Vue.extend ({
 		owners: function () { return this.workspace.owner ().filter (name => name != this.username); },
 		/* XXX: this is accidentally quadratic, assuming username==groupname */
 		sharedWith: function () { return Object.entries (this.workspace.permissions.group).filter (([k, v]) => this.owners.indexOf (k) == -1 && k != this.username) },
-		isPublic: function () { return this.workspace.permissions.other.canRead (); },
 		/* user can edit project metadata */
 		canEditMeta: function () { return this.permissions.canWrite (); },
 	},
