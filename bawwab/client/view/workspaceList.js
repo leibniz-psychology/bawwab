@@ -1,5 +1,6 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
+import { queryParamProp } from '../utils.js';
 import Workspace from '../workspace.js';
 
 import '../component/application.js';
@@ -126,34 +127,8 @@ export default Vue.extend ({
 			} else {
 				return [];
 			}},
-		filter: {
-			get () {
-				const fromQuery = this.$route.query.filter;
-				return fromQuery ?? 'mine';
-			},
-			set (value) {
-				this.$router.replace ({
-					query: {
-						...this.$route.query,
-						filter: value
-					}
-				});
-			}
-		},
-		filtertext: {
-			get () {
-				const fromQuery = this.$route.query.search;
-				return fromQuery ?? '';
-			},
-			set (value) {
-				this.$router.replace ({
-					query: {
-						...this.$route.query,
-						search: value
-					}
-				});
-			}
-		},
+		filter: queryParamProp ('filter', 'mine'),
+		filtertext: queryParamProp ('search', ''),
 	},
 	methods: {
         createWorkspace: async function() {

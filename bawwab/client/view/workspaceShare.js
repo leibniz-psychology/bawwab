@@ -1,6 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 import { postData } from '../helper.js';
+import { queryParamProp } from '../utils.js';
 
 import '../component/spinner.js';
 import '../component/modal.js';
@@ -139,20 +140,7 @@ export default Vue.extend ({
 		},
 		modeLink: function () { return this.mode == 'link'; },
 		modeEmail: function () { return this.mode == 'email'; },
-		mode: {
-			get () {
-				const fromQuery = this.$route.query.mode;
-				return fromQuery ?? 'link';
-			},
-			set (value) {
-				this.$router.replace ({
-					query: {
-						...this.$route.query,
-						mode: value
-					}
-				});
-			}
-		},
+		mode: queryParamProp ('mode', 'link'),
 		canSend: function () {
 			return !this.emailQuotaReached &&
 					this.shareUrl[this.selectedShareUrl] &&

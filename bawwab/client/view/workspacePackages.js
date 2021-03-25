@@ -1,5 +1,6 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
+import { queryParamProp } from '../utils.js';
 
 import '../component/spinner.js';
 import '../component/modal.js';
@@ -125,21 +126,7 @@ export default Vue.extend ({
 			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
 		},
 		/* inspired by https://stackoverflow.com/a/60786867 */
-		search: {
-			get () {
-				const fromQuery = this.$route.query.search;
-				return fromQuery ? fromQuery : '';
-			},
-			set (value) {
-				this.$router.replace ({
-					query: {
-						...this.$route.query,
-						search: value
-					}
-				});
-				this.runSearch ();
-			}
-		},
+		search: queryParamProp ('search', ''),
 	},
     methods: {
 		doPackageUpgrade: async function () {
@@ -238,6 +225,9 @@ export default Vue.extend ({
 			this.packages = [];
 			this.mergePackageList (this.workspace.packages, {installed: true});
 		},
-	}
+		search: function () {
+			this.runSearch ();
+		},
+	},
 });
 
