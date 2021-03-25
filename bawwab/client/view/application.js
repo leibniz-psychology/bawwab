@@ -14,8 +14,9 @@ export default Vue.extend ({
 						   <router-link :to="{name: 'workspaces'}">{{ t('projects') }}</router-link>
 				   </div>
 				   <div class="pure-u-3-5 title">
-							<action-button v-if="program && program.state != ConductorState.exited" :f="terminate" icon="stop">{{ t('stop') }}</action-button>
-						   <router-link v-if="workspace" :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><application-icon :workspace="workspace" :application="application"></application-icon> {{ workspace.metadata.name }}</router-link>
+						<action-button v-if="program && program.error !== null" :f="reset" icon="redo">{{ t('reset') }}</action-button>
+						<action-button v-if="program && program.state != ConductorState.exited" :f="terminate" icon="stop">{{ t('stop') }}</action-button>
+					   <router-link v-if="workspace" :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><application-icon :workspace="workspace" :application="application"></application-icon> {{ workspace.metadata.name }}</router-link>
 				   </div>
 				   <div class="pure-u-1-5 logo">
 						   <router-link :to="{name: 'index'}"><img src="https://www.lifp.de/assets/images/psychnotebook.svg" style="height: 1.5em; filter: invert(100%) opacity(50%);"></router-link>
@@ -29,7 +30,7 @@ export default Vue.extend ({
 		<div v-else-if="program" class="loading">
 			<details>
 				<summary>
-				<span v-if="program.error !== null">{{ t('failed', {reason: program.error}) }}. <a @click="reset">{{ t('reset') }}</a>.</span>
+				<span v-if="program.error !== null">{{ t('failed', {reason: program.error}) }}.</span>
 				<span v-else-if="program.state == ConductorState.starting">{{ t('starting') }}<br><spinner :big="true"></spinner></span>
 				<span v-else-if="program.state == ConductorState.exited">{{ t('exited') }}</span>
 				</summary>
