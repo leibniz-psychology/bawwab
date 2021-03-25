@@ -62,7 +62,6 @@ export default Vue.extend ({
 		<p v-html="t('description')"></p>
 		<div class="packageSearch">
 			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="search">
-			<spinner v-show="searching"></spinner>
 		</div>
 		<div class="packages" v-if="filteredPackages.length > 0">
 			<div v-for="ps of filteredPackages" class="package">
@@ -83,6 +82,7 @@ export default Vue.extend ({
 				</div>
 			</div>
 		</div>
+		<p v-else-if="searching"><spinner></spinner></p>
 		<p v-else>{{ t('nopackages') }}</p>
 	<template v-slot:buttons>
 		<action-button icon="check" :f="doPackageModify" :disabled="!haveModifications" :importance="haveModifications ? 'high' : 'low'">{{ t('apply', packageTransforms.length) }}</action-button>
