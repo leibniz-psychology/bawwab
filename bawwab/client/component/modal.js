@@ -18,6 +18,9 @@ Vue.component ('modal', {
 					<router-link :to="closeLink" class="btn low">{{ closeName }}</router-link>
 				</div>
 			</div>
+			<div class="close">
+				<a class="close" @click="close"><i class="fa fa-window-close"></i></a>
+			</div>
 		</div>
 	</div>
 	</transition>`,
@@ -28,6 +31,37 @@ Vue.component ('modal', {
 		frameClass: function() {
 			return 'frame' + (this.scaling ? ' scaling' : ' fixed');
 		},
+	},
+	/* Vue cannot handle key events on <body>, so register our our handler */
+	created: function() {
+		document.addEventListener('keydown', this.handleKeydown);
+	},
+	destroyed: function() {
+		document.removeEventListener('keydown', this.handleKeydown);
+	},
+	methods: {
+		close: function () {
+			this.$router.push (this.closeLink);
+		},
+		handleKeydown: function (event) {
+			console.log ('keydown', event);
+
+			if (event.defaultPrevented) {
+				return;
+			}
+
+			switch (event.key) {
+				case "Esc":
+				case "Escape":
+					this.close ();
+					break;
+
+				default:
+					return;
+			}
+
+			event.preventDefault();
+		}
 	},
 });
 
