@@ -186,7 +186,7 @@ async def login (request):
 	session.oauthState = state
 	await session.save (update_fields=('oauthState', ))
 	logger.debug (f'authenticating using url {cbUrl}')
-	redirectUrl = await auth.authorize (scope="ZPID", redirectUri=cbUrl, state=state)
+	redirectUrl = await auth.authorize (scope=config.SCOPE, redirectUri=cbUrl, state=state)
 	logger.debug (f'redirecting to {redirectUrl}')
 
 	audit.log ('auth.login.start', session=session.name)
@@ -198,13 +198,26 @@ async def callback (request):
 	app = request.app
 	config = app.config
 	session = request.ctx.session
+	args = request.args
+
+	state = args.get ('state')
+	code = args.get ('code')
+	nextUrl = args.get ('next', '/login/success')
+	error = args.get ('error')
+
+	logger.debug (f'got auth callback for state {state} code {code} error {error}')
+
+	if error:
+		return redirect (f'/login/oauth2_{error}')
+	if not code or not state:
+		return redirect ('/login/missing_param')
 
 	# CSRF protection
-	if session.oauthState != request.args['state'][0]:
+	if session.oauthState != state:
 		audit.log ('session.login.failure',
 				reason='state_mismatch',
 				expected=session.oauthState,
-				received=request.args['state'][0],
+				received=state,
 				session=session.name,
 				)
 		return redirect ('/login/state_mismatch')
@@ -216,10 +229,9 @@ async def callback (request):
 	logger.debug (f'authenticating (step 2) using url {cbUrl}')
 	try:
 		token, userinfo = await auth.authorize (
-				scope="ZPID",
 				redirectUri=cbUrl,
-				state=request.args['state'],
-				code=request.args['code'])
+				state=state,
+				code=code)
 	except Oauth2Error as e:
 		audit.log ('auth.login.failure',
 				reason=e.args[0],
@@ -233,7 +245,7 @@ async def callback (request):
 	audit.log ('session.login.success',
 			authId=session.authId, session=session.name)
 
-	return redirect (request.args['next'][0] if 'next' in request.args else '/login/success')
+	return redirect (nextUrl)
 
 expireJobThread = None
 auth = None

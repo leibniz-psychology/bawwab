@@ -58,8 +58,9 @@ class Oauth2Client:
 					response_type='code',
 					client_id=self.id,
 					redirect_uri=redirectUri,
-					scope=scope,
 					state=state)
+			if scope:
+				query['scope'] = ' '.join (scope)
 			for k in list (query.keys ()):
 				if query[k] is None:
 					query.pop (k)
