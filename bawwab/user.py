@@ -25,7 +25,7 @@ User management.
 import asyncio, shlex
 from functools import wraps
 from datetime import timedelta
-from collections import namedtuple
+from collections import defaultdict
 
 from tortoise.models import Model
 from tortoise import fields
@@ -57,42 +57,45 @@ class UserConnectionManager:
 
 	def __init__ (self, host, knownHosts):
 		self._conns = {}
+		self._locks = defaultdict (asyncio.Lock)
 		self.host = host
 		self.knownHosts = knownHosts
 
 	async def _getConnection (self, user):
-		c = self._conns.get (user, None)
-		if c is None:
-			logger.debug (f'establishing new SSH connection for {user}')
-			conn = await asyncssh.connect (
-					host=self.host,
-					port=22,
-					username=user.name,
-					password=user.password,
-					options=asyncssh.SSHClientConnectionOptions (known_hosts=self.knownHosts),
-					)
-			try:
-				stdin, stdout, stderr = await conn.open_session ()
-			except asyncssh.misc.ChannelOpenError:
-				raise Exception ('channel_open')
+		async with self._locks[user]:
+			c = self._conns.get (user, None)
+			if c is None:
+				logger.debug (f'establishing new SSH connection for {user}')
+				conn = await asyncssh.connect (
+						host=self.host,
+						port=22,
+						username=user.name,
+						password=user.password,
+						options=asyncssh.SSHClientConnectionOptions (known_hosts=self.knownHosts),
+						)
+				try:
+					stdin, stdout, stderr = await conn.open_session ()
+				except asyncssh.misc.ChannelOpenError:
+					raise Exception ('channel_open')
 
-			# get motd
-			try:
-				motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
-				logger.debug (f'got motd for {user}: {motd}')
-			except asyncio.TimeoutError:
-				motd = None
+				# get motd
+				try:
+					motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
+					logger.debug (f'got motd for {user}: {motd}')
+				except asyncio.TimeoutError:
+					motd = None
 
-			c = self._conns[user] = UserConnection (conn=conn, motd=motd, sftp=None)
-		return c
+				c = self._conns[user] = UserConnection (conn=conn, motd=motd, sftp=None)
+			return c
 
 	async def _invalidate (self, user):
-		c = self._conns.pop (user)
-		if c.sftp:
-			c.sftp.exit ()
-			await c.ftp.wait_closed ()
-		c.conn.close ()
-		await c.conn.wait_closed ()
+		async with self._locks[user]:
+			c = self._conns.pop (user)
+			if c.sftp:
+				c.sftp.exit ()
+				await c.ftp.wait_closed ()
+			c.conn.close ()
+			await c.conn.wait_closed ()
 
 	async def getChannel (self, user, kind, *args, **kwargs):
 		for i in range (10):
@@ -100,11 +103,13 @@ class UserConnectionManager:
 				c = await self._getConnection (user)
 				if kind == 'start_sftp_client' and c.sftp:
 					return c.sftp
-				f = getattr (c.conn, kind)
-				ret = await f (*args, **kwargs)
-				if kind == 'start_sftp_client':
-					c.sftp = ret
-				return ret
+				logger.debug (f'opening new channel {kind} for user {user!r}')
+				async with self._locks[user]:
+					f = getattr (c.conn, kind)
+					ret = await f (*args, **kwargs)
+					if kind == 'start_sftp_client':
+						c.sftp = ret
+					return ret
 			except asyncssh.misc.ChannelOpenError:
 				logger.error (f'channel {kind} for {user!r} was invalid, opening new connection')
 				await self._invalidate (user)
@@ -129,6 +134,12 @@ class User (Model):
 	authId = fields.CharField (128, null=True, unique=True, description='OAuth identity')
 	name = fields.CharField (64, description='UNIX user name')
 	passwordEncrypted = fields.BinaryField (description='UNIX user password')
+
+	def __repr__ (self):
+		return f'<User {self.name}>'
+
+	def __str__ (self):
+		return repr (self)
 
 	@classmethod
 	def setup (cls, key):
