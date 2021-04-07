@@ -18,6 +18,7 @@ class Esbuild (Command):
 		subprocess.run (['esbuild', 'bawwab/client/app.js', '--bundle',
 				'--sourcemap', '--minify',
 				'--loader:.png=file',
+				'--loader:.jpg=file',
 				'--loader:.svg=file',
 				'--target=chrome58,firefox57,safari11,edge16',
 				'--outdir=bawwab/assets/'])

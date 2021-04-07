@@ -1130,3 +1130,50 @@ table.workspaces .actions li {
 	white-space: pre-wrap;
 }
 
+.landingpage h3 {
+	margin-top: 0;
+}
+
+.landingpage .overview {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3em;
+}
+
+.landingpage .features, .landingpage .mission {
+	padding: 0 2em;
+}
+
+.landingpage .left-photo,
+.landingpage .right-photo {
+	border-radius: 1em;
+	background-size: cover;
+	min-height: 10em;
+}
+
+.landingpage .left-photo {
+	background-image: url(../img/foto_links_oben.jpg);
+	background-position: right;
+}
+
+.landingpage .right-photo {
+	background-image: url(../img/foto_rechts_unten.jpg);
+	background-position: center;
+}
+
+.landingpage .goto {
+	text-align: center;
+	margin-top: 3em;
+}
+
+/* use same breakpoint as pure-m */
+@media screen and (max-width: 48em) {
+.landingpage .overview {
+	grid-template-columns: 1fr;
+}
+
+.landingpage .features, .landingpage .mission {
+	padding: 0;
+}
+}
+
