@@ -1,4 +1,5 @@
 export default {
+	name: 'Message',
 	props: ['kind'],
 	data: function () { return {visible: true} },
 	template: `<div :class="divclass" v-show="visible">

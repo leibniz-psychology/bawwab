@@ -3,6 +3,7 @@ import { store } from '../app.js';
 import { nextTick } from 'vue/dist/vue.esm-bundler.js';
 
 export default {
+	name: 'WorkspaceShowView',
 	props: ['wsid'],
 	template: `<div>
 		<div class="workspaceItem" v-if="workspace">

@@ -1,6 +1,7 @@
 import spinnerSvg from '../img/spinner.svg';
 
 export default {
+	name: 'Spinner',
 	props: ['big'],
 	template: `<img :src="path" :class="cls">`,
 	computed: {

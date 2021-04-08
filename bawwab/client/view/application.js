@@ -3,6 +3,7 @@ import { store } from '../app.js';
 import { ConductorState } from '../conductor.js';
 
 export default {
+	name: 'ApplicationView',
 	props: ['wsid', 'appid', 'nextUrl'],
 	template: `<aside class="appoverlay">
 		   <header>

@@ -121,6 +121,7 @@ export const store = {
 };
 
 const app = createApp ({
+    name: 'NotebookApp',
     data: _ => ({
 		state: store.state,
 		loading: true,

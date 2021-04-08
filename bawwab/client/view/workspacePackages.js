@@ -3,6 +3,7 @@ import { store } from '../app.js';
 import { queryParamProp } from '../utils.js';
 
 export default {
+	name: 'WorkspacePackagesView',
 	props: ['wsid'],
 	data: _ => ({
 		state: store.state,

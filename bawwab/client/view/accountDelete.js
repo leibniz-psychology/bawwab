@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'AccountDeleteView',
 	template: `<modal icon="trash" :title="t('delete')" :closeName="t('cancel')" :closeLink="{name: 'account'}" :scaling="true">
 	<p>{{ t('deletequestion') }}</p>
 	<template v-slot:buttons>

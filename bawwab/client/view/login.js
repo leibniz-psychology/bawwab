@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'LoginView',
 	props: ['status'],
 	template: `<div><h2>{{ t('login') }}</h2>
 		<p>{{ message }}</p>

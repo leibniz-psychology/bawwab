@@ -11,6 +11,7 @@ const SendStatus = Object.freeze ({
 });
 
 export default {
+	name: 'WorkspaceShareView',
 	props: ['wsid'],
 	template: `<modal icon="users" :title="t('sharetitle')" :closeName="t('close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" class="share">
 			<select v-model="selectedShareUrl" name="shareKind" size="0">

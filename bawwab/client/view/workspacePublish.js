@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'WorkspacePublishView',
 	props: ['wsid'],
 	template: `<modal icon="globe" :title="t('title')" :closeName="t('cancel')" :closeLink="backRoute" :scaling="true">
 			<p>{{ t('explain') }}</p>

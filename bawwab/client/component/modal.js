@@ -1,6 +1,7 @@
 /*	Simple modal layout
  */
 export default {
+	name: 'Modal',
 	props: ['icon', 'title', 'closeName', 'closeLink', 'scaling'],
 	template: `<div class="modal">
 		<div :class="frameClass">

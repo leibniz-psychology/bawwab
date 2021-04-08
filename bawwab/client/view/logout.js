@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'LogoutView',
 	template: `<div><h2>{{ t('logout') }}</h2>
 	<p v-if="!done">{{ t('logout') }} <spinner></spinner></p>
 	<p v-else>{{ t('done') }} <a :href="ssoLogoutUrl">{{ t('ssologout') }}</a>.</p>

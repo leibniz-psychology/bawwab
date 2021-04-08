@@ -1,6 +1,7 @@
 /* Language switcher using local browser storage to save user’s choice
  */
 export default {
+	name: 'LanguageSwitcher',
 	props: ['state', 'languages'],
 	template: `<ul class="topline-nav">
 		<li v-for="l in languages"><a @click="switchTo(l)" :class="isActive(l)">{{ l }}</a></li>

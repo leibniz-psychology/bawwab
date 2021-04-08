@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import sitemap from '../sitemap.json';
 
 export default {
+	name: 'Footer',
 	template: `<footer>
       <div class="footer-stripe-open" @click="open=!open">
 		  <p>{{ t('offerby') }}

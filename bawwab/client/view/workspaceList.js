@@ -4,6 +4,7 @@ import { queryParamProp } from '../utils.js';
 import Workspace from '../workspace.js';
 
 export default {
+	name: 'WorkspaceListView',
 	template: `<div class="workspace-list">
 		<h2>{{ t('projects') }}</h2>
 		<div class="actionbar" v-if="!disabled">

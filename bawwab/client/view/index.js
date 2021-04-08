@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'IndexView',
 	template: `<div class="landingpage">
 	<h2>{{ t('description') }}</h2>
 	<div class="overview">

@@ -4,6 +4,7 @@ import { getResponse } from '../helper.js';
 import Workspace from '../workspace.js';
 
 export default {
+	name: 'ActionView',
 	props: ['token'],
 	template: `<div>
 	<h2>{{ t('headline') }}</h2>

@@ -1,6 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 
 export default {
+	name: 'Login',
     props: ['session'],
 	data: _ => ({strings: translations ({
 		de: {

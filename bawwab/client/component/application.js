@@ -3,6 +3,7 @@ import { store } from '../app.js';
 
 /* Display desktop icon for application */
 export const ApplicationIconComponent = {
+	name: 'ApplicationIcon',
     props: ['workspace', 'application', 'height'],
     template: `<img :src="icon" :style="style">`,
 	computed: {
@@ -16,6 +17,7 @@ export const ApplicationIconComponent = {
 };
 
 export const ApplicationItemComponent = {
+	name: 'ApplicationItem',
     props: ['workspace', 'application'],
 	mixins: [i18nMixin],
 	data: _ => ({

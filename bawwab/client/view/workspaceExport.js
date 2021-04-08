@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'WorkspaceExportView',
 	props: ['wsid'],
 	template: `<modal :title="t('headline')" :closeName="t('back')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" icon="file-export">
 <div v-if="workspace">

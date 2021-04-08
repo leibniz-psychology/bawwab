@@ -4,6 +4,7 @@ import { store } from '../app.js';
 /* XXX: we should do better and provide attribution to the main software
  * components we are using */
 export default {
+	name: 'LegalView',
 	template: `<div>
 	<h2>{{ t('headline') }}</h2>
 	<h3 id="impressum">{{ t('imprint') }}</h3>

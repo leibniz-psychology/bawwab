@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'WorkspaceDeleteView',
 	props: ['wsid'],
 	template: `<modal :title="canDelete ? t('deletetitle') : t('hidetitle')" :closeName="t('cancel')" icon="trash" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true">
 	<p>{{ canDelete ? t('deletequestion', { name: workspace.metadata.name }) : t('hidequestion', {name: workspace.metadata.name}) }}</p>

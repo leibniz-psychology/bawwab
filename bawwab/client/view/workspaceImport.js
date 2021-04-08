@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store, config } from '../app.js';
 
 export default {
+	name: 'WorkspaceImportView',
 	props: [],
 	template: `<modal icon="users" :title="t('headline')" :closeName="t('close')" :closeLink="{name: 'workspaces'}" :scaling="true">
 			<p>{{ t('description') }}</p>

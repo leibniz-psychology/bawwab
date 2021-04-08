@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
 export default {
+	name: 'AccountView',
 	template: `<div>
 	<h2>{{ t('headline') }}</h2>
 	<dl>
