@@ -34,6 +34,7 @@ export default {
 				'title': 'Pakete verwalten',
 				'nopackages': 'Keine Pakete gefunden',
 				'description': 'Hier können Pakete zum Projekt hinzugefügt werden. Um das R-Paket <em>beispiel</em> zu suchen, verwende <kbd>^r-beispiel</kbd>.',
+				'searchFailed': 'Die Suche ist fehlgeschlagen. Bitte versuche es erneut.',
 				},
 			en: {
 				'apply': [
@@ -53,6 +54,7 @@ export default {
 				'title': 'Manage packages',
 				'nopackages': 'No packages found',
 				'description': 'Here you can add packages to your project. Use <kbd>^r-package</kbd> to search for R packages only.',
+				'searchFailed': 'The search failed. Please try again.',
 				},
 			}),
 	}),
@@ -62,7 +64,9 @@ export default {
 		<div class="packageSearch">
 			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="search">
 		</div>
-		<div class="packages" v-if="filteredPackages.length > 0">
+		<p v-if="searchFailed">{{ t('searchFailed') }}</p>
+		<p v-else-if="searching === true"><spinner></spinner></p>
+		<div class="packages" v-else-if="filteredPackages.length > 0">
 			<div v-for="ps of filteredPackages" class="package">
 				<div class="left">
 				<p><strong class="name">{{ ps.p.name }}</strong> <small class="version">{{ ps.p.version }}</small></p>
@@ -81,7 +85,6 @@ export default {
 				</div>
 			</div>
 		</div>
-		<p v-else-if="searching"><spinner></spinner></p>
 		<p v-else>{{ t('nopackages') }}</p>
 	<template v-slot:buttons>
 		<action-button icon="check" :f="doPackageModify" :disabled="!haveModifications" :importance="haveModifications ? 'high' : 'low'">{{ t('apply', packageTransforms.length) }}</action-button>
@@ -125,6 +128,7 @@ export default {
 		},
 		/* inspired by https://stackoverflow.com/a/60786867 */
 		search: queryParamProp ('search', ''),
+		searchFailed: function () { return this.searching instanceof Error },
 	},
     methods: {
 		doPackageUpgrade: async function () {
@@ -177,9 +181,8 @@ export default {
 				}
 			}
 		},
-		runSearch: function () {
+		queueSearch: function (debounceMs=350) {
 			const minSearchLen = 3;
-			const debounceMs = 350;
 			if (this.search.length >= minSearchLen) {
 				if (this.searchId) {
 					window.clearTimeout (this.searchId);
@@ -201,9 +204,15 @@ export default {
 								this.packageFilter = ['fromSearch'];
 								this.searching = false;
 							}
+						}.bind (this), function (e) {
+							console.error ('search failed', e);
+							if (this.search == searchFor) {
+								this.searching = e;
+							}
 						}.bind (this));
 				}.bind (this), debounceMs);
 			} else {
+				this.searching = false;
 				this.packageFilter = this.defaultPackageFilter;
 				this.packages.map (function (ps) { ps.state.fromSearch = false });
 			}
@@ -214,7 +223,7 @@ export default {
 		console.debug ('updating package cache');
 		this.packages = [];
 		this.mergePackageList (this.workspace.packages, {installed: true});
-		this.runSearch ();
+		this.queueSearch (0);
 	},
 	watch: {
 		workspace: function () {
@@ -224,7 +233,7 @@ export default {
 			this.mergePackageList (this.workspace.packages, {installed: true});
 		},
 		search: function () {
-			this.runSearch ();
+			this.queueSearch ();
 		},
 	},
 };
