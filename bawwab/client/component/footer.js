@@ -1,7 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import sitemap from '../sitemap.json';
 
-Vue.component ('dynamic-footer', {
+export default {
 	template: `<footer>
       <div class="footer-stripe-open" @click="open=!open">
 		  <p>{{ t('offerby') }}
@@ -157,5 +157,4 @@ Vue.component ('dynamic-footer', {
 		}
 	},
 	mixins: [i18nMixin],
-});
-
+};

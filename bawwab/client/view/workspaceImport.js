@@ -1,9 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store, config } from '../app.js';
 
-import '../component/modal.js';
-
-export default Vue.extend ({
+export default {
 	props: [],
 	template: `<modal icon="users" :title="t('headline')" :closeName="t('close')" :closeLink="{name: 'workspaces'}" :scaling="true">
 			<p>{{ t('description') }}</p>
@@ -66,7 +64,7 @@ export default Vue.extend ({
 		},
 	},
 	/* Delete temporary files created when leaving the page */
-	beforeDestroy: async function () {
+	beforeUnmount: async function () {
 		console.debug ('destroying %s', this.path);
 		for (let k in this.path) {
 			let r = await fetch (`/api/filesystem${this.path[k]}`, {
@@ -79,4 +77,4 @@ export default Vue.extend ({
 			}
 		}
 	}
-});
+};

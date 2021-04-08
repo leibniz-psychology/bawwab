@@ -1,9 +1,8 @@
 /*	Simple modal layout
  */
-Vue.component ('modal', {
+export default {
 	props: ['icon', 'title', 'closeName', 'closeLink', 'scaling'],
-	template: `<transition name="fade">
-	<div class="modal">
+	template: `<div class="modal">
 		<div :class="frameClass">
 			<div class="icon">
 				<h2><i :class="iconStyle"></i></h2>
@@ -22,8 +21,7 @@ Vue.component ('modal', {
 				<a class="close" @click="close"><i class="fa fa-window-close"></i></a>
 			</div>
 		</div>
-	</div>
-	</transition>`,
+	</div>`,
 	computed: {
 		iconStyle: function () {
 			return `fas fa-${this.icon}`;
@@ -36,7 +34,7 @@ Vue.component ('modal', {
 	created: function() {
 		document.addEventListener('keydown', this.handleKeydown);
 	},
-	destroyed: function() {
+	unmounted: function() {
 		document.removeEventListener('keydown', this.handleKeydown);
 	},
 	methods: {
@@ -63,6 +61,5 @@ Vue.component ('modal', {
 			event.preventDefault();
 		}
 	},
-});
-
+};
 

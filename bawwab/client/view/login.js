@@ -1,7 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-export default Vue.extend ({
+export default {
 	props: ['status'],
 	template: `<div><h2>{{ t('login') }}</h2>
 		<p>{{ message }}</p>
@@ -36,6 +36,4 @@ export default Vue.extend ({
 		}
 	},
 	mixins: [i18nMixin],
-});
-
-
+};

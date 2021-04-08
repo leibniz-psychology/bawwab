@@ -5,15 +5,16 @@ from distutils.command.build import build
 build.sub_commands.insert (0, ('esbuild', lambda self: True))
 
 class Esbuild (Command):
-	user_options = []
+	user_options = [('debug', None, 'Create debug build')]
 
 	def initialize_options(self):
-		pass
+		self.debug = False
 
 	def finalize_options (self):
 		pass
 
 	def run(self):
+		node_env = 'development' if self.debug else 'production'
 		shutil.copy ('bawwab/client/app.html', 'bawwab/assets')
 		subprocess.run (['esbuild', 'bawwab/client/app.js', '--bundle',
 				'--sourcemap', '--minify',
@@ -21,6 +22,9 @@ class Esbuild (Command):
 				'--loader:.jpg=file',
 				'--loader:.svg=file',
 				'--target=chrome58,firefox57,safari11,edge16',
+				f'--define:process.env.NODE_ENV=\"{node_env}\"',
+				'--define:__VUE_OPTIONS_API__=true',
+				'--define:__VUE_PROD_DEVTOOLS__=false',
 				'--outdir=bawwab/assets/'])
 
 setup(

@@ -3,15 +3,16 @@ import { ConductorClient } from './conductor.js';
 import { config } from './app.js';
 import { postData, getResponse } from './helper.js';
 
+import { reactive } from 'vue/dist/vue.esm-bundler.js';
+
 export default class Workspaces {
 	constructor (em, user) {
 		/* event manager */
 		this.em = em;
 		this.user = user;
 		this.loading = false;
-		this.workspaces = [];
-		/* running applications, must be reactive, so cannot use Map() */
-		this.applications = {};
+		this.workspaces = reactive (new Map ());
+		this.applications = reactive (new Map ());
 
 		/* welcome to “this hell” */
 		const registerRunWithCb = (name, f) =>
@@ -80,7 +81,7 @@ export default class Workspaces {
 					'-s', config.privateData,
 					]);
 		} catch (e) {
-			this.workspaces = [];
+			this.workspaces.clear ();
 			throw e;
 		} finally {
 			this.loading = false;
@@ -88,7 +89,10 @@ export default class Workspaces {
 	}
 
 	onFetch (args, ret) {
-		this.workspaces = ret;
+		this.workspaces.clear ();
+		for (const v of ret) {
+			this.workspaces.set (v.id, v);
+		}
 	}
 
 	async create (name) {
@@ -101,7 +105,7 @@ export default class Workspaces {
 
 	onCreate (args, ret) {
 		const ws = ret[0];
-		this.workspaces.push (ws);
+		this.workspaces.set (ws.id, ws);
 		return ws;
 	}
 
@@ -116,7 +120,7 @@ export default class Workspaces {
 	onUpdate (path, ret) {
 		const ws = this.getByPath (path);
 		const newws = ret[0];
-		this.replace (ws, newws);
+		this.workspaces.set (newws.id, newws);
 		return newws;
 	}
 
@@ -128,7 +132,7 @@ export default class Workspaces {
 		const ws = this.getByPath (path);
 		const ret = await p.wait ();
 		if (ret == 0) {
-			this.workspaces = this.workspaces.filter(elem => elem.path != ws.path);
+			this.workspaces.delete (ws.id);
 			return true;
 		} else {
 			throw Error ('unhandled');
@@ -175,7 +179,7 @@ export default class Workspaces {
 
 	onIgnore (path, ret) {
 		const ws = this.getByPath (path);
-		this.workspaces = this.workspaces.filter(elem => elem.path != ws.path);
+		this.workspaces.delete (ws.id);
 	}
 
 	async copy (ws) {
@@ -192,13 +196,13 @@ export default class Workspaces {
 
 	async onStart (args, p) {
 		const ws = this.getByPath (args.path);
-		const c = new ConductorClient (p);
+		const c = reactive (new ConductorClient (p));
 		const k = ws.metadata._id + '+' + args.aid;
 		const a = ws.applications.filter (a => a._id == args.aid)[0];
 		const v = {profilePath: args.profilePath, conductor: c};
-		Vue.set (this.applications, k, v);
+		this.applications.set (k, v);
 		/* keep the application if an error occurred */
-		const handle = function () { if (!c.error) { Vue.delete (this.applications, k); } }.bind (this);
+		const handle = function () { if (!c.error) { this.applications.delete (k); } }.bind (this);
 		c.run ().then (handle).catch (function (e) { console.error ('application run failed with', e); });
 		return v;
 	}
@@ -249,28 +253,29 @@ export default class Workspaces {
 
 	getRunningApplication (ws, a) {
 		const k = ws.metadata._id + '+' + a._id;
-		return this.applications[k];
+		return this.applications.get (k);
 	}
 
 	resetRunningApplication (ws, a) {
 		const k = ws.metadata._id + '+' + a._id;
-		Vue.delete (this.applications, k);
+		this.applications.delete (k);
 	}
 
 	getById (wid) {
-		return this.workspaces.filter(elem => elem.metadata._id == wid)[0];
+		return this.workspaces.get (wid);
 	}
 
 	getByPath (path) {
-		return this.workspaces.filter(elem => elem.path == path)[0];
+		for (const [k, v] of this.workspaces) {
+			if (v.path == path) {
+				return v;
+			}
+		}
+		return null;
 	}
 
 	all () {
-		return this.workspaces;
-	}
-
-	replace (oldws, newws) {
-		this.workspaces = this.workspaces.map (oldws => oldws.path == newws.path ? newws : oldws);
+		return Array.from (this.workspaces.values ());
 	}
 }
 

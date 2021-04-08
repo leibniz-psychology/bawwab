@@ -1,6 +1,6 @@
 import { translations, i18nMixin } from '../i18n.js';
 
-Vue.component('login-item', {
+export default {
     props: ['session'],
 	data: _ => ({strings: translations ({
 		de: {
@@ -41,5 +41,4 @@ Vue.component('login-item', {
 			this.$el.querySelector (".usermenu").open = false;
 		},
 	}
-});
-
+};

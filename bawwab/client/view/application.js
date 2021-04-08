@@ -2,10 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 import { ConductorState } from '../conductor.js';
 
-import '../component/spinner.js';
-import '../component/application.js';
-
-export default Vue.extend ({
+export default {
 	props: ['wsid', 'appid', 'nextUrl'],
 	template: `<aside class="appoverlay">
 		   <header>
@@ -134,5 +131,5 @@ export default Vue.extend ({
 			}
 		},
 	},
-});
+};
 

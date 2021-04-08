@@ -3,7 +3,7 @@ import { store } from '../app.js';
 
 /* XXX: we should do better and provide attribution to the main software
  * components we are using */
-export default Vue.extend ({
+export default {
 	template: `<div>
 	<h2>{{ t('headline') }}</h2>
 	<h3 id="impressum">{{ t('imprint') }}</h3>
@@ -38,5 +38,5 @@ export default Vue.extend ({
 			}),
 	}),
 	mixins: [i18nMixin],
-});
+};
 

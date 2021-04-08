@@ -27,17 +27,15 @@ import Session from './session.js';
 import { translations, i18nMixin } from './i18n.js';
 import User from './user.js';
 import Workspaces from './workspaces.js';
-
 import './directive/clickOutside.js';
-/* used my app.html */
-import './component/message.js';
-import './component/footer.js';
-import './component/actionButton.js';
-import './component/languageSwitcher.js';
-import './component/login.js';
-
-/* also bundle CSS files */
 import './css/style.css';
+
+/* The default module does not include template compiling
+ * XXX: figure out how to configure esbuild correctly to do this replacement */
+import { createApp, reactive } from 'vue/dist/vue.esm-bundler.js';
+/* XXX: Would be nice if we could use it, but esbuild messes up order currently.*/
+/*import 'purecss/build/pure.css';
+import 'purecss/build/grids-responsive.css';*/
 
 /* XXX: load config from server */
 export const config = Object.freeze ({
@@ -54,7 +52,7 @@ export function whoami () {
 }
 
 export const store = {
-	state: {
+	state: reactive ({
 		processes: null,
 		events: null,
 		session: null,
@@ -65,7 +63,7 @@ export const store = {
 
 		/* notify when the store is fully initialized */
 		ready: new AsyncNotify (),
-	},
+	}),
 
 	async init () {
 		this.state.session = await Session.get ();
@@ -122,8 +120,7 @@ export const store = {
 	},
 };
 
-const app = new Vue({
-    el: '#app',
+const app = createApp ({
     data: _ => ({
 		state: store.state,
 		loading: true,
@@ -173,7 +170,31 @@ const app = new Vue({
 			document.documentElement.className = 'magenta ' + this.htmlClass;
 		}},
 	},
-	router: router,
 	mixins: [i18nMixin],
 });
+
+app.use (router);
+
+/* register components with this app */
+import ActionButtonComponent from './component/actionButton.js';
+import FooterComponent from './component/footer.js';
+import LanguageSwitcherComponent from './component/languageSwitcher.js';
+import LoginComponent from './component/login.js';
+import MessageComponent from './component/message.js';
+import ModalComponent from './component/modal.js';
+import SpinnerComponent from './component/spinner.js';
+import { ApplicationIconComponent, ApplicationItemComponent } from './component/application.js';
+app.component ('action-button', ActionButtonComponent);
+app.component ('dynamic-footer', FooterComponent);
+app.component ('language-switcher', LanguageSwitcherComponent);
+app.component ('login-item', LoginComponent);
+app.component ('message', MessageComponent);
+app.component ('modal', ModalComponent);
+app.component ('spinner', SpinnerComponent);
+app.component ('application-icon', ApplicationIconComponent);
+app.component ('application-item', ApplicationItemComponent);
+import ClickOutsideDirective from './directive/clickOutside.js';
+app.directive ('click-outside', ClickOutsideDirective);
+
+app.mount ('#app');
 

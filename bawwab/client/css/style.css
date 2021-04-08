@@ -885,18 +885,21 @@ span.placeholder {
 .fade-enter-active, .fade-leave-active {
   transition: opacity .3s;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+.fade-enter-to, .fade-leave-from {
+  opacity: 1;
 }
 
 .resize-enter-active, .resize-leave-active {
   transition: all 0.5s;
 }
-.resize-enter, .resize-leave-to {
+.resize-enter-from, .resize-leave-to {
 	max-height: 0;
 	padding: 0;
 }
-.resize-enter-to, .resize-leave {
+.resize-enter-to, .resize-leave-from {
 	max-height: 20em;
 }
 

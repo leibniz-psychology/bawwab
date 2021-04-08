@@ -2,10 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 import { queryParamProp } from '../utils.js';
 
-import '../component/spinner.js';
-import '../component/modal.js';
-
-export default Vue.extend ({
+export default {
 	props: ['wsid'],
 	data: _ => ({
 		state: store.state,
@@ -229,5 +226,5 @@ export default Vue.extend ({
 			this.runSearch ();
 		},
 	},
-});
+};
 

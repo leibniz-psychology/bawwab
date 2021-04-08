@@ -3,9 +3,7 @@ import { store } from '../app.js';
 import { getResponse } from '../helper.js';
 import Workspace from '../workspace.js';
 
-import '../component/spinner.js';
-
-export default Vue.extend ({
+export default {
 	props: ['token'],
 	template: `<div>
 	<h2>{{ t('headline') }}</h2>
@@ -73,5 +71,5 @@ export default Vue.extend ({
 	    }
 	},
 	mixins: [i18nMixin],
-});
+};
 

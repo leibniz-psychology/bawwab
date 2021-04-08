@@ -1,9 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-import '../component/spinner.js';
-
-export default Vue.extend ({
+export default {
 	template: `<div><h2>{{ t('logout') }}</h2>
 	<p v-if="!done">{{ t('logout') }} <spinner></spinner></p>
 	<p v-else>{{ t('done') }} <a :href="ssoLogoutUrl">{{ t('ssologout') }}</a>.</p>
@@ -40,4 +38,4 @@ export default Vue.extend ({
 		this.done = true;
 	},
 	mixins: [i18nMixin],
-});
+};

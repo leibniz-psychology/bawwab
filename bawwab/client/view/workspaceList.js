@@ -3,9 +3,7 @@ import { store } from '../app.js';
 import { queryParamProp } from '../utils.js';
 import Workspace from '../workspace.js';
 
-import '../component/application.js';
-
-export default Vue.extend ({
+export default {
 	template: `<div class="workspace-list">
 		<h2>{{ t('projects') }}</h2>
 		<div class="actionbar" v-if="!disabled">
@@ -142,5 +140,5 @@ export default Vue.extend ({
 			this.$router.push ({name: 'workspace', params: {wsid: wsid}});
 		}
 	}
-});
+};
 

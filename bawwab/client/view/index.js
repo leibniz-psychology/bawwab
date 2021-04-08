@@ -1,7 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-export default Vue.extend ({
+export default {
 	template: `<div class="landingpage">
 	<h2>{{ t('description') }}</h2>
 	<div class="overview">
@@ -81,5 +81,5 @@ Export your project in a reproducible way.
 		},
 	},
 	mixins: [i18nMixin],
-});
+};
 

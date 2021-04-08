@@ -1,4 +1,4 @@
-Vue.component('action-button', {
+export default {
 	props: ['icon', 'f', 'importance', 'disabled'],
 	data: function () { return {busy: false, ret: null} },
 	template: `<button v-on:click="clicked" :class="btnclass" :disabled="disabled || busy"><i :class="iconclass"></i> <slot></slot></button>`,
@@ -37,5 +37,4 @@ Vue.component('action-button', {
 			}
 		},
 	}
-});
-
+};

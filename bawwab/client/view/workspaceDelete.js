@@ -1,9 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-import '../component/modal.js';
-
-export default Vue.extend ({
+export default {
 	props: ['wsid'],
 	template: `<modal :title="canDelete ? t('deletetitle') : t('hidetitle')" :closeName="t('cancel')" icon="trash" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true">
 	<p>{{ canDelete ? t('deletequestion', { name: workspace.metadata.name }) : t('hidequestion', {name: workspace.metadata.name}) }}</p>
@@ -57,5 +55,5 @@ export default Vue.extend ({
 			this.$router.push ({name: 'workspaces'});
         },
 	}
-});
+};
 

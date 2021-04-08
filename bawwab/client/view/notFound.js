@@ -1,6 +1,6 @@
 import { translations, i18nMixin } from '../i18n.js';
 
-export default Vue.extend ({
+export default {
 	template: `<div><h2>{{ t('notfound') }}</h2></div>`,
 	data: _ => ({
 		strings: translations({
@@ -13,5 +13,5 @@ export default Vue.extend ({
 			}),
 		}),
 	mixins: [i18nMixin],
-});
+};
 

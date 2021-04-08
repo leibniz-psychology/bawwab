@@ -1,10 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-import '../component/spinner.js';
-import '../component/modal.js';
-
-export default Vue.extend ({
+export default {
 	props: ['wsid'],
 	template: `<modal icon="globe" :title="t('title')" :closeName="t('cancel')" :closeLink="backRoute" :scaling="true">
 			<p>{{ t('explain') }}</p>
@@ -55,5 +52,5 @@ export default Vue.extend ({
 			this.$router.push (this.backRoute);
 		},
 	}
-});
+};
 

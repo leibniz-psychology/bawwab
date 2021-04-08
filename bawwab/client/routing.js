@@ -17,6 +17,8 @@ import WorkspaceExportView from './view/workspaceExport.js';
 import WorkspaceDeleteView from './view/workspaceDelete.js';
 import WorkspacePackagesView from './view/workspacePackages.js';
 
+import { createRouter, createWebHistory } from 'vue-router';
+
 const routes = [
 	{ path: '/workspaces', component: WorkspaceListView, name: 'workspaces' },
 	{ path: '/workspaces/import', components: { default: WorkspaceListView, overlay: WorkspaceImportView }, name: 'workspaceImport' },
@@ -28,9 +30,9 @@ const routes = [
 	{ path: '/workspaces/:wsid/packages', components: { default: WorkspaceShowView, overlay: WorkspacePackagesView}, name: 'workspacePackages', props: { default: true, overlay: true }},
 	{ path: '/terms', component: TermsOfServiceView, name: 'terms', props: (route) => ({ next: route.query.next }) },
 	{ path: '/workspaces/:wsid/:appid/:appPath*',
-		components: { overlay: ApplicationView },
+		components: { default: WorkspaceShowView, overlay: ApplicationView },
 		name: 'application',
-		props: { overlay: function (route) {
+		props: { default: true, overlay: function (route) {
 			console.debug ('params', route.params);
 			const appPath = route.params.appPath;
 			let nextUrl = '/' + (appPath ? appPath : '');
@@ -46,21 +48,11 @@ const routes = [
 	{ path: '/login/:status', component: LoginView, name: 'login', props: true },
 	{ path: '/action/:token', component: ActionView, name: 'action', props: true },
 	{ path: '/', component: IndexView, name: 'index' },
-	{ path: '*', component: NotFoundView }
+	{ path: '/:pathMatch(.*)*', component: NotFoundView }
 ]
 
-export default new VueRouter({
+export default router = createRouter ({
 	routes: routes,
-	mode: 'history',
-	scrollBehavior: function (to, from, savedPosition) {
-		/* Use sensible scrolling behavior when changing page */
-		if (to.hash) {
-			return { selector: to.hash };
-		} else if (savedPosition) {
-			return savedPosition;
-		} else {
-			return { x: 0, y: 0 };
-		}
-	},
+	history: createWebHistory (),
 });
 

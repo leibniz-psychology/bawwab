@@ -1,13 +1,8 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-Vue.component('application-list', {
-	props: ['workspace'],
-	template: ``,
-});
-
 /* Display desktop icon for application */
-Vue.component('application-icon', {
+export const ApplicationIconComponent = {
     props: ['workspace', 'application', 'height'],
     template: `<img :src="icon" :style="style">`,
 	computed: {
@@ -18,9 +13,9 @@ Vue.component('application-icon', {
 			return `height: ${this.height}; vertical-align: middle;`;
 		}
 	},
-});
+};
 
-Vue.component('application-item', {
+export const ApplicationItemComponent = {
     props: ['workspace', 'application'],
 	mixins: [i18nMixin],
 	data: _ => ({
@@ -63,5 +58,5 @@ Vue.component('application-item', {
 			return 'fas ' + (this.state.workspaces.getRunningApplication (this.workspace, this.application) === undefined ? 'fa-play' : 'fa-external-link-square-alt');
 		}
 	}
-});
+};
 

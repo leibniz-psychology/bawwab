@@ -85,7 +85,6 @@ def main ():
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
 
 	# this should only be required when debugging
-	minre = re.compile (r'(href|src)="(.*?)[\.-]min\.(css|js)"\s+integrity=".*?"')
 	async def catchall (request, path=None):
 		if path:
 			try:
@@ -100,11 +99,7 @@ def main ():
 				# fall back to app.html
 				logger.debug (f'cannot find resource {path}, falling back to app.html')
 		with pkg_resources.resource_stream (__package__, 'assets/app.html') as fd:
-			# use non-minified script resources when debugging
-			if config.DEBUG:
-				return html (minre.sub (r'\1="\2.\3"', fd.read ().decode ('utf-8')))
-			else:
-				return html (fd.read ().decode ('utf-8'))
+			return html (fd.read ().decode ('utf-8'))
 	app.add_route (catchall, '/')
 	app.add_route (catchall, '/<path:path>')
 

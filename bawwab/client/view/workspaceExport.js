@@ -1,9 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-import '../component/modal.js';
-
-export default Vue.extend ({
+export default {
 	props: ['wsid'],
 	template: `<modal :title="t('headline')" :closeName="t('back')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" icon="file-export">
 <div v-if="workspace">
@@ -65,14 +63,14 @@ export default Vue.extend ({
 			const kind = this.kind;
 			if (!this.path[kind]) {
 				const data = await this.workspaces.export (this.kind, this.workspace);
-				Vue.set (this.path, kind, data.path);
+				this.path[kind] = data.path;
 			}
 			const url = new URL (`/api/filesystem${this.path[kind]}`, window.location.href);
 			window.location.assign (url.toString ());
         },
 	},
 	/* Delete the export file created when leaving the page */
-	beforeDestroy: async function () {
+	beforeUnmount: async function () {
 		console.debug ('destroying %s', this.path);
 		for (let k in this.path) {
 			let r = await fetch (`/api/filesystem${this.path[k]}`, {
@@ -85,5 +83,5 @@ export default Vue.extend ({
 			}
 		}
 	}
-});
+};
 

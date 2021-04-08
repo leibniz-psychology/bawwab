@@ -1,17 +1,17 @@
 /* taken from https://stackoverflow.com/a/42389266 (CC BY-SA 4.0) */
-Vue.directive('click-outside', {
-  bind: function (el, binding, vnode) {
+export default {
+  beforeMount: function (el, binding, vnode) {
     el.clickOutsideEvent = function (event) {
       // here I check that click was outside the el and his children
       if (!(el == event.target || el.contains(event.target))) {
         // and if it did, call method provided in attribute value
-        vnode.context[binding.expression](event);
+        binding.value ();
       }
     };
     document.body.addEventListener('click', el.clickOutsideEvent)
   },
-  unbind: function (el) {
+  unmounted: function (el) {
     document.body.removeEventListener('click', el.clickOutsideEvent)
   },
-});
+};
 /* end copy */

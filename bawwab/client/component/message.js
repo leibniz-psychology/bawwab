@@ -1,4 +1,4 @@
-Vue.component('message', {
+export default {
 	props: ['kind'],
 	data: function () { return {visible: true} },
 	template: `<div :class="divclass" v-show="visible">
@@ -23,5 +23,4 @@ Vue.component('message', {
 			this.visible = false;
 		},
 	}
-});
-
+};

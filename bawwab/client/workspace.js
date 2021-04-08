@@ -48,6 +48,10 @@ export default class Workspace {
 		return this.permissions.other.canRead ();
 	}
 
+	get id () {
+		return this.metadata._id;
+	}
+
 	/* Retrive the owners of this workspace.
 	 */
 	owner () {

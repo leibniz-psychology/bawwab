@@ -1,9 +1,8 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
+import { nextTick } from 'vue/dist/vue.esm-bundler.js';
 
-import '../component/application.js';
-
-export default Vue.extend ({
+export default {
 	props: ['wsid'],
 	template: `<div>
 		<div class="workspaceItem" v-if="workspace">
@@ -69,7 +68,7 @@ export default Vue.extend ({
 		:key="a._id"></application-item>
 	</div>
 	</div>
-		<p v-else>{{ t('nonexistent') }}</p></div>`,
+	<p v-else>{{ t('nonexistent') }}</p></div>`,
 	data: _ => ({
 		state: store.state,
 		editable: false,
@@ -131,7 +130,7 @@ export default Vue.extend ({
 		workspaces: function () { return this.state.workspaces; },
 		username: function () { return this.state.user?.name; },
 		workspace: function () {
-			return this.workspaces ? this.workspaces.getById (this.wsid) : null;
+			return this.workspaces?.getById (this.wsid);
 		},
 		permissions: function () {
 			return this.workspace?.getPermissions (this.username)[0];
@@ -153,8 +152,8 @@ export default Vue.extend ({
 			const description = this.$el.querySelector ('.description textarea').value;
 			const w = this.workspace;
 
-			Vue.set (w.metadata, 'name', name);
-			Vue.set (w.metadata, 'description', description);
+			w.metadata.name = name;
+			w.metadata.description = description;
             await this.workspaces.update (w);
 
 			this.editable = false;
@@ -164,7 +163,7 @@ export default Vue.extend ({
 		},
 		copy: async function () {
 			const newws = await this.workspaces.copy (this.workspace);
-			Vue.set (newws.metadata, 'name', this.t('copyname', {name: newws.metadata.name}));
+			newws.metadata.name = this.t('copyname', {name: newws.metadata.name});
             await this.workspaces.update (newws);
 			/* then go there */
 			this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
@@ -176,7 +175,7 @@ export default Vue.extend ({
 			this.editable = true;
 			if (focus) {
 				/* make sure the elements are rendered */
-				await Vue.nextTick ();
+				await nextTick ();
 				this.$el.querySelector (focus).focus ();
 			}
 		},
@@ -200,5 +199,5 @@ export default Vue.extend ({
 			return this.t('noaccess');
 		},
 	}
-});
+};
 

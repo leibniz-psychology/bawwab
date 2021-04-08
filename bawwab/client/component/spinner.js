@@ -1,6 +1,6 @@
 import spinnerSvg from '../img/spinner.svg';
 
-Vue.component ('spinner', {
+export default {
 	props: ['big'],
 	template: `<img :src="path" :class="cls">`,
 	computed: {
@@ -11,5 +11,5 @@ Vue.component ('spinner', {
 			return '/assets/' + spinnerSvg;
 		}
 	},
-});
+};
 

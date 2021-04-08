@@ -1,9 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 
-import '../component/modal.js';
-
-export default Vue.extend ({
+export default {
 	template: `<modal icon="trash" :title="t('delete')" :closeName="t('cancel')" :closeLink="{name: 'account'}" :scaling="true">
 	<p>{{ t('deletequestion') }}</p>
 	<template v-slot:buttons>
@@ -35,7 +33,7 @@ export default Vue.extend ({
 				'method': 'DELETE'
 			});
 			if (r.ok) {
-				Vue.set (this.state, 'user', null);
+				this.state.user = null;
 				await this.state.session.destroy ();
 				this.$router.push ({name: 'index'});
 			} else {
@@ -44,6 +42,5 @@ export default Vue.extend ({
 		}
 	},
 	mixins: [i18nMixin],
-});
-
+};
 

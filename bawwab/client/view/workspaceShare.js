@@ -3,9 +3,6 @@ import { store } from '../app.js';
 import { postData } from '../helper.js';
 import { queryParamProp } from '../utils.js';
 
-import '../component/spinner.js';
-import '../component/modal.js';
-
 const SendStatus = Object.freeze ({
 	unknown: 0,
 	inprogress: 1,
@@ -13,7 +10,7 @@ const SendStatus = Object.freeze ({
 	failure: 3,
 });
 
-export default Vue.extend ({
+export default {
 	props: ['wsid'],
 	template: `<modal icon="users" :title="t('sharetitle')" :closeName="t('close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" class="share">
 			<select v-model="selectedShareUrl" name="shareKind" size="0">
@@ -273,5 +270,5 @@ export default Vue.extend ({
 			await this.runPreview ();
 		},
 	},
-});
+};
 
