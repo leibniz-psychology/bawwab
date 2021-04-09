@@ -2,6 +2,7 @@ import AccountDeleteView from './view/accountDelete.js';
 import AccountView from './view/account.js';
 import ActionView from './view/action.js';
 import ApplicationView from './view/application.js';
+import FaqView from './view/faq.js';
 import IndexView from './view/index.js';
 import LegalView from './view/legal.js';
 import LoginView from './view/login.js';
@@ -47,6 +48,7 @@ const routes = [
 	{ path: '/logout', component: LogoutView, name: 'logout' },
 	{ path: '/login/:status', component: LoginView, name: 'login', props: true },
 	{ path: '/action/:token', component: ActionView, name: 'action', props: true },
+	{ path: '/faq', component: FaqView, name: 'faq' },
 	{ path: '/', component: IndexView, name: 'index' },
 	{ path: '/:pathMatch(.*)*', component: NotFoundView }
 ]
