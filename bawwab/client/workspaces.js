@@ -277,5 +277,11 @@ export default class Workspaces {
 	all () {
 		return Array.from (this.workspaces.values ());
 	}
+
+	/* Add a workspace
+	 */
+	add (ws) {
+		this.workspaces.set (ws.id, ws);
+	}
 }
 
