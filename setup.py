@@ -21,7 +21,12 @@ class Esbuild (Command):
 				'--loader:.png=file',
 				'--loader:.jpg=file',
 				'--loader:.svg=file',
-				'--target=chrome58,firefox57,safari11,edge16',
+				# We support:
+				# Chrome: Last three versions. No LTS release.
+				# Edge: Last three versions.
+				# Firefox: Latest ESR release.
+				# Safari: Last three versions.
+				'--target=chrome87,firefox78,safari12,edge87',
 				f'--define:process.env.NODE_ENV=\"{node_env}\"',
 				'--define:__VUE_OPTIONS_API__=true',
 				'--define:__VUE_PROD_DEVTOOLS__=false',
