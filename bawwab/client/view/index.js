@@ -28,36 +28,36 @@ export default {
 				'description': 'PsychNotebook ist eine Online-Plattform für die Planung und Analyse von Studien aus dem Feld der Psychologie und verwandter Disziplinen.',
 				'mission': `<h3>Unser Auftrag</h3>
 
-<p>Wir wollen Ihnen Werkzeuge für Open Science (offene Wissenschaft) geben!</p>
+<p>Wir wollen Dir Werkzeuge für Open Science (offene Wissenschaft) geben!</p>
 
 <dl>
 	<dt>Bildung</dt>
-	<dd>Lehren und lernen Sie, wie man geskriptete Analysen erstellt und versteht.</dd>
+	<dd>Lehre und lerne, wie man geskriptete Analysen erstellt und versteht.</dd>
 	<dt>Kollaboration</dt>
-	<dd>Teilen Sie Ihre Projekte öffentlich oder mit Ihren Kollegen/Kolleginnen.</dd>
+	<dd>Teilen Deine Projekte öffentlich oder mit Deinen Kolleginnen/Kollegen.</dd>
 	<dt>Reproduzierbarkeit</dt>
-	<dd>Exportieren Sie Ihr Projekt mit allen Abhängigkeiten zur Archivierung.</dd>
+	<dd>Exportiere Dein Projekt mit allen Abhängigkeiten zur Archivierung.</dd>
 </dl>`,
 				'features': `<h3>Funktionen</h3>
 
 <p>
 Anmelden und direkt mit dem Programmieren beginnen – ohne Installation.<br>
 Teilen von Projekten – als Kopie oder zur Bearbeitung.<br>
-Erstellen, kopieren und adaptieren Sie öffentliche Projekte.<br>
-Exportieren Sie Ihr Projekt reproduzierbar.
+Erstelle, kopiere und adaptiere öffentliche Projekte.<br>
+Exportiere Dein Projekt reproduzierbar.
 </p>`,
 				'login': 'Anmelden',
 				'toprojects': 'Zu meinen Projekten',
 				},
 			en: {
-				'description': 'PsychNotebook is an online platform for planning and analyzing studies in the field of psychology and related disciplines.',
+				'description': 'PsychNotebook is an online platform for planning and analyzing studies in psychology and related disciplines.',
 				'mission': `<h3>Our mission</h3>
 
-<p>We want to give you tools to practice open science!</p>
+<p>Providing you with the tools to practice open science!</p>
 
 <dl>
 	<dt>Education</dt>
-	<dd>Teach and learn to create and understand scripted analyses.</dd>
+	<dd>Learn and instruct others on how to understand and create scripted analyses.</dd>
 	<dt>Collaboration</dt>
 	<dd>Share your projects with your peers or publicly.</dd>
 	<dt>Reproducibility</dt>

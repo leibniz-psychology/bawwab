@@ -1141,6 +1141,8 @@ table.workspaces .actions li {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 3em;
+	max-width: 60em;
+	margin: 0 auto;
 }
 
 .landingpage .features, .landingpage .mission {
@@ -1151,7 +1153,7 @@ table.workspaces .actions li {
 .landingpage .right-photo {
 	border-radius: 1em;
 	background-size: cover;
-	min-height: 10em;
+	min-height: 15em;
 }
 
 .landingpage .left-photo {
