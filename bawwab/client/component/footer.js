@@ -121,12 +121,12 @@ export default {
 		strings: translations ({
 			de: {
 				'offerby': 'Ein Angebot von',
-				'learnmore': 'Erfahren Sie mehr über uns!',
-				'questions': 'Haben Sie Fragen?',
-				'questionsBody': 'Schreiben Sie uns eine E-Mail. Wir helfen Ihnen gern.',
+				'learnmore': 'Erfahre mehr über uns!',
+				'questions': 'Hast Du Fragen?',
+				'questionsBody': 'Schreib uns eine E-Mail. Wir helfen Dir gern.',
 				'contact': 'Kontakt',
-				'followus': 'Folgen Sie uns.',
-				'followusBody': 'Auf Twitter und Facebook informieren wir Sie über Neuigkeiten aus dem ZPID.',
+				'followus': 'Folge uns.',
+				'followusBody': 'Auf Twitter und Facebook informieren wir Dich über Neuigkeiten aus dem ZPID.',
 				'termsofuse': 'Nutzungsbedingungen',
 				'licenses': 'Softwarelizenzen',
 				'imprint': 'Impressum/Datenschutz',

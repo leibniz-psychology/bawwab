@@ -550,6 +550,7 @@ footer h3 {
 .social-line img {
 	height: 3em;
 	border-radius: 0.2em;
+	margin-left: 0.3em;
 }
 
 /* hack to get a rectangular icon */
