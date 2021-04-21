@@ -93,7 +93,7 @@ class UserConnectionManager:
 			c = self._conns.pop (user)
 			if c.sftp:
 				c.sftp.exit ()
-				await c.ftp.wait_closed ()
+				await c.sftp.wait_closed ()
 			c.conn.close ()
 			await c.conn.wait_closed ()
 
