@@ -25,7 +25,7 @@ export default {
 		/* application strings */
 		strings: translations ({
 			de: {
-				'description': 'PsychNotebook ist eine Online-Plattform für die Planung und Analyse von Studien aus dem Feld der Psychologie und verwandter Disziplinen.',
+				'description': 'PsychNotebook ist eine Online-Plattform für die Planung und Analyse von Studien aus der Psychologie und verwandten Disziplinen.',
 				'mission': `<h3>Unser Auftrag</h3>
 
 <p>Wir wollen Dir Werkzeuge für Open Science (offene Wissenschaft) geben!</p>
@@ -34,7 +34,7 @@ export default {
 	<dt>Bildung</dt>
 	<dd>Lehre und lerne, wie man geskriptete Analysen erstellt und versteht.</dd>
 	<dt>Kollaboration</dt>
-	<dd>Teilen Deine Projekte öffentlich oder mit Deinen Kolleginnen/Kollegen.</dd>
+	<dd>Teile Deine Projekte öffentlich oder mit Deinen Kolleginnen/Kollegen.</dd>
 	<dt>Reproduzierbarkeit</dt>
 	<dd>Exportiere Dein Projekt mit allen Abhängigkeiten zur Archivierung.</dd>
 </dl>`,
@@ -42,7 +42,7 @@ export default {
 
 <p>
 Anmelden und direkt mit dem Programmieren beginnen – ohne Installation.<br>
-Teilen von Projekten – als Kopie oder zur Bearbeitung.<br>
+Teile Deine Projekte – als Kopie oder zur Bearbeitung.<br>
 Erstelle, kopiere und adaptiere öffentliche Projekte.<br>
 Exportiere Dein Projekt reproduzierbar.
 </p>`,
