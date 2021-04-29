@@ -39,8 +39,8 @@ export default {
 		document.removeEventListener('keydown', this.handleKeydown);
 	},
 	methods: {
-		close: function () {
-			this.$router.push (this.closeLink);
+		close: async function () {
+			await this.$router.push (this.closeLink);
 		},
 		handleKeydown: function (event) {
 			console.log ('keydown', event);

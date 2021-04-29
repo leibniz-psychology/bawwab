@@ -46,11 +46,11 @@ export default {
 	methods: {
 		sharePublic: async function () {
 			await this.workspaces.share (this.workspace, 'o', false);
-			this.$router.push (this.backRoute);
+			await this.$router.push (this.backRoute);
 		},
 		unsharePublic: async function () {
 			await this.workspaces.unshare (this.workspace, 'o');
-			this.$router.push (this.backRoute);
+			await this.$router.push (this.backRoute);
 		},
 	}
 };

@@ -167,7 +167,7 @@ export default {
 			newws.metadata.name = this.t('copyname', {name: newws.metadata.name});
             await this.workspaces.update (newws);
 			/* then go there */
-			this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
+			await this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
 		},
 		makeEditable: async function (focus) {
 			if (!this.canEditMeta) {

@@ -57,7 +57,7 @@ export default {
 				this.path.push (path);
 				const ws = await this.state.workspaces.import (path);
 				this.busy = false;
-				this.$router.push ({name: 'workspace', params: {wsid: ws.metadata._id}});
+				await this.$router.push ({name: 'workspace', params: {wsid: ws.metadata._id}});
 			} else {
 				this.busy = false;
 				throw Error (j.status);

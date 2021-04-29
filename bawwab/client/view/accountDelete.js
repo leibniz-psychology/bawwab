@@ -36,7 +36,7 @@ export default {
 			if (r.ok) {
 				this.state.user = null;
 				await this.state.session.destroy ();
-				this.$router.push ({name: 'index'});
+				await this.$router.push ({name: 'index'});
 			} else {
 				console.error (r);
 			}

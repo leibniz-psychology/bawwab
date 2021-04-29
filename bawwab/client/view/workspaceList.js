@@ -132,13 +132,13 @@ export default {
 	methods: {
         createWorkspace: async function() {
 			const w = await this.state.workspaces.create (this.name);
-			this.$router.push ({name: 'workspace', params: {wsid: w.metadata._id}});
+			await this.$router.push ({name: 'workspace', params: {wsid: w.metadata._id}});
         },
 		formatDate: function (d) {
 			return new Intl.DateTimeFormat ('de-DE', {day: 'numeric', month: 'long', year: 'numeric'}).format(d);
 		},
-		goTo(wsid) {
-			this.$router.push ({name: 'workspace', params: {wsid: wsid}});
+		goTo: async function (wsid) {
+			await this.$router.push ({name: 'workspace', params: {wsid: wsid}});
 		}
 	}
 };

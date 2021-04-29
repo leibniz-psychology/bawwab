@@ -124,11 +124,11 @@ export default {
 		}
 	},
 	watch: {
-		'program.state': function () {
+		'program.state': async function () {
 			/* go back to workspace if program exited */
 			if (this.program && this.program.state == ConductorState.exited && this.program.error === null) {
 				console.debug ('program is gone, going back to workspace %o', this.workspace);
-				this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
+				await this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
 			}
 		},
 	},

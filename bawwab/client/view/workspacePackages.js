@@ -145,7 +145,7 @@ export default {
 			this.busy = true;
 			try {
 				await this.state.workspaces.packageModify (this.workspace, this.packageTransforms);
-				this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
+				await this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
 			} finally {
 				this.busy = false;
 			}

@@ -53,7 +53,7 @@ export default {
 			} else {
 				await this.workspaces.ignore (this.workspace);
 			}
-			this.$router.push ({name: 'workspaces'});
+			await this.$router.push ({name: 'workspaces'});
         },
 	}
 };

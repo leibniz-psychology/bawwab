@@ -48,7 +48,7 @@ export default {
 	 				if (ret == 0) {
 						this.state.workspaces.add (newws);
 	 					this.message = 'done';
-	 					this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
+	 					await this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
 	 				} else {
 	 					throw Error ('unhandled');
 	 				}
