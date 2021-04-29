@@ -56,6 +56,7 @@ setup(
 		'pypika',
 		'pyyaml',
 		'aiosmtplib',
+		'bonsai',
     ],
     python_requires='>=3.7',
     entry_points={

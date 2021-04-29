@@ -46,11 +46,54 @@ logger = logger.getChild (__name__)
 
 bp = Blueprint ('user')
 
-class UserConnection:
-	def __init__ (self, conn, motd=None, sftp=None):
+class TermsNotAccepted (Exception):
+	""" User did not agree to terms of service yet """
+	pass
+
+# In asyncio terminology this is a Protocol?
+class BawwabSSHClient (asyncssh.SSHClient):
+	def __init__ (self, user, acceptTos=False):
+		self.user = user
+		self.sftp = None
+		self.motd = None
+		self.acceptTos = acceptTos
+		self.conn = None
+
+	def connection_made (self, conn):
 		self.conn = conn
-		self.motd = motd
-		self.sftp = sftp
+
+		# create link to connection object, so we can access this client somehow
+		assert getattr (conn, 'bclient', None) is None
+		conn.bclient = self
+
+	def connection_lost (self, exc):
+		pass
+
+	def auth_banner_received (self, msg, lang):
+		logger.debug (f'received banner for language {lang}: {msg!r}')
+		pass
+
+	def kbdint_auth_requested (self):
+		return ''
+
+	def kbdint_challenge_received (self, name, instructions, lang, prompts):
+		logger.debug (f'challenge {name} with inst {instructions} for lang {lang} prompt {prompts}')
+		# This seems awfully fragile, but, meh.
+		if 'Permission denied'.lower () in instructions.lower () and not prompts:
+			raise asyncssh.misc.PermissionDenied (reason=instructions)
+		ret = []
+		for p, echo in prompts:
+			if p.strip ().lower () == 'password:':
+				ret.append (self.user.password)
+			elif 'Do you agree to the terms and conditions'.lower () in p.lower () and echo:
+				if self.acceptTos:
+					logger.debug (f'accepting terms of service for {self.user}')
+					ret.append ('y')
+				else:
+					logger.debug (f'not accepting terms of service for {self.user}')
+					ret.append ('n')
+					raise TermsNotAccepted ()
+		return ret
 
 class UserConnectionManager:
 	""" Manage per-user SSH connection """
@@ -61,12 +104,18 @@ class UserConnectionManager:
 		self.host = host
 		self.knownHosts = knownHosts
 
-	async def _getConnection (self, user):
+	async def _getConnection (self, user, acceptTos=False):
+		"""
+		Get a cached connection or establish one.
+
+		Can throw TermsNotAccepted via BawwabSSHClient.
+		"""
 		async with self._locks[user]:
 			c = self._conns.get (user, None)
 			if c is None:
 				logger.debug (f'establishing new SSH connection for {user}')
 				conn = await asyncssh.connect (
+						client_factory=lambda: BawwabSSHClient (user, acceptTos),
 						host=self.host,
 						port=22,
 						username=user.name,
@@ -80,35 +129,35 @@ class UserConnectionManager:
 
 				# get motd
 				try:
-					motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
-					logger.debug (f'got motd for {user}: {motd}')
+					conn.motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
+					logger.debug (f'got motd for {user}: {conn.motd}')
 				except asyncio.TimeoutError:
-					motd = None
+					pass
 
-				c = self._conns[user] = UserConnection (conn=conn, motd=motd, sftp=None)
+				c = self._conns[user] = conn
 			return c
 
 	async def _invalidate (self, user):
 		async with self._locks[user]:
 			c = self._conns.pop (user)
-			if c.sftp:
-				c.sftp.exit ()
-				await c.sftp.wait_closed ()
-			c.conn.close ()
-			await c.conn.wait_closed ()
+			if c.bclient.sftp:
+				c.bclient.sftp.exit ()
+				await c.bclient.sftp.wait_closed ()
+			c.close ()
+			await c.wait_closed ()
 
 	async def getChannel (self, user, kind, *args, **kwargs):
 		for i in range (10):
 			try:
 				c = await self._getConnection (user)
-				if kind == 'start_sftp_client' and c.sftp:
-					return c.sftp
+				if kind == 'start_sftp_client' and c.bclient.sftp:
+					return c.bclient.sftp
 				logger.debug (f'opening new channel {kind} for user {user!r}')
 				async with self._locks[user]:
-					f = getattr (c.conn, kind)
+					f = getattr (c, kind)
 					ret = await f (*args, **kwargs)
 					if kind == 'start_sftp_client':
-						c.sftp = ret
+						c.bclient.sftp = ret
 					return ret
 			except asyncssh.misc.ChannelOpenError:
 				logger.error (f'channel {kind} for {user!r} was invalid, opening new connection')
@@ -119,14 +168,10 @@ class UserConnectionManager:
 		""" Cached sftp client """
 		return await self.getChannel (user, 'start_sftp_client')
 
-	async def getMotd (self, user):
-		c = await self._getConnection (user)
-		return c.motd
-
 	async def aclose (self):
 		for c in self._conns.values ():
-			c.conn.close ()
-			await c.conn.wait_closed ()
+			c.close ()
+			await c.wait_closed ()
 
 class User (Model):
 	crypter = None
@@ -161,8 +206,8 @@ class User (Model):
 	async def getChannel (self, kind, *args, **kwargs):
 		return await connmgr.getChannel (self, kind, *args, **kwargs)
 
-	async def getMotd (self):
-		return await connmgr.getMotd (self)
+	async def getConnection (self, acceptTos=False):
+		return await connmgr._getConnection (self, acceptTos)
 
 	async def getSftp (self):
 		return await connmgr.getSftp (self)
@@ -186,13 +231,17 @@ async def getStatus ():
 			total=await User.filter().count (),
 			)
 
-async def makeUserResponse (user):
+async def makeUserResponse (user, acceptTos=False):
+	motd = None
+	loginStatus = 'unknown'
 	try:
-		motd = await user.getMotd ()
-		canLogin = True
+		c = await user.getConnection (acceptTos)
+		motd = c.bclient.motd
+		loginStatus = 'success'
+	except TermsNotAccepted:
+		loginStatus = 'termsOfService'
 	except asyncssh.misc.PermissionDenied:
-		motd = None
-		canLogin = False
+		loginStatus = 'permissionDenied'
 	except OSError:
 		# SSH is down
 		return json (dict (status='unavailable'), status=503)
@@ -202,7 +251,7 @@ async def makeUserResponse (user):
 		name=user.name,
 		password=user.password,
 		motd=motd,
-		canLogin=canLogin,
+		loginStatus=loginStatus,
 		))
 
 @bp.route ('/', methods=['GET'])
@@ -213,7 +262,9 @@ async def userGet (request):
 	if authId is not None:
 		user = await User.get_or_none (authId=session.authId)
 		if user is not None:
-			return await makeUserResponse (user)
+			# XXX: acceptTos should probably be done in a post request, because
+			# it modifies state
+			return await makeUserResponse (user, acceptTos='acceptTos' in request.args)
 
 	raise NotFound ('nonexistent')
 

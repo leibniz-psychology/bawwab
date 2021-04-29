@@ -30,7 +30,7 @@ from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
 from pypika import Query, Table, Field
 
-from . import session, user, action, status, process, csp, filesystem, email
+from . import session, user, action, status, process, csp, filesystem, email, tos
 
 logger = logger.getChild (__name__)
 
@@ -82,6 +82,7 @@ def main ():
 	app.blueprint (csp.bp, url_prefix='/api/csp')
 	app.blueprint (filesystem.bp, url_prefix='/api/filesystem')
 	app.blueprint (email.bp, url_prefix='/api/email')
+	app.blueprint (tos.bp, url_prefix='/api/tos')
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
 
 	# this should only be required when debugging

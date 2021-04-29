@@ -50,7 +50,7 @@ export default {
 			return this.state.session && this.state.session.oauthInfo;
 		},
 		canDelete: function () {
-			return this.state.user && this.state.user.canLogin;
+			return this.state.user && this.state.user.loginStatus == 'success';
 		},
 	},
 	methods: {

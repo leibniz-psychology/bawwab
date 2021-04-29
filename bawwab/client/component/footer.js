@@ -108,9 +108,8 @@ export default {
           </div>
           <div class="pure-u-sm-4-5 pure-u-1">
             <ul class="links">
-			<li><router-link :to="{name: 'terms'}">{{ t('termsofuse') }}</router-link> </li>
-			  <li><router-link :to="{name: 'legal', hash: '#softwarelizenzen'}">{{ t('licenses') }}</router-link></li>
-              <li><router-link :to="{name: 'legal', hash: '#impressum'}">{{ t('imprint') }}</router-link></li>
+			  <li><router-link :to="{name: 'terms'}">{{ t('termsofservice') }}</router-link> </li>
+              <li><router-link :to="{name: 'privacy'}">{{ t('imprint') }}</router-link></li>
             </ul>
           </div>
         </div>
@@ -127,9 +126,8 @@ export default {
 				'contact': 'Kontakt',
 				'followus': 'Folge uns.',
 				'followusBody': 'Auf Twitter und Facebook informieren wir Dich über Neuigkeiten aus dem ZPID.',
-				'termsofuse': 'Nutzungsbedingungen',
-				'licenses': 'Softwarelizenzen',
-				'imprint': 'Impressum/Datenschutz',
+				'termsofservice': 'Nutzungsbedingungen',
+				'imprint': 'Datenschutzhinweise',
 				'leibnizLogo': 'https://www.lifp.de/assets/images/Leibniz-Gemeinschaft_Logo.svg',
 				},
 			en: {
@@ -140,9 +138,8 @@ export default {
 				'contact': 'Contact',
 				'followus': 'Follow us on social media.',
 				'followusBody': 'Get the latest ZPID news on Twitter and Facebook.',
-				'termsofuse': 'Terms of use',
-				'licenses': 'Software licensing',
-				'imprint': 'Legal notice/data privacy',
+				'termsofservice': 'Terms of Use',
+				'imprint': 'Data Privacy Note',
 				'leibnizLogo': 'https://www.lifp.de/assets/images/Logo_Leibniz_Association.svg',
 			},
 		}),

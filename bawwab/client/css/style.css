@@ -59,12 +59,7 @@ body {
 
 a {
 	text-decoration: none;
-	-webkit-transition-duration: 0.4s; /* Safari */
-	transition-duration: 0.4s;
-}
-
-a:focus {
-	outline: none;
+	color: var(--magenta-text);
 }
 
 a:hover {
@@ -1170,6 +1165,26 @@ table.workspaces .actions li {
 .landingpage .goto {
 	text-align: center;
 	margin-top: 3em;
+}
+
+.tosprompt ul.accept {
+    list-style-type: none;
+    margin: 1em 0;
+    padding: 0;
+}
+
+/* align text and checkboxes */
+.tosprompt ul.accept li {
+	display: flex;
+	margin-bottom: 1em;
+}
+
+.tosprompt ul.accept li input {
+	margin-right: 0.5em;
+	display: block;
+}
+.tosprompt ul.accept li label {
+	display: block;
 }
 
 /* use same breakpoint as pure-m */

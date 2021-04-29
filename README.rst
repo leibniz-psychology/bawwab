@@ -67,7 +67,7 @@ recompile the assets using
 
 .. code:: console
 
-	python setup.py esbuild
+	python setup.py esbuild --debug
 
 The backend will pick up changes automatically when in debug mode.
 

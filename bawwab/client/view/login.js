@@ -28,11 +28,20 @@ export default {
 		},
 	},
 	created: async function () {
+        const wsRoute = {name: 'workspaces'};
 		if (this.status == 'success') {
-			if (store.haveWorkspaces ()) {
-				this.$router.push ({name: 'workspaces'});
-			} else {
-				this.$router.push ({name: 'index'});
+            switch (store.state.user.loginStatus) {
+                case 'success':
+                    await this.$router.push (wsRoute);
+                    break;
+
+                case 'termsOfService':
+                    await this.$router.push ({name: 'termsPrompt', query: {next: this.$router.resolve (wsRoute).fullPath}});
+                    break;
+
+                default:
+                    await this.$router.push ({name: 'index'});
+                    break;
 			}
 		}
 	},

@@ -3,18 +3,22 @@ import { postData } from './helper.js';
 /* Unix user
  */
 export default class User {
-	constructor (name, motd, canLogin) {
+	constructor (name, motd, loginStatus) {
 		this.name = name;
 		this.motd = motd;
-		this.canLogin = canLogin;
+		this.loginStatus = loginStatus;
 	}
 
 	static fromJson (j) {
-		return new User (j.name, j.motd, j.canLogin);
+		return new User (j.name, j.motd, j.loginStatus);
 	}
 
-	static async get () {
-		const r = await fetch ('/api/user');
+	static async get (acceptTos) {
+		let url = '/api/user';
+		if (acceptTos) {
+			url += '?acceptTos=1';
+		}
+		const r = await fetch (url);
 		const j = await r.json ();
 		if (r.ok) {
 			return User.fromJson (j);

@@ -25,6 +25,7 @@ import ProcessManager from './processManager.js';
 import router from './routing.js';
 import Session from './session.js';
 import { translations, i18nMixin } from './i18n.js';
+import { getResponse } from './helper.js';
 import User from './user.js';
 import Workspaces from './workspaces.js';
 import './directive/clickOutside.js';
@@ -60,6 +61,9 @@ export const store = {
 		workspaces: null,
 		/* current language */
 		language: 'en',
+		/* cache for terms of service. Hash prefix is reserved for private
+		 * props. */
+		'#termsOfService': null,
 
 		/* notify when the store is fully initialized */
 		ready: new AsyncNotify (),
@@ -73,9 +77,19 @@ export const store = {
 		this.state.processes = new ProcessManager (url);
 
 		this.state.events = new EventManager (this.state.processes);
+		/* event manager must be started before we can run programs, otherwise
+		 * .fetch() below deadlocks. */
+		this.state.events.start ();
 
+		await this.initUser ();
+		await this.initWorkspaces ();
+
+		await this.state.ready.notify ();
+	},
+
+	async initUser (acceptTos) {
 		try {
-			this.state.user = await User.get ();
+			this.state.user = await User.get (acceptTos);
 		} catch (e) {
 			if (e.message == 'nonexistent' && this.state.session.authenticated()) {
 				try {
@@ -89,15 +103,14 @@ export const store = {
 				this.state.user = null;
 			}
 		}
+	},
 
-		if (this.state.user && this.state.user.canLogin) {
+	async initWorkspaces () {
+		if (this.state.user && this.state.user.loginStatus == 'success') {
 			this.state.workspaces = new Workspaces (this.state.events, this.state.user);
 		} else {
 			this.state.workspaces = null;
 		}
-		/* event manager must be started before we can run programs, otherwise
-		 * .fetch() below deadlocks. */
-		this.state.events.start ();
 
 		if (this.state.workspaces) {
 			try {
@@ -111,13 +124,25 @@ export const store = {
 		}
 		/* allow all events */
 		await this.state.events.setAllowedHandler (/.*/);
-
-		await this.state.ready.notify ();
 	},
 
 	haveWorkspaces: function () {
 		return this.state.workspaces !== null;
 	},
+
+	async getTermsOfService () {
+		const cached = this.state['#termsOfService'];
+		if (cached === null) {
+			/* XXX: make sure we don’t fetch it twice */
+			const r = await fetch ('/api/tos');
+			const terms = await getResponse (r);
+			for (const t of terms) {
+				t.effective = new Date (t.effective);
+			}
+			this.state['#termsOfService'] = terms;
+		}
+		return this.state['#termsOfService'];
+	}
 };
 
 const app = createApp ({
@@ -141,6 +166,10 @@ const app = createApp ({
     created: async function () {
 		try {
 			await store.init ();
+			/* the initial beforeEach fires before we’re done here */
+			if (this.state.user?.loginStatus == 'termsOfService' && this.$router.currentRoute.value.meta.requireAuth) {
+				const ret = await this.$router.push ({name: 'termsPrompt', query: {next: this.$router.currentRoute.value.fullPath}});
+			}
 		} finally {
 			this.loading = false;
 		}
@@ -156,7 +185,7 @@ const app = createApp ({
 			return store.haveWorkspaces ();
 		},
 		isLockedOut: function () {
-			return this.state.user && !this.state.user.canLogin;
+			return this.state.user && this.state.user.loginStatus == 'permissionDenied';
 		},
 		supportMail: function () {
 			return 'psychnotebook@leibniz-psychology.org';
@@ -174,6 +203,19 @@ const app = createApp ({
 	mixins: [i18nMixin],
 });
 
+router.onError (function (err) {
+	console.debug ('router threw error', err);
+});
+router.beforeEach (async function (to, from) {
+	console.log ('called before handler with', to, from, store.state.user);
+	/* XXX: should async get the user here */
+	if (store.state.user?.loginStatus == 'termsOfService' && to.meta.requireAuth) {
+		console.debug ('Require terms of service, redirecting', to);
+		return {name: 'termsPrompt', query: {next: to.fullPath}};
+	}
+	console.debug ('accept navigation');
+	return true;
+});
 app.use (router);
 
 /* register components with this app */
@@ -184,6 +226,7 @@ import LoginComponent from './component/login.js';
 import MessageComponent from './component/message.js';
 import ModalComponent from './component/modal.js';
 import SpinnerComponent from './component/spinner.js';
+import CommonmarkComponent from './component/commonmark.js';
 import { ApplicationIconComponent, ApplicationItemComponent } from './component/application.js';
 app.component ('action-button', ActionButtonComponent);
 app.component ('dynamic-footer', FooterComponent);
@@ -194,6 +237,7 @@ app.component ('modal', ModalComponent);
 app.component ('spinner', SpinnerComponent);
 app.component ('application-icon', ApplicationIconComponent);
 app.component ('application-item', ApplicationItemComponent);
+app.component ('commonmark', CommonmarkComponent);
 import ClickOutsideDirective from './directive/clickOutside.js';
 app.directive ('click-outside', ClickOutsideDirective);
 

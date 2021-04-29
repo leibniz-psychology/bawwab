@@ -17,7 +17,7 @@ export default {
 	</div>
 	<p class="goto">
 		<a v-if="state.user === null" class="btn high" href="/api/session/login">{{ t('login') }}</a>
-		<router-link v-else-if="haveWorkspaces" class="btn high" :to="{name: 'workspaces'}">{{ t('toprojects') }}</router-link>
+		<router-link v-else class="btn high" :to="{name: 'workspaces'}">{{ t('toprojects') }}</router-link>
 	</p>
 </div>`,
 	data: _ => ({
@@ -76,11 +76,6 @@ Export your project in a reproducible way.
 				},
 			}),
 	}),
-	computed: {
-		haveWorkspaces: function () {
-			return store.haveWorkspaces ();
-		},
-	},
 	mixins: [i18nMixin],
 };
 
