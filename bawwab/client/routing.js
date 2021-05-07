@@ -7,6 +7,7 @@ import IndexView from './view/index.js';
 import LoginView from './view/login.js';
 import LogoutView from './view/logout.js';
 import NotFoundView from './view/notFound.js';
+import OpenSourceView from './view/opensource.js';
 import TermsOfServiceView from './view/tos.js';
 import TermsOfServicePromptView from './view/tosPrompt.js';
 import WorkspaceImportView from './view/workspaceImport.js';
@@ -50,7 +51,9 @@ const routes = [
 	{ path: '/logout', component: LogoutView, name: 'logout' },
 	{ path: '/login/:status', component: LoginView, name: 'login', props: true },
 	{ path: '/action/:token', component: ActionView, name: 'action', props: true, meta: { requireAuth: true }  },
+	/* XXX: We should merge these two into a common markdown view? */
 	{ path: '/faq', component: FaqView, name: 'faq' },
+	{ path: '/opensource', component: OpenSourceView, name: 'opensource' },
 	{ path: '/', component: IndexView, name: 'index' },
 	{ path: '/:pathMatch(.*)*', component: NotFoundView }
 ]

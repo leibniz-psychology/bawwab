@@ -108,6 +108,7 @@ export default {
           </div>
           <div class="pure-u-sm-4-5 pure-u-1">
             <ul class="links">
+			  <li><router-link :to="{name: 'opensource'}">{{ t('software') }}</router-link></li>
 			  <li><router-link :to="{name: 'terms'}">{{ t('termsofservice') }}</router-link> </li>
               <li><router-link :to="{name: 'privacy'}">{{ t('imprint') }}</router-link></li>
             </ul>
@@ -127,6 +128,7 @@ export default {
 				'followus': 'Folge uns.',
 				'followusBody': 'Auf Twitter und Facebook informieren wir Dich über Neuigkeiten aus dem ZPID.',
 				'termsofservice': 'Nutzungsbedingungen',
+				'software': 'Software',
 				'imprint': 'Datenschutzhinweise',
 				'leibnizLogo': 'https://www.lifp.de/assets/images/Leibniz-Gemeinschaft_Logo.svg',
 				},
@@ -139,6 +141,7 @@ export default {
 				'followus': 'Follow us on social media.',
 				'followusBody': 'Get the latest ZPID news on Twitter and Facebook.',
 				'termsofservice': 'Terms of Use',
+				'software': 'Software',
 				'imprint': 'Data Privacy Note',
 				'leibnizLogo': 'https://www.lifp.de/assets/images/Logo_Leibniz_Association.svg',
 			},
