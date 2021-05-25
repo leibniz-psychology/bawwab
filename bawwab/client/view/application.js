@@ -28,7 +28,8 @@ export default {
 		<div v-else-if="program" class="loading">
 			<details>
 				<summary>
-				<span v-if="program.error !== null">{{ t('failed', {reason: program.error}) }}.</span>
+				<span v-if="program.process?.exitStatus == 4">{{ t('busy') }}</span>
+				<span v-else-if="program.error !== null">{{ t('failed', {reason: program.error}) }}.</span>
 				<span v-else-if="program.state == ConductorState.starting">{{ t('starting') }}<br><spinner :big="true"></spinner></span>
 				<span v-else-if="program.state == ConductorState.exited">{{ t('exited') }}</span>
 				</summary>
@@ -50,6 +51,7 @@ export default {
 				'reset': 'Neustarten',
 				'stop': 'Beenden',
 				'needrestart': 'Die Änderungen am Projekt werden für diese Anwendung erst sichbar, wenn sie neugestartet wird.',
+				'busy': 'Das Projekt wird zurzeit aktualisiert. Die Anwendung kann erst danach gestartet werden.',
 				},
 			en: {
 				'nonexistent': 'Application does not exist.',
@@ -61,6 +63,7 @@ export default {
 				'reset': 'Restart',
 				'stop': 'Stop',
 				'needrestart': 'Changes made to the project apply to this application only after a restart.',
+				'busy': 'The project is being updated currently. This application can only be started afterwards.',
 				},
 		}),
 	}),
