@@ -1,12 +1,13 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
-import { queryParamProp } from '../utils.js';
+import { queryParamProp, CancelledError } from '../utils.js';
 
 export default {
 	name: 'WorkspacePackagesView',
 	props: ['wsid'],
 	data: _ => ({
 		state: store.state,
+		cancel: null,
 		searching: false,
 		searchId: null,
 		/* Package state cache, list of {p: <package>, state: <state>} */
@@ -81,7 +82,7 @@ export default {
 				<div class="right">
 				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="busy" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
 				<!-- Package removal is disabled by request. -->
-				<action-button v-if="false && ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
+				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
 				</div>
 			</div>
 		</div>
@@ -91,6 +92,12 @@ export default {
 		<action-button icon="sync" :f="doPackageUpgrade" :disabled="busy" importance="medium">{{ t('upgrade') }}</action-button>
 	</template>
 </modal>`,
+	beforeRouteLeave: async function (to, from) {
+		if (this.cancel) {
+			this.cancel (new CancelledError ());
+		}
+		return true;
+	},
 	computed: {
 		haveModifications: function () { return this.packageTransforms.length > 0; },
 		filteredPackages: function () {
@@ -142,15 +149,31 @@ export default {
 			this.search = '';
 		},
 		doPackageModify: async function () {
+			let cancelled = false;
 			this.busy = true;
 			try {
-				await this.state.workspaces.packageModify (this.workspace, this.packageTransforms);
+				/* Make the promise “cancellable”, although packageModify is
+				 * not really cancelled, we just ignore its results. */
+				await Promise.race ([
+						this.state.workspaces.packageModify (this.workspace, this.packageTransforms),
+						new Promise (function (resolve, reject) { this.cancel = reject }.bind (this))]);
 				await this.$router.push ({name: 'workspace', params: {wsid: this.workspace.metadata._id}});
+			} catch (e) {
+				if (e instanceof CancelledError) {
+					cancelled = true;
+				} else {
+					/* pass */
+				}
 			} finally {
 				this.busy = false;
+				this.cancel = null;
 			}
-			this.packageFilter = this.defaultPackageFilter;
-			this.search = '';
+			if (!cancelled) {
+				this.packageFilter = this.defaultPackageFilter;
+				/* this must be conditional, since it modifies the route and
+				 * cancellation also modifies the route */
+				this.search = '';
+			}
 		},
 		addPackage: function (ps) {
 			if (!ps.state.installed) {

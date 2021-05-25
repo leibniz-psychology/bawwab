@@ -13,3 +13,7 @@ export function queryParamProp (key, defaultValue=null) {
 		}
 	}
 }
+
+export class CancelledError extends Error {
+};
+
