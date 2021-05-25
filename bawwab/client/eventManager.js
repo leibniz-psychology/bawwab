@@ -69,7 +69,9 @@ export default class EventManager {
 
 		while (true) {
 			const p = await this.pm.get ();
-			await this.handleProc (p);
+			/* fork into the background, to support running multiple handlers
+			 * at the same time */
+			this.handleProc (p).then (function () {});
 		}
 	}
 
