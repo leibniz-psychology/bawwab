@@ -14,10 +14,19 @@ class Esbuild (Command):
 		pass
 
 	def run(self):
-		node_env = 'development' if self.debug else 'production'
 		shutil.copy ('bawwab/client/app.html', 'bawwab/assets')
-		subprocess.run (['esbuild', 'bawwab/client/app.js', '--bundle',
-				'--sourcemap', '--minify',
+
+		node_env = 'development' if self.debug else 'production'
+		extraOpts = []
+		if not self.debug:
+			extraOpts = [
+					'--minify',
+					# this effectively removes these calls when minifying
+					'--pure:console.debug', '--pure:console.log',
+					]
+		subprocess.run (['esbuild', 'bawwab/client/app.js',
+				'--bundle',
+				'--sourcemap',
 				'--loader:.png=file',
 				'--loader:.jpg=file',
 				'--loader:.svg=file',
@@ -30,7 +39,7 @@ class Esbuild (Command):
 				f'--define:process.env.NODE_ENV=\"{node_env}\"',
 				'--define:__VUE_OPTIONS_API__=true',
 				'--define:__VUE_PROD_DEVTOOLS__=false',
-				'--outdir=bawwab/assets/'])
+				'--outdir=bawwab/assets/'] + extraOpts)
 
 setup(
     name='bawwab',
