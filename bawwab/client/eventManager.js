@@ -1,5 +1,11 @@
 import AsyncNotify from './asyncNotify.js';
 
+class DeferredError extends Error {
+};
+
+class NotRegisteredError extends Error {
+};
+
 export default class EventManager {
 	constructor (pm) {
 		/* process manager */
@@ -24,24 +30,21 @@ export default class EventManager {
 		this._listen().then (_ => ({}));
 	}
 
-	async handleProc (p) {
+	async handleProc (p, allowedHandler) {
 		if (!p.extraData) {
 			/* nothing we can handle */
 			return;
 		}
 
 		const name = p.extraData.trigger;
-		console.debug ('em: got new program', p.token, 'for', name);
-
-		if (!this.handler.has (name)) {
-			throw Error (`${name} is not registered`);
-		}
 
 		/* defer if not allowed right now */
-		if (!this.allowedHandler.test (name)) {
-			console.debug ('deferring', p.token);
-			this.deferred.push (p);
-			return false;
+		if (!allowedHandler.test (name)) {
+			throw new DeferredError ();
+		}
+
+		if (!this.handler.has (name)) {
+			throw new NotRegisteredError (`${name} is not registered`);
 		}
 
 		const f = this.handler.get (name);
@@ -55,8 +58,18 @@ export default class EventManager {
 		if (this.waiting.has (p.token)) {
 			this.waiting.get (p.token).notify (ret);
 		}
+	}
 
-		return true;
+	async handleProcWithDeferred (p) {
+		try {
+			await this.handleProc (p, this.allowedHandler);
+		} catch (e) {
+			if (e instanceof DeferredError) {
+				this.deferred.push (p);
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	async _listen () {
@@ -64,27 +77,33 @@ export default class EventManager {
 		/* process existing programs */
 		for (let i = 0; i < this.pm.procs.length; i++) {
 			const p = this.pm.procs[i];
-			await this.handleProc (p);
+			await this.handleProcWithDeferred (p);
 		}
 
 		while (true) {
 			const p = await this.pm.get ();
 			/* fork into the background, to support running multiple handlers
 			 * at the same time */
-			this.handleProc (p).then (function () {});
+			this.handleProcWithDeferred (p).then (function () {});
 		}
 	}
 
 	async setAllowedHandler (re) {
-		this.allowedHandler = re;
 		const newDeferred = [];
-		for (let i = 0; i < this.deferred.length; i++) {
-			const p = this.deferred[i];
-			const ran = await this.handleProc (p);
-			if (!ran) {
-				newDeferred.push (p);
+		while (this.deferred.length > 0) {
+			const p = this.deferred.shift ();
+			try {
+				await this.handleProc (p, re);
+			} catch (e) {
+				if (e instanceof DeferredError) {
+					newDeferred.push (p);
+				} else {
+					throw e;
+				}
 			}
 		}
+
+		this.allowedHandler = re;
 		this.deferred = newDeferred;
 	}
 

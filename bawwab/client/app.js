@@ -78,7 +78,7 @@ export const store = {
 
 		this.state.events = new EventManager (this.state.processes);
 		/* event manager must be started before we can run programs, otherwise
-		 * .fetch() below deadlocks. */
+		 * workspaces.fetch() below deadlocks. */
 		this.state.events.start ();
 
 		await this.initUser ();
@@ -115,7 +115,7 @@ export const store = {
 		if (this.state.workspaces) {
 			try {
 				/* allow only updating project list */
-				await this.state.events.setAllowedHandler (/^workspaces.fetch$/);
+				await this.state.events.setAllowedHandler (/^workspaces\.fetch$/);
 				await this.state.workspaces.fetch ();
 			} catch (e) {
 				this.state.workspaces = null;
