@@ -31,7 +31,7 @@ from sanic.log import logger
 from sanic.exceptions import Forbidden, NotFound, ServerError
 import asyncssh
 
-from .user import User, authenticated
+from .user import User, authenticated, TermsNotAccepted
 
 bp = Blueprint('filesystem')
 logger = logger.getChild (__name__)
@@ -57,7 +57,12 @@ async def fileGetDelete (request, user, path):
 	path = '/' + path
 	filename = path.split ('/')[-1]
 	logger.debug (f'user {user} is requesting file {path}')
-	client = await user.getSftp ()
+	try:
+		client = await user.getSftp ()
+	except asyncssh.misc.PermissionDenied:
+		raise Forbidden ('locked_out')
+	except TermsNotAccepted:
+		raise Forbidden ('terms_of_service')
 
 	if request.method == 'GET':
 		with translateSSHError ():

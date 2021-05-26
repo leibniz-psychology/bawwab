@@ -34,7 +34,7 @@ from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound
 
 import asyncssh
 
-from .user import User, authenticated
+from .user import User, authenticated, TermsNotAccepted
 from .action import getAction
 from .util import randomSecret, periodic
 
@@ -178,6 +178,8 @@ async def processRun (request, authenticatedUser):
 			return jsonResponse ({'status': 'ok', 'token': token})
 		except asyncssh.misc.PermissionDenied:
 			raise Forbidden ('locked_out')
+		except TermsNotAccepted:
+			raise Forbidden ('terms_of_service')
 
 @bp.route ('/<token>', methods=['DELETE'])
 @authenticated
