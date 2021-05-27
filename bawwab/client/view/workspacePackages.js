@@ -217,7 +217,7 @@ export default {
 					const searchFor = this.search;
 					this.searching = true;
 					this.packages.map (function (ps) { ps.state.fromSearch = false });
-					this.state.workspaces.packageSearch (this.workspace, this.search)
+					this.state.workspaces.packageSearch (this.workspace, this.search.split (' '))
 						.then (function (ret) {
 							/* only apply changes if the expression is still
 							 * the same, otherwise forget results */

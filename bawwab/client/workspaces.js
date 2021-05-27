@@ -227,7 +227,7 @@ export default class Workspaces {
 	}
 
 	async packageSearch (ws, expression) {
-		const args = ['package', 'search', expression];
+		const args = ['package', 'search'].concat (expression);
 		return await this.runWith ('workspaces.packageSearch', ws, args);
 	}
 
