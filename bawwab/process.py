@@ -32,6 +32,8 @@ from sanic.log import logger
 from sanic.response import json as jsonResponse
 from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound
 
+from websockets.exceptions import WebSocketException
+
 import asyncssh
 
 from .user import User, authenticated, TermsNotAccepted
@@ -193,8 +195,15 @@ async def processKill (request, user, token):
 
 async def broadcast (recipient, msg):
 	if len (perUserSockets[recipient]) > 0:
-		await asyncio.wait ([socket.send (json.dumps (msg))
+		done, pending = await asyncio.wait ([socket.send (json.dumps (msg))
 				for socket in perUserSockets[recipient]])
+		assert not pending
+		for d in done:
+			try:
+				d.result ()
+			except WebSocketException:
+				# Nothing we can do about.
+				pass
 	else:
 		logger.debug (f'no sockets for {recipient}')
 

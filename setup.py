@@ -66,6 +66,8 @@ setup(
 		'pyyaml',
 		'aiosmtplib',
 		'bonsai',
+		# Same library sanic is using.
+		'websockets',
     ],
     python_requires='>=3.7',
     entry_points={

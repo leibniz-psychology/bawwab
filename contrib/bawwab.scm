@@ -705,6 +705,7 @@
      ("python-furl" ,python-furl)
      ("python-pyyaml" ,python-pyyaml)
      ("python-sanic" ,python-sanic)
+     ("python-websockets" ,python-websockets)
      ("python-aiohttp" ,python-aiohttp)
      ("python-pytz" ,python-pytz)
      ("font-awesome" ,font-awesome)
