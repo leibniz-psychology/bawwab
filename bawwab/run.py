@@ -162,18 +162,6 @@ def main ():
 
 	app.run (**args)
 
-def migrateDoApplicationNameToKey (db):
-	application = Table('application')
-	c = db.cursor()
-	print ('begin transaction;')
-	for row in c.execute ('select name, command, conductorKey, lastStarted, id from application'):
-		q = Query \
-				.into(application) \
-				.columns('key', 'command', 'conductorKey', 'lastStarted', 'id') \
-				.insert(row[0].lower(), row[1], row[2], row[3], row[4])
-		print (str (q) + ';')
-	print ('commit;')
-
 def migrate ():
 	prefix = 'migrateDo'
 	available = dict ()
