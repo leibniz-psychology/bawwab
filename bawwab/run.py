@@ -188,7 +188,11 @@ def loganalyze ():
 	processes = {}
 
 	for l in sys.stdin:
-		o = json.loads (l)
+		try:
+			o = json.loads (l)
+		except Exception:
+			# ignore non-json log lines
+			continue
 
 		if o['event'] == __package__ + '.process.message':
 			procMsg = o['msg']
