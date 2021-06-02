@@ -20,13 +20,15 @@ export default {
 				'headline': 'Aktion ausführen',
 				'pleasewait': 'Einen Moment bitte…',
 				'done': 'Ausgeführt!',
-				'error': 'Ein Fehler ist aufgetreten.',
+				'expired': 'Die Aktion ist nicht mehr gültig.',
+				'not_found': 'Die Aktion existiert nicht.',
 				},
 			'en': {
 				'headline': 'Run action',
 				'pleasewait': 'Just a second…',
 				'done': 'Done!',
-				'error': 'An error occurred.',
+				'expired': 'This action has expired.',
+				'not_found': 'The action does not exist.',
 				},
 			}),
 		}),
@@ -65,7 +67,7 @@ export default {
 				console.debug ('unauthicanted, going to %o', url.toString ());
 				document.location = url.toString ();
 			} else {
-				this.message = 'error';
+				this.message = e.message;
 			}
 	    } finally {
 	 	   this.running = false;
