@@ -34,12 +34,12 @@ from datetime import timedelta
 
 from sanic import Blueprint
 from sanic.response import json
-from sanic.log import logger
 from sanic.exceptions import NotFound, ServerError, SanicException, Forbidden
 from tortoise.models import Model
 from tortoise import fields
 import aiosmtplib, aiosmtplib.errors, re
 from furl import furl
+from sanic.log import logger
 
 from .user import authenticated
 from .util import periodic, now
@@ -176,7 +176,7 @@ async def sendEmail (config, recipientName, recipientAddress, senderAddress, sub
 
 expireJobThread = None
 hour = 60*60
-@periodic(1*hour, logger)
+@periodic(1*hour)
 async def expireMailJob ():
 
 	oldest = now() - timedelta (days=30)

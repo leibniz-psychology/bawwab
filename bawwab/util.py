@@ -22,11 +22,14 @@
 Various utility functions
 """
 
-import secrets, asyncio
+import secrets, asyncio, sys
 from datetime import datetime
 from functools import wraps
 
+from structlog import get_logger
 import pytz
+
+logger = get_logger ()
 
 def randomSecret (n=32):
 	alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -35,18 +38,18 @@ def randomSecret (n=32):
 def now ():
 	return datetime.now (tz=pytz.utc)
 
-def periodic(delay, logger):
+def periodic(delay):
 	def decorator(f):
 		@wraps(f)
 		async def wrapper (*args, **kwds):
 			while True:
 				try:
-					logger.debug (f'calling periodic function {f.__name__} (every {delay}s)')
 					await f (*args, **kwds)
 				except asyncio.CancelledError:
 					break
 				except Exception as e:
-					logger.error (f'periodic function {f.__name__} failed: {e}')
+					_, _, exc_info = sys.exc_info ()
+					logger.error (__name__ + '.periodic.failed', wraps=f, exc_info=exc_info)
 				finally:
 					await asyncio.sleep (delay)
 		return wrapper

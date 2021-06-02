@@ -32,17 +32,16 @@ from tortoise import fields
 from tortoise.exceptions import DoesNotExist, IntegrityError
 from tortoise.transactions import in_transaction
 from sanic import Blueprint
-from sanic.log import logger
 from sanic.response import html, json
 from sanic.exceptions import Forbidden, ServerError, NotFound, ServiceUnavailable
 import aiohttp
 from cryptography.fernet import Fernet
 import asyncssh
+from structlog import get_logger
 
 from .util import randomSecret, now
-from . import audit
 
-logger = logger.getChild (__name__)
+logger = get_logger ()
 
 bp = Blueprint ('user')
 
@@ -70,14 +69,12 @@ class BawwabSSHClient (asyncssh.SSHClient):
 		pass
 
 	def auth_banner_received (self, msg, lang):
-		logger.debug (f'received banner for language {lang}: {msg!r}')
 		pass
 
 	def kbdint_auth_requested (self):
 		return ''
 
 	def kbdint_challenge_received (self, name, instructions, lang, prompts):
-		logger.debug (f'challenge {name} with inst {instructions} for lang {lang} prompt {prompts}')
 		# This seems awfully fragile, but, meh.
 		if 'Permission denied'.lower () in instructions.lower () and not prompts:
 			raise asyncssh.misc.PermissionDenied (reason=instructions)
@@ -87,10 +84,8 @@ class BawwabSSHClient (asyncssh.SSHClient):
 				ret.append (self.user.password)
 			elif 'Do you agree to the terms and conditions'.lower () in p.lower () and echo:
 				if self.acceptTos:
-					logger.debug (f'accepting terms of service for {self.user}')
 					ret.append ('y')
 				else:
-					logger.debug (f'not accepting terms of service for {self.user}')
 					ret.append ('n')
 					raise TermsNotAccepted ()
 		return ret
@@ -103,6 +98,7 @@ class UserConnectionManager:
 		self._locks = defaultdict (asyncio.Lock)
 		self.host = host
 		self.knownHosts = knownHosts
+		self.logger = logger.bind ()
 
 	async def _getConnection (self, user, acceptTos=False):
 		"""
@@ -113,7 +109,6 @@ class UserConnectionManager:
 		async with self._locks[user]:
 			c = self._conns.get (user, None)
 			if c is None:
-				logger.debug (f'establishing new SSH connection for {user}')
 				conn = await asyncssh.connect (
 						client_factory=lambda: BawwabSSHClient (user, acceptTos),
 						host=self.host,
@@ -130,7 +125,6 @@ class UserConnectionManager:
 				# get motd
 				try:
 					conn.motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
-					logger.debug (f'got motd for {user}: {conn.motd}')
 				except asyncio.TimeoutError:
 					pass
 
@@ -152,7 +146,6 @@ class UserConnectionManager:
 				c = await self._getConnection (user)
 				if kind == 'start_sftp_client' and c.bclient.sftp:
 					return c.bclient.sftp
-				logger.debug (f'opening new channel {kind} for user {user!r}')
 				async with self._locks[user]:
 					f = getattr (c, kind)
 					ret = await f (*args, **kwargs)
@@ -160,7 +153,6 @@ class UserConnectionManager:
 						c.bclient.sftp = ret
 					return ret
 			except asyncssh.misc.ChannelOpenError:
-				logger.error (f'channel {kind} for {user!r} was invalid, opening new connection')
 				await self._invalidate (user)
 		raise Exception ('bug')
 
@@ -220,6 +212,7 @@ def authenticated (f):
 		if authId is not None:
 			user = await User.get_or_none (authId=authId)
 			if user is not None:
+				request.ctx.logger = request.ctx.logger.bind (user=dict (name=user.name, authId=user.authId))
 				return await f (request, user, *args, **kwds)
 		raise Forbidden ('unauthenticated')
 	return wrapper
@@ -287,15 +280,17 @@ async def userCreate (request):
 		async with request.app.usermgrd.post ('http://localhost/', json=form) as resp:
 			data = await resp.json ()
 			if data['status'] != 'ok':
-				audit.log ('user.create.usermgrd_error', reason=data['status'])
+				request.ctx.logger.error (__name__ + '.create.usermgrd_error', reason=data['status'])
 				raise ServerError ('backend')
 	except aiohttp.ClientConnectionError:
-		audit.log ('user.create.usermgrd_connect_failure')
+		request.ctx.logger.error (__name__ + '.create.usermgrd_connect_failure')
 		raise ServiceUnavailable ('backend')
 
 	user = User (authId=authId, name=data['user'])
 	user.password = data['password']
 	await user.save ()
+
+	request.ctx.logger.info (__name__ + '.create', user=user.name)
 
 	return await makeUserResponse (user)
 
@@ -304,22 +299,19 @@ async def userCreate (request):
 async def userDelete (request, user):
 	async def callDelete (expectedStatus):
 		try:
-			logger.debug (f'calling delete user for {user.name}')
 			async with request.app.usermgrd.delete (f'http://localhost/{user.name}') as resp:
 				data = await resp.json ()
-				logger.debug (f'got response {data}')
 				status = data['status']
 				if status == 'user_not_found':
-					logger.warning (f'user {user.name} was already gone')
+					request.ctx.logger.warning (__name__ + '.delete.user_gone')
 					return None
 				elif status != expectedStatus:
-					audit.log ('user.delete.usermgrd_error', reason=data['status'],
-							authId=user.authId, user=user.name)
+					request.ctx.logger.error (__name__ + '.delete.usermgrd_error',
+							reason=data['status'])
 					raise ServerError ('backend')
 				return data
 		except aiohttp.ClientConnectionError:
-			audit.log ('user.delete.usermgrd_connect_failure', user=user.name,
-					authId=user.authId)
+			request.ctx.logger.error (__name__ + '.delete.usermgrd_connect_failure')
 			raise ServiceUnavailable ('backend')
 
 	data = await callDelete ('again')
@@ -327,7 +319,6 @@ async def userDelete (request, user):
 		# create the file
 		token = data['token']
 		command = ['touch', token]
-		logger.debug (f'running command {command}')
 		try:
 			p = await user.getChannel ('create_process', shlex.join (command))
 			await p.wait ()
@@ -340,7 +331,7 @@ async def userDelete (request, user):
 			raise Forbidden ('locked_out')
 
 	session = request.ctx.session
-	audit.log ('user.delete', user=user.name, authId=session.authId)
+	request.ctx.logger.info (__name__ + '.delete')
 	await user.delete ()
 
 	return json ({}, status=200)

@@ -18,13 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import socket, os, sys, shutil, traceback, sqlite3, inspect, argparse, re
+import socket, os, sys, shutil, traceback, sqlite3, inspect, argparse, re, \
+		logging, structlog, json
 
 import pkg_resources
 import aiohttp
 from sanic import Sanic
-from sanic.response import json, html, file_stream
-from sanic.log import logger
+from sanic.response import json as sanicjson, html, file_stream
 from sanic.exceptions import SanicException
 from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
@@ -32,14 +32,40 @@ from pypika import Query, Table, Field
 
 from . import session, user, action, status, process, csp, filesystem, email, tos
 
-logger = logger.getChild (__name__)
+logger = structlog.get_logger ()
+
+class StructLogHandler (logging.Handler):
+	""" Forward messages from Python’s own logging module to structlog """
+	def emit (self, record):
+		lvl = record.levelname.lower ()
+		f = getattr (logger, lvl)
+		f ('logging.' + record.name, message=record.getMessage (), exc_info=record.exc_info)
 
 def socketSession (path):
 	conn = aiohttp.UnixConnector (path=path)
 	return aiohttp.ClientSession(connector=conn)
 
 def main ():
-	app = Sanic('bawwab')
+	structlog.configure (
+		wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+		processors=[
+			structlog.threadlocal.merge_threadlocal_context,
+			structlog.processors.add_log_level,
+			structlog.processors.format_exc_info,
+			structlog.processors.TimeStamper(fmt="iso", utc=False),
+			structlog.processors.JSONRenderer(),
+		],
+		logger_factory=structlog.PrintLoggerFactory(),
+	)
+
+	# Forward Python logging to structlog
+	rootLogger = logging.getLogger ()
+	structHandler = StructLogHandler ()
+	rootLogger.addHandler (structHandler)
+	rootLogger.setLevel (logging.INFO)
+
+	app = Sanic('bawwab', configure_logging=False)
+
 	# XXX: make sure config has proper permissions
 	app.config.from_envvar('BAWWAB_SETTINGS')
 	config = app.config
@@ -56,11 +82,14 @@ def main ():
 
 	@app.exception (Exception)
 	def handleException (request, exception):
+		log = request.ctx.logger
 		if isinstance (exception, SanicException):
-			return json (dict (status=exception.args[0]), status=exception.status_code)
+			log.error (__name__ + '.error', status=exception.args[0])
+			return sanicjson (dict (status=exception.args[0]), status=exception.status_code)
 		else:
-			traceback.print_exc ()
-			return json (dict (status='bug'), status=500)
+			_, _, exc_info = sys.exc_info ()
+			log.error (__name__ + '.error', exc_info=exc_info)
+			return sanicjson (dict (status='bug'), status=500)
 
 	register_tortoise (
 		app=app,
@@ -85,6 +114,12 @@ def main ():
 	app.blueprint (tos.bp, url_prefix='/api/tos')
 	app.static('/assets', pkg_resources.resource_filename (__package__, 'assets/'))
 
+	def addLogger (request):
+		""" Add bound logger to request """
+		# .id is only available with sanic >=2021.X?
+		request.ctx.logger = logger.bind (url=request.url, method=request.method)
+	app.register_middleware (addLogger, 'request')
+
 	# this should only be required when debugging
 	async def catchall (request, path=None):
 		if path:
@@ -94,11 +129,9 @@ def main ():
 				# restrict to assets/ directory
 				if os.path.normpath (filename).startswith (prefix) and os.path.isfile (filename):
 					return await file_stream (filename)
-				else:
-					logger.debug (f'{path} is not in assets/')
 			except FileNotFoundError:
 				# fall back to app.html
-				logger.debug (f'cannot find resource {path}, falling back to app.html')
+				pass
 		with pkg_resources.resource_stream (__package__, 'assets/app.html') as fd:
 			return html (fd.read ().decode ('utf-8'))
 	app.add_route (catchall, '/')
@@ -156,4 +189,45 @@ def migrate ():
 
 	db = sqlite3.connect (args.database)
 	available[args.apply] (db)
+
+def loganalyze ():
+	parser = argparse.ArgumentParser(description='Analyze logfiles.')
+	parser.add_argument('--process', '-p', help='Get stdout/stderr for process token')
+	parser.add_argument('--failed', '-f', action='store_true', help='Get failed processes only')
+
+	args = parser.parse_args()
+
+	processes = {}
+
+	for l in sys.stdin:
+		o = json.loads (l)
+
+		if o['event'] == __package__ + '.process.message':
+			procMsg = o['msg']
+			token = o['token']
+
+			if args.process:
+				# single process dump mode
+				if token == args.process:
+					kind = procMsg['notify']
+					if kind == 'processData':
+						getattr (sys, procMsg['kind']).write (procMsg['data'])
+			else:
+				if procMsg['notify'] == 'processStart':
+					processes[token] = dict (user=o['user'],
+							command=o['command'],
+							start=o['timestamp'],
+							token=token)
+				elif procMsg['notify'] == 'processExit':
+					p = processes.get (token)
+					if not p:
+						continue
+					p['end'] = o['timestamp']
+					p['exitCode'] = procMsg['status']
+
+					if (not args.process and not args.failed) or \
+							(args.process and args.process == token) or \
+							(args.failed and p['exitCode'] != 0):
+						json.dump (p, sys.stdout)
+						sys.stdout.write ('\n')
 

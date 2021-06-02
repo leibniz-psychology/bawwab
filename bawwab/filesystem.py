@@ -27,14 +27,15 @@ from contextlib import contextmanager
 
 from sanic import Blueprint
 from sanic.response import stream, json
-from sanic.log import logger
 from sanic.exceptions import Forbidden, NotFound, ServerError
 import asyncssh
+from structlog import get_logger
 
 from .user import User, authenticated, TermsNotAccepted
 
+logger = get_logger ()
+
 bp = Blueprint('filesystem')
-logger = logger.getChild (__name__)
 
 @contextmanager
 def translateSSHError ():
@@ -56,7 +57,7 @@ async def fileGetDelete (request, user, path):
 
 	path = '/' + path
 	filename = path.split ('/')[-1]
-	logger.debug (f'user {user} is requesting file {path}')
+	request.ctx.logger.info (__name__ + '.fileop', path=path)
 	try:
 		client = await user.getSftp ()
 	except asyncssh.misc.PermissionDenied:
@@ -123,7 +124,6 @@ async def fileGetDelete (request, user, path):
 				buf = await request.stream.read ()
 				if buf is None:
 					break
-				logger.debug (f'got {len (buf)} bytes')
 				await fd.write (buf)
 			await fd.close ()
 			return json ({'status': 'ok'})

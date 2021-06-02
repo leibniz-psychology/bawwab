@@ -23,14 +23,15 @@ CSP reporting, just logging for now
 """
 
 from sanic import Blueprint
-from sanic.log import logger
 from sanic.response import html, json
+from structlog import get_logger
 
-logger = logger.getChild (__name__)
+logger = get_logger ()
+
 bp = Blueprint ('csp')
 
 @bp.route ('/', methods=['POST'])
 async def report (request):
-	logger.error (f'{request.json}')
+	logger.error (__name__ + '.cspReport', report=request.json)
 	return json ({})
 

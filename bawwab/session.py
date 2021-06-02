@@ -30,16 +30,15 @@ from tortoise import fields
 from tortoise.exceptions import DoesNotExist, IntegrityError
 from tortoise.transactions import in_transaction
 from sanic import Blueprint
-from sanic.log import logger
 from sanic.response import json, redirect
 from sanic.exceptions import Forbidden, ServerError
 from furl import furl
+from structlog import get_logger
 
 from .util import now, randomSecret, periodic
 from .oauth2 import KeycloakClient, Oauth2Error
-from . import audit
 
-logger = logger.getChild (__name__)
+logger = get_logger ()
 # do not change this value unless you know how to migrate your database
 sessionNameLen = 32
 
@@ -105,7 +104,7 @@ async def csrfOriginCheck (request):
 		if requestUrl.scheme in {'ws', 'wss'}:
 			requestUrl = requestUrl.set (scheme=originUrl.scheme)
 		if originUrl != requestUrl:
-			logger.error (f'csrf protection denied {request} origin {originUrl} request {requestUrl}')
+			request.ctx.logger.error (__name__ + '.csrfDenied', origin=originUrl)
 			raise Forbidden ('csrf')
 
 async def saveSession (request, response):
@@ -140,7 +139,6 @@ async def sessionGet (request):
 	app = request.app
 
 	session = request.ctx.session
-	audit.log ('session.delete', session=session.name)
 
 	session = dict (
 		name=session.name,
@@ -156,7 +154,7 @@ async def sessionDelete (request):
 	app = request.app
 
 	session = request.ctx.session
-	audit.log ('session.delete', session=session.name)
+	request.ctx.logger.info (__name__ + '.delete', session=session.name)
 
 	await session.delete ()
 	request.ctx.session = None
@@ -185,11 +183,9 @@ async def login (request):
 	state = randomSecret ()
 	session.oauthState = state
 	await session.save (update_fields=('oauthState', ))
-	logger.debug (f'authenticating using url {cbUrl}')
 	redirectUrl = await auth.authorize (scope=config.SCOPE, redirectUri=cbUrl, state=state)
-	logger.debug (f'redirecting to {redirectUrl}')
 
-	audit.log ('auth.login.start', session=session.name)
+	request.ctx.logger.info (__name__ + '.login.start', session=session.name)
 
 	return redirect (str (redirectUrl))
 
@@ -205,8 +201,6 @@ async def callback (request):
 	nextUrl = args.get ('next', '/login/success')
 	error = args.get ('error')
 
-	logger.debug (f'got auth callback for state {state} code {code} error {error}')
-
 	if error:
 		return redirect (f'/login/oauth2_{error}')
 	if not code or not state:
@@ -214,7 +208,7 @@ async def callback (request):
 
 	# CSRF protection
 	if session.oauthState != state:
-		audit.log ('session.login.failure',
+		request.ctx.logger.info (__name__ + '.login.failure',
 				reason='state_mismatch',
 				expected=session.oauthState,
 				received=state,
@@ -226,14 +220,13 @@ async def callback (request):
 
 	# redirect_uri must be the same as above, or server will reject auth
 	cbUrl = callbackUrl (request)
-	logger.debug (f'authenticating (step 2) using url {cbUrl}')
 	try:
 		token, userinfo = await auth.authorize (
 				redirectUri=cbUrl,
 				state=state,
 				code=code)
 	except Oauth2Error as e:
-		audit.log ('auth.login.failure',
+		request.ctx.logger.error (__name__ + '.login.failure',
 				reason=e.args[0],
 				session=session.name,
 				)
@@ -242,7 +235,7 @@ async def callback (request):
 	session.oauthInfo = userinfo
 	await session.save ()
 
-	audit.log ('session.login.success',
+	request.ctx.logger.info (__name__ + '.login.success',
 			authId=session.authId, session=session.name)
 
 	return redirect (nextUrl)
@@ -251,12 +244,12 @@ expireJobThread = None
 auth = None
 
 hour = 60*60
-@periodic(1*hour, logger)
+@periodic(1*hour)
 async def expireJob ():
 
 	oldest = now() - timedelta (days=1)
 	async for s in Session.filter (accessed__lte=oldest):
-		audit.log ('session.expire', session=s.name)
+		logger.info (__name__ + '.expire', session=s.name)
 		await s.delete ()
 
 @bp.listener('before_server_start')

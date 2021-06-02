@@ -68,12 +68,14 @@ setup(
 		'bonsai',
 		# Same library sanic is using.
 		'websockets',
+		'structlog',
     ],
     python_requires='>=3.7',
     entry_points={
     'console_scripts': [
             'bawwab = bawwab.run:main',
             'bawwab-migrate = bawwab.run:migrate',
+            'bawwab-loganalyze = bawwab.run:loganalyze',
             ],
     },
     package_data={

@@ -29,13 +29,13 @@ from collections import namedtuple
 import bonsai
 
 from sanic import Blueprint
-from sanic.log import logger
 from sanic.response import html, json
 from sanic.exceptions import Forbidden, ServerError, NotFound, ServiceUnavailable
+from structlog import get_logger
 
 from .util import periodic
 
-logger = logger.getChild (__name__)
+logger = get_logger ()
 
 bp = Blueprint ('tos')
 
@@ -56,7 +56,7 @@ def termsToDict (t):
 	return d
 
 hour = 60*60
-@periodic(1*hour, logger)
+@periodic(1*hour)
 async def refreshJob (base):
 	global cachedTos
 

@@ -29,15 +29,14 @@ from datetime import timedelta
 
 from sanic import Blueprint
 from sanic.response import json
-from sanic.log import logger
 from sanic.exceptions import NotFound
 from tortoise.models import Model
 from tortoise import fields
+from structlog import get_logger
 
-from . import audit
 from .util import now, randomSecret
 
-logger = logger.getChild (__name__)
+logger = get_logger ()
 
 class Action (Model):
 	# token is hashed, so a database breach does not expose all actions and

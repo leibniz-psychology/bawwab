@@ -22,13 +22,12 @@
 Interact with processes running on the compute backend
 """
 
-import shlex, json, asyncio, traceback
+import shlex, json, asyncio, sys
 from collections import defaultdict
 from functools import partial
 from itertools import chain
 
 from sanic import Blueprint
-from sanic.log import logger
 from sanic.response import json as jsonResponse
 from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound
 
@@ -36,11 +35,13 @@ from websockets.exceptions import WebSocketException
 
 import asyncssh
 
+from structlog import get_logger
+
 from .user import User, authenticated, TermsNotAccepted
 from .action import getAction
 from .util import randomSecret, periodic
 
-logger = logger.getChild (__name__)
+logger = get_logger ()
 
 bp = Blueprint('process')
 
@@ -51,7 +52,7 @@ perUserProcesses = defaultdict (dict)
 
 class WebsocketProcess:
 	__slots__ = ('token', 'user', 'broadcast', 'command',
-			'messages', 'task', 'process', 'extraData')
+			'messages', 'task', 'process', 'extraData', 'logger')
 
 	def __init__ (self, token, user, broadcastFunc, command, extraData):
 		self.token = token
@@ -59,6 +60,8 @@ class WebsocketProcess:
 		self.broadcast = broadcastFunc
 		self.command = command
 		self.extraData = extraData
+		self.logger = logger.bind (user=dict (name=self.user.name, authId=self.user.authId),
+				command=self.command, extraData=self.extraData, token=self.token)
 
 		# message buffer, for session restore replay
 		self.messages = []
@@ -69,13 +72,14 @@ class WebsocketProcess:
 		return f'<WebsocketProcess {self.user!r} {self.command}, {len (self.messages)} messages>'
 
 	async def send (self, msg):
+		self.logger.info (__name__ + '.message', msg=msg)
+
+		assert 'token' not in msg
+		msg['token'] = self.token
 		self.messages.append (msg)
-		logger.debug (f'sending message {msg}')
 		await self.broadcast (msg)
 
 	async def run (self):
-		token = self.token
-
 		async def sendOutput (kind, fd):
 			try:
 				while True:
@@ -86,7 +90,6 @@ class WebsocketProcess:
 							notify=f'processData',
 							kind=kind,
 							data=l,
-							token=token,
 							)
 					await self.send (msg)
 			except:
@@ -98,7 +101,6 @@ class WebsocketProcess:
 					notify='processExit',
 					status=result.exit_status,
 					signal=result.exit_signal,
-					token=token,
 					)
 			await self.send (msg)
 
@@ -107,7 +109,6 @@ class WebsocketProcess:
 
 		msg = dict (
 				notify='processStart',
-				token=token,
 				command=self.command,
 				extraData=self.extraData,
 				)
@@ -204,8 +205,6 @@ async def broadcast (recipient, msg):
 			except WebSocketException:
 				# Nothing we can do about.
 				pass
-	else:
-		logger.debug (f'no sockets for {recipient}')
 
 @bp.websocket('/notify')
 @authenticated
@@ -216,7 +215,6 @@ async def processNotify (request, user, ws):
 		# do not replay if dead
 		if p.process.is_closing ():
 			continue
-		logger.debug (f'replaying messages for {p}')
 		# must be in order
 		for msg in p.messages:
 			await ws.send (json.dumps (msg))
@@ -234,7 +232,7 @@ async def processNotify (request, user, ws):
 		if len (l) == 0:
 			perUserSockets.pop (user)
 
-@periodic(10, logger)
+@periodic(10)
 async def cleanupJob ():
 	""" Cleanup dead processes from the perUserProcess store """
 
@@ -242,7 +240,6 @@ async def cleanupJob ():
 		""" Remove all keys it from d """
 		for k in it:
 			if k in d:
-				logger.debug (f'removing key {k}')
 				d.pop (k)
 
 	def removeFalseKeys (d):
@@ -255,7 +252,8 @@ async def cleanupJob ():
 				try:
 					await v.task
 				except Exception as e:
-					logger.error (f'task raised an exception {e}')
+					_, _, exc_info = sys.exc_info()
+					logger.error (__name__ + '.taskFailed', exc_info=exc_info)
 				finally:
 					yield k
 
