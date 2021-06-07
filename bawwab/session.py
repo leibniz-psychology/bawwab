@@ -104,7 +104,7 @@ async def csrfOriginCheck (request):
 		if requestUrl.scheme in {'ws', 'wss'}:
 			requestUrl = requestUrl.set (scheme=originUrl.scheme)
 		if originUrl != requestUrl:
-			request.ctx.logger.error (__name__ + '.csrfDenied', origin=originUrl)
+			request.ctx.logger.error (__name__ + '.csrfDenied', origin=str (originUrl))
 			raise Forbidden ('csrf')
 
 async def saveSession (request, response):
