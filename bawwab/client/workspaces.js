@@ -160,8 +160,10 @@ export default class Workspaces {
 				name: 'run',
 				arguments: {trigger: 'workspaces.create', args: ws.path},
 				command: command,
-				validFor: 7*24*60*60,
-				usesRemaining: 100,
+				/* 100 years (not kidding) */
+				validFor: 100*365*24*60*60,
+				/* yes, also not kidding */
+				usesRemaining: 10**10,
 				});
 		const action = await getResponse (r);
 		return action.token;
