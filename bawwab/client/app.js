@@ -122,8 +122,9 @@ export const store = {
 				throw e;
 			}
 		}
-		/* allow all events */
-		await this.state.events.setAllowedHandler (/.*/);
+		/* allow all events, but do so in the background, so we don’t block
+		 * this method */
+		this.state.events.setAllowedHandler (/.*/).then (function () {});
 	},
 
 	haveWorkspaces: function () {
