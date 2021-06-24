@@ -10,6 +10,7 @@ export default class ProcessManager {
 		this.procs = new Map ();
 		this.procsWaiting = new Map ();
 		this.newProcsWaiting = new AsyncNotify ();
+		this.ready = new AsyncNotify ();
 
 		url.protocol = url.protocol == 'http:' ? 'ws:' : 'wss:';
 		this.url = url;
@@ -23,6 +24,7 @@ export default class ProcessManager {
 		this.socket.addEventListener ('open', this.onOpen.bind (this));
 		this.socket.addEventListener ('message', this.onMessage.bind (this));
 		this.socket.addEventListener ('close', this.doReconnect.bind (this));
+		this.ready.notify (true).then (function () {});
 		/* onclose is called after an error, so no need to reconnect onerror
 		 * too */
 		//this.socket.addEventListener ('error', this.doReconnect.bind (this));
@@ -35,6 +37,7 @@ export default class ProcessManager {
 	}
 
 	doReconnect (event) {
+		this.ready.reset ();
 		console.debug ('socket is now closed', this, event);
 		/* delay the reconnect, so we don’t cause a reconnect storm */
 		window.setTimeout (function () { this.connect (); }.bind (this), this.connectBackoff);
@@ -138,6 +141,10 @@ export default class ProcessManager {
 	/* Run an application and on success return a token.
 	 */
 	async run (command=null, action=null, extraData=null) {
+		/* We cannot start processes if not connected, otherwise we’re going to
+		 * miss their notifications. Wait until ready. */
+		await this.ready.wait ();
+
 		const payload = {extraData: extraData};
 		if (command && action) {
 			console.debug ('both command and action given', command, action);
