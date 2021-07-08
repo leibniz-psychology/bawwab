@@ -6,7 +6,7 @@ export default {
 	template: `<div class="modal">
 		<div :class="frameClass">
 			<div class="icon">
-				<h2><i :class="iconStyle"></i></h2>
+				<h2><i :class="'fas fa-' + icon"></i></h2>
 			</div>
 			<div class="content">
 				<h2>{{ title }}</h2>
@@ -24,9 +24,6 @@ export default {
 		</div>
 	</div>`,
 	computed: {
-		iconStyle: function () {
-			return `fas fa-${this.icon}`;
-		},
 		frameClass: function() {
 			return 'frame' + (this.scaling ? ' scaling' : ' fixed');
 		},
