@@ -48,7 +48,7 @@ def translateSSHError ():
 	except asyncssh.sftp.SFTPFailure:
 		raise ServerError ('error')
 
-@bp.route ('/<path:path>', methods=['GET', 'STAT', 'DELETE', 'PUT'], stream=True)
+@bp.route ('/<path:path>', methods=['GET', 'STAT', 'DELETE', 'PUT', 'MKCOL'], stream=True)
 @authenticated
 async def fileGetDelete (request, user, path):
 	"""
@@ -130,6 +130,8 @@ async def fileGetDelete (request, user, path):
 	elif request.method == 'DELETE':
 		with translateSSHError ():
 			await client.remove (path)
-
 		return json ({'status': 'ok'})
-
+	elif request.method == 'MKCOL':
+		with translateSSHError ():
+			await client.makedirs (path, exist_ok=True)
+		return json ({'status': 'ok'})
