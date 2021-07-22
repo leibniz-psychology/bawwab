@@ -48,7 +48,10 @@ def translateSSHError ():
 	except asyncssh.sftp.SFTPFailure:
 		raise ServerError ('error')
 
-@bp.route ('/<path:path>', methods=['GET', 'STAT', 'DELETE', 'PUT', 'MKCOL'], stream=True)
+# We can only use methods defined in
+# https://github.com/MagicStack/httptools/blob/v0.1.1/httptools/parser/cparser.pxd#L91
+# here.
+@bp.route ('/<path:path>', methods=['GET', 'PROPFIND', 'DELETE', 'PUT', 'MKCOL'], stream=True)
 @authenticated
 async def fileGetDelete (request, user, path):
 	"""
@@ -106,7 +109,7 @@ async def fileGetDelete (request, user, path):
 				# disable chunked, because we know the file-size and thus the
 				# browser can show progress
 				chunked=False)
-	elif request.method == 'STAT':
+	elif request.method == 'PROPFIND':
 		with translateSSHError ():
 			follow = int (request.args.get ('follow', 1)) != 0
 			if follow:
@@ -116,7 +119,7 @@ async def fileGetDelete (request, user, path):
 			ret = dict (size=s.size)
 			if stat.S_ISLNK (s.permissions):
 				s['target'] = await client.readlink (path)
-			return ret
+			return json (dict (status='ok', result=ret))
 	elif request.method == 'PUT':
 		with translateSSHError ():
 			fd = await client.open (path, 'wb')
