@@ -124,7 +124,7 @@ class UserConnectionManager:
 
 				# get motd
 				try:
-					conn.motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
+					conn.bclient.motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
 				except asyncio.TimeoutError:
 					pass
 
