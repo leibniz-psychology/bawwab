@@ -15,7 +15,7 @@ export default {
 				</div>
 				<div class="buttons">
 					<slot name="buttons"></slot>
-					<router-link :to="closeLink" class="btn low">{{ closeName }}</router-link>
+					<router-link :to="closeLink" v-if="closeName" class="btn low">{{ closeName }}</router-link>
 				</div>
 			</div>
 			<div class="close">
