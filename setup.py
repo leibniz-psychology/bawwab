@@ -39,7 +39,7 @@ class Esbuild (Command):
 				f'--define:process.env.NODE_ENV=\"{node_env}\"',
 				'--define:__VUE_OPTIONS_API__=true',
 				'--define:__VUE_PROD_DEVTOOLS__=false',
-				'--outdir=bawwab/assets/'] + extraOpts)
+				'--outdir=bawwab/assets/'] + extraOpts, check=True)
 
 setup(
     name='bawwab',
