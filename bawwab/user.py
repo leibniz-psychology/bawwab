@@ -145,6 +145,9 @@ class UserConnectionManager:
 			try:
 				c = await self._getConnection (user)
 				if kind == 'start_sftp_client' and c.bclient.sftp:
+					# There is no way to check the status of a connection, so
+					# try an operation to see if it’s still alive.
+					await c.bclient.sftp.getcwd ()
 					return c.bclient.sftp
 				async with self._locks[user]:
 					f = getattr (c, kind)
@@ -152,7 +155,8 @@ class UserConnectionManager:
 					if kind == 'start_sftp_client':
 						c.bclient.sftp = ret
 					return ret
-			except asyncssh.misc.ChannelOpenError:
+			except (asyncssh.misc.ChannelOpenError, asyncssh.SFTPError):
+				self.logger.debug ('invalidate_channel', user=user, kind=kind)
 				await self._invalidate (user)
 		raise Exception ('bug')
 
