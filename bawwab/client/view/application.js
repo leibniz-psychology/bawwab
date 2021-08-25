@@ -24,7 +24,7 @@ export default {
 									<i class="fas fa-caret-down"></i>
 								</template>
 								<template v-slot:default>
-									<workspace-version :wsid="wsid" class="body"></workspace-version>
+									<workspace-version :wsid="wsid"></workspace-version>
 								</template>
 							</dropdown></li>
 						</ul>

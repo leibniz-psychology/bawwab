@@ -4,7 +4,9 @@ export default {
 				<summary>
 					<slot name="button"></slot>
 				</summary>
-				<slot></slot>
+				<div class="body">
+					<slot></slot>
+				</div>
 			</details>`,
 	methods: {
 		close: function () {

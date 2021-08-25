@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 import { queryParamProp } from '../utils.js';
 import Workspace from '../workspace.js';
+import { copy } from "../workspaceUtil";
 
 export default {
 	name: 'WorkspaceListView',
@@ -36,6 +37,7 @@ export default {
 			<tr>
 				<th class="title">{{ t('thtitle') }}</th>
 				<th class="description">{{ t('thdescription') }}</th>
+				<th class="applications">{{ t('thapplications') }}</th>
 				<th class="actions">{{ t('thactions') }}</th>
 			</tr>
 		</thead>
@@ -53,13 +55,47 @@ export default {
 					<span v-else>&nbsp;</span>
 				</router-link>
 			</td>
-			<td class="actions">
+			<td class="applications">
 				<ul>
 					<li v-for="a in w.runnableApplications (username)" :key="a._id">
 						<router-link :to="{name: 'application', params: {wsid: w.metadata._id, appid: a._id}}">
 							<application-icon :workspace="w" :application="a" height="1.5em"></application-icon>
 						</router-link>
 					</li>
+				</ul>
+			</td>
+			<td class="actions">
+				<ul class="actions-container" v-if="w.getPermissions (this.username)[0].canShare ()">
+					<li class="action-container">
+						<router-link class="action-button btn small" :to="{name: 'workspaceShare', params: {wsid: w.metadata._id}}" aria-label="share"><i class="fas fa-share"></i></router-link>
+						<span class="action-tooltip popup">{{ t('share') }}</span>
+					</li>
+					<li class="action-container">
+						<action-button class="action-button btn small" icon="copy" :f="() => copy(w)" aria-label="copy"></action-button>
+						<span class="action-tooltip popup">{{ t('copy') }}</span>
+					</li>
+					<li class="action-container">
+						<router-link class="action-button btn small" :to="{name: 'workspaceDelete', params: {wsid: w.metadata._id}}" aria-label="delete"><i class="fas fa-trash"></i></router-link>
+						<span class="action-tooltip popup">{{ t('delete') }}</span>
+					</li>
+					<li><dropdown>
+						<template v-slot:button>
+							<i class="btn small fas fa-ellipsis-h"></i>
+						</template>
+						<template v-slot:default>
+							<ul>
+								<li><router-link class="btn small" :to="{name: 'workspacePublish', params: {wsid: w.metadata._id}}">
+									<i class="fas fa-globe"></i> {{ t('publish') }}
+								</router-link></li>
+								<li><router-link class="btn small" :to="{name: 'workspaceExport', params: {wsid: w.metadata._id}}">
+									<i class="fas fa-file-export"></i> {{ t('export') }}
+								</router-link></li>
+								<li><router-link class="btn small" :to="{name: 'workspacePackages', params: {wsid: w.metadata._id}}">
+									<i class="fas fa-box"></i> {{ t('manage') }}
+								</router-link></li>
+							</ul>
+						</template>
+					</dropdown></li>
 				</ul>
 			</td>
 		</tr>
@@ -71,37 +107,56 @@ export default {
 		name: '',
 		strings: translations({
 			de: {
+				'copyname': 'Kopie von %{name}', /* name after copying a project */
 				'projects': 'Projekte',
 				'description': 'Hier können Projekte eingerichtet und aufgerufen werden. Projekte sind Sammlungen von Analyseskripten, Daten und anderen Materialien.',
 				'projectname': 'Projektname',
 				'create': 'Neues Projekt',
+				'share': 'Teilen',
+				'copy': 'Kopieren',
+				'delete': 'Löschen',
+				'publish': 'Veröffentlichen',
+				'export': 'Exportieren',
+				'manage': 'Pakete verwalten',
 				'unnamed': 'Unbenanntes Projekt',
 				'myprojects': 'Meine Projekte',
 				'sharedprojects': 'Geteilte Projekte',
 				'publicprojects': 'Öffentliche Projekte',
 				'thtitle': 'Titel',
 				'thdescription': 'Beschreibung',
+				'thapplications': 'Anwendungen',
 				'thactions': 'Aktionen',
 				'import': 'Projekt importieren',
 				},
 			en: {
+				'copyname': 'Copy of %{name}', /* name after copying a project */
 				'projects': 'Projects',
 				'description': 'Projects can be set up and accessed here. Projects are collections of analysis scripts, data, and other materials.',
 				'projectname': 'Project name',
 				'create': 'New project',
+				'share': 'Share',
+				'copy': 'Copy',
+				'delete': 'Delete',
+				'publish': 'Publish',
+				'export': 'Export',
+				'manage': 'Manage packages',
 				'unnamed': 'Unnamed project',
 				'myprojects': 'My projects',
 				'sharedprojects': 'Shared projects',
 				'publicprojects': 'Public projects',
 				'thtitle': 'Title',
 				'thdescription': 'Description',
+				'thapplications': 'Applications',
 				'thactions': 'Actions',
 				'import': 'Import project',
 				},
 			}),
 		}),
 	mixins: [i18nMixin],
+	mounted: function () {
+	},
 	computed: {
+		workspaces: function () { return this.state.workspaces; },
 		disabled: function() { return !this.state.workspaces; },
 		username: function () { return this.state.user?.name; },
 		filteredWorkspaces: function () {
@@ -130,6 +185,7 @@ export default {
 		filtertext: queryParamProp ('search', ''),
 	},
 	methods: {
+		copy,
         createWorkspace: async function() {
 			const w = await this.state.workspaces.create (this.name);
 			await this.$router.push ({name: 'workspace', params: {wsid: w.metadata._id}});
@@ -139,7 +195,7 @@ export default {
 		},
 		goTo: async function (wsid) {
 			await this.$router.push ({name: 'workspace', params: {wsid: wsid}});
-		}
+		},
 	}
 };
 

@@ -1,6 +1,7 @@
 import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 import { nextTick } from 'vue/dist/vue.esm-bundler.js';
+import { copy } from "../workspaceUtil";
 
 export default {
 	name: 'WorkspaceShowView',
@@ -162,13 +163,7 @@ export default {
 		deleteShare: async function (group) {
 			await this.workspaces.unshare (this.workspace, `g:${group}`);
 		},
-		copy: async function () {
-			const newws = await this.workspaces.copy (this.workspace);
-			newws.metadata.name = this.t('copyname', {name: newws.metadata.name});
-            await this.workspaces.update (newws);
-			/* then go there */
-			await this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
-		},
+		copy,
 		makeEditable: async function (focus) {
 			if (!this.canEditMeta) {
 				return;
