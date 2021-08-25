@@ -1187,6 +1187,10 @@ table.workspaces .actions li {
 	display: block;
 }
 
+.faq ul {
+    margin-bottom: 1em;
+}
+
 /* use same breakpoint as pure-m */
 @media screen and (max-width: 48em) {
 .landingpage .overview {

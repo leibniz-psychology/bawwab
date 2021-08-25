@@ -2,7 +2,7 @@ import AccountDeleteView from './view/accountDelete.js';
 import AccountView from './view/account.js';
 import ActionView from './view/action.js';
 import ApplicationView from './view/application.js';
-import FaqView from './view/faq.js';
+import FaqView from './view/faq/faq.js';
 import IndexView from './view/index.js';
 import LoginView from './view/login.js';
 import LogoutView from './view/logout.js';
