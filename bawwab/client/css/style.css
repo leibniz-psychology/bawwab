@@ -232,16 +232,16 @@ header .product-logo img {
 	padding: 1em 2em 0.5em 0;
 }
 
-#main-nav ul {
+#main-nav > ul {
 	text-align: right;
 }
 
-#main-nav ul li {
+#main-nav > ul li {
 	display: inline-block;
 	margin-right: 0.4em;
 }
 
-#main-nav ul li a {
+#main-nav > ul li a {
 	font-size: 1.25em;
 	color: #352071;
 	font-family: var(--font-header);
@@ -249,7 +249,7 @@ header .product-logo img {
 	padding: 0 1em 0.7em 1em;
 }
 
-#main-nav ul li a.active {
+#main-nav > ul li a.active {
 	color: var(--magenta-text);
 }
 
@@ -582,6 +582,11 @@ table.pure-table {
 	background-color: var(--gray-light);
 }
 
+/* Make sure small buttons blend in with background */
+.pure-table-striped .btn.small {
+	background-color: transparent;
+}
+
 .pure-table-horizontal td, .pure-table-horizontal th, .pure-table {
 	border-color: var(--gray-base);
 	border: 0;
@@ -699,6 +704,7 @@ a {
 	text-align: left;
 }
 
+
 /* same as links */
 .btn:hover {
 	color: var(--magenta-text);
@@ -727,7 +733,7 @@ a {
 }
 
 .btn.small {
-	padding: 0.5em;
+	padding: 0.5em !important;
 }
 
 .btn.medium {
@@ -856,18 +862,8 @@ span.placeholder {
 	display: flex;
 	flex-direction: column;
 
-	position: absolute;
 	top: 2rem;
 	right: -1rem;
-	background-color: white;
-	padding: 0;
-	box-shadow: 0 0 0.3em rgba(0,0,0,0.2);
-	border: 0.1em solid #352071;
-	text-align: left !important;
-	z-index: 1000;
-}
-
-.versions {
 	overflow-y: scroll;
 	padding: 0 !important;
 }
@@ -975,10 +971,6 @@ span.placeholder {
 	padding: 0.3em;
 }
 
-details.usermenu {
-	position: relative;
-}
-
 details > summary {
 	display: block;
 	/* Remove outline when focused, Google Chrome */
@@ -990,18 +982,35 @@ details > summary::-webkit-details-marker {
   display: none;
 }
 
-details.usermenu ul {
-	position: absolute;
-	top: 2rem;
-	right: -1rem;
-	background-color: white;
-	padding: 0.6em;
+details.dropdown {
+	position: relative;
+}
+
+details.dropdown div.body, .popup {
 	box-shadow: 0 0 0.3em rgba(0,0,0,0.2);
 	border: 0.1em solid #352071;
 	text-align: left !important;
+	background-color: white;
+	padding: 0.6em;
+	position: absolute;
+	z-index: 1000;
 }
 
-details.usermenu ul li {
+/* If it’s a list dropdown, make sure we remove the bullets, but keep the elements as blocks */
+details.dropdown div.body > ul {
+	list-style-type: none;
+}
+
+details.dropdown div.body > ul li {
+	display: block;
+}
+
+.dropdown.usermenu .body {
+	top: 2rem;
+	right: -1rem;
+}
+
+.usermenu ul li {
 	margin: 0.3em 0;
 }
 
@@ -1058,11 +1067,29 @@ table.workspaces td.title {
 	text-align: left;
 	font-weight: 500;
 }
+
 table.workspaces .description {
 	text-align: left;
 }
+
+table.workspaces .applications {
+	text-align: center;
+}
+
+table.workspaces .applications ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+table.workspaces .applications li {
+	display: inline;
+	margin: 0 0.3em;
+}
+
 table.workspaces .actions {
 	text-align: center;
+	overflow: visible;
 }
 
 table.workspaces .actions ul {
@@ -1073,7 +1100,18 @@ table.workspaces .actions ul {
 
 table.workspaces .actions li {
 	display: inline;
-	margin: 0 0.3em;
+	margin: 0;
+}
+
+.actions .dropdown .body {
+	right: -1rem;
+}
+
+.actions ul.actions-container {
+	display: flex;
+	justify-content: center;
+	/* Line-height for ul is overridden above, so reset to pure’s default */
+	line-height: 1.15;
 }
 
 .spinner {
@@ -1375,6 +1413,19 @@ table.workspaces .actions li {
 .transition-slide-leave-to {
 	overflow: hidden;
 	max-height: 0;
+}
+
+.action-container > .action-tooltip {
+	display: none
+}
+
+.action-container > .action-button:hover + .action-tooltip {
+	display: block;
+}
+
+.action-tooltip {
+	padding: 0.3em;
+	pointer-events: none;
 }
 
 /* use same breakpoint as pure-m */
