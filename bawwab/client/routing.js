@@ -10,6 +10,7 @@ import NotFoundView from './view/notFound.js';
 import OpenSourceView from './view/opensource.js';
 import TermsOfServiceView from './view/tos.js';
 import TermsOfServicePromptView from './view/tosPrompt.js';
+import WorkspaceSecurityPromptView from './view/workspaceSecurityPrompt.js';
 import WorkspaceImportView from './view/workspaceImport.js';
 import WorkspaceShareView from './view/workspaceShare.js';
 import WorkspacePublishView from './view/workspacePublish.js';
@@ -30,6 +31,7 @@ const routes = [
 	{ path: '/workspaces/:wsid/publish', components: { default: WorkspaceShowView, overlay: WorkspacePublishView }, name: 'workspacePublish', props: { default: true, overlay: true }, meta: { requireAuth: true } },
 	{ path: '/workspaces/:wsid/export', components: { default: WorkspaceShowView, overlay: WorkspaceExportView}, name: 'workspaceExport', props: { default: true, overlay: true }, meta: { requireAuth: true } },
 	{ path: '/workspaces/:wsid/packages', components: { default: WorkspaceShowView, overlay: WorkspacePackagesView}, name: 'workspacePackages', props: { default: true, overlay: true }, meta: { requireAuth: true } },
+	{ path: '/workspaces/:wsid/security-prompt', components: { default: WorkspaceShowView, overlay: WorkspaceSecurityPromptView }, name: 'workspaceSecurityPrompt', props: { default: true, overlay: true }, meta: { requireAuth: true } },
 	{ path: '/workspaces/:wsid/:appid/:appPath*',
 		components: { default: WorkspaceShowView, overlay: ApplicationView },
 		name: 'application',

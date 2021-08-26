@@ -4,7 +4,7 @@ import { store } from '../app.js';
 export default {
 	name: 'WorkspaceExportView',
 	props: ['wsid'],
-	template: `<modal :title="t('headline')" :closeName="t('back')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" icon="file-export">
+	template: `<modal :title="t('headline')" :closeName="t('back')" :closeLink="{name: 'workspace', params: {wsid: workspace?.metadata._id}}" :scaling="true" icon="file-export">
 <div v-if="workspace">
 <p>{{ t('description', {project: workspace.metadata.name}) }}</p>
 <label for="kind">{{ t('exportas') }}</label>
