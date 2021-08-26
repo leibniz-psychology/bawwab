@@ -116,6 +116,10 @@ li {
 	padding: 0;
 }
 
+[type='checkbox'] {
+	margin-right: 0.3em;
+}
+
 .btn-blue {
 	background-color: #352071;
 }
@@ -191,8 +195,8 @@ header .product-logo img {
 }
 
 #topline a.active {
-    color: var(--magenta-text);
-    font-weight: bold;
+	color: var(--magenta-text);
+	font-weight: bold;
 	text-decoration: none;
 }
 
@@ -473,14 +477,14 @@ footer h3 {
 }
 
 .footer-stripe-open img {
-    display: inline-block;
-    margin-top: 0.25rem;
-    margin-bottom: 0.25rem;
-    width: 15rem;
-    border: lightgray solid 1px;
-    border-radius: 50px;
-    padding: .5rem;
-    background-color: white;
+	display: inline-block;
+	margin-top: 0.25rem;
+	margin-bottom: 0.25rem;
+	width: 15rem;
+	border: lightgray solid 1px;
+	border-radius: 50px;
+	padding: .5rem;
+	background-color: white;
 	vertical-align: middle;
 }
 
@@ -1127,10 +1131,10 @@ table.workspaces .actions li {
 
 @keyframes spin {
   0% {
-    transform: rotate(0deg);
+	transform: rotate(0deg);
   }
   100% {
-    transform: rotate(360deg);
+	transform: rotate(360deg);
   }
 }
 
@@ -1274,9 +1278,9 @@ table.workspaces .actions li {
 }
 
 .tosprompt ul.accept {
-    list-style-type: none;
-    margin: 1em 0;
-    padding: 0;
+	list-style-type: none;
+	margin: 1em 0;
+	padding: 0;
 }
 
 /* align text and checkboxes */
@@ -1426,6 +1430,35 @@ table.workspaces .actions li {
 .action-tooltip {
 	padding: 0.3em;
 	pointer-events: none;
+}
+
+.share-prompt-checkboxes {
+	margin-bottom: 0.7em;
+}
+
+.share-prompt-warning {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.settings-checkboxes {
+    margin-left: 2em;
+}
+
+.horizontal-ruler {
+	width: 100%;
+	margin-top: 0.7em;
+	margin-bottom: 0.7em;
+	border: 0;
+	border-top: .1em solid var(--blue-text);
+}
+
+.inline-icon {
+	margin-right: 0.3em;
+}
+
+.danger {
+	color: red;
 }
 
 /* use same breakpoint as pure-m */

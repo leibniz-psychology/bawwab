@@ -64,6 +64,7 @@ export const store = {
 		user: null,
 		workspaces: null,
 		borg: null,
+		settings: null,
 		/* current language */
 		language: 'en',
 		/* cache for terms of service. Hash prefix is reserved for private
@@ -89,6 +90,7 @@ export const store = {
 
 		await this.initUser ();
 		await this.initWorkspaces ();
+		await this.initSettings ();
 
 		await this.state.ready.notify ();
 	},
@@ -131,6 +133,12 @@ export const store = {
 		/* allow all events, but do so in the background, so we don’t block
 		 * this method */
 		this.state.events.setAllowedHandler (/.*/).then (function () {});
+	},
+
+	async initSettings () {
+		if (this.state.user && this.state.user.loginStatus === 'success') {
+			this.state.settings = await Settings.load (this.state.user.name);
+		}
 	},
 
 	haveWorkspaces: function () {
@@ -250,6 +258,7 @@ app.component ('application-item', ApplicationItemComponent);
 app.component ('commonmark', CommonmarkComponent);
 app.component ('dropdown', DropdownComponent);
 import ClickOutsideDirective from './directive/clickOutside.js';
+import {Settings} from "./settings";
 app.directive ('click-outside', ClickOutsideDirective);
 
 app.mount ('#app');

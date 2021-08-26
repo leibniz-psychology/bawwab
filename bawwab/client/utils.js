@@ -14,6 +14,22 @@ export function queryParamProp (key, defaultValue=null) {
 	}
 }
 
+/* Computed property from settings
+ */
+export function settingsProp (key, sync=true) {
+	return {
+		get () {
+			return this.settings.get (key);
+		},
+		async set (value) {
+			this.settings.set (key, value);
+			if (sync) {
+				await this.settings.sync ();
+			}
+		}
+	}
+}
+
 export class CancelledError extends Error {
 };
 

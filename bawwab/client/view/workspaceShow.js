@@ -2,6 +2,7 @@ import { translations, i18nMixin } from '../i18n.js';
 import { store } from '../app.js';
 import { nextTick } from 'vue/dist/vue.esm-bundler.js';
 import { copy } from "../workspaceUtil";
+import { Settings } from '../settings';
 
 export default {
 	name: 'WorkspaceShowView',
@@ -20,7 +21,7 @@ export default {
 			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ t('share') }}</router-link></li>
 			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspacePublish', params: {wsid: workspace.metadata._id}}"><i class="fas fa-globe"></i> {{ t('publish') }}</router-link></li>
 			<li><router-link class="btn" v-if="permissions.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ t('export') }}</router-link></li>
-			<li><action-button v-if="permissions.canRead()" icon="copy" :f="copy">{{ t('copy') }}</action-button></li>
+			<li><action-button v-if="permissions.canRead()" icon="copy" :f="copy" class="copy">{{ t('copy') }}</action-button></li>
 			<li><router-link class="btn low" :to="{name: 'workspaceDelete', params: {wsid: workspace.metadata._id}}"><i class="fas fa-trash"></i> {{ permissions.canDelete() ? t('delete') : t('hide') }}</router-link></li>
 		</ul>
 		</div>
@@ -128,12 +129,41 @@ export default {
 			}),
 	}),
 	mixins: [i18nMixin],
+	mounted: async function () {
+		if (!this.workspace || this.isOwnWorkspace) {
+			return;
+		}
+
+		const firstVisit = !this.settings.get(this.workspaceAlreadyVisitedKey);
+		if (!firstVisit) {
+			return;
+		}
+
+		//if user specified to skip the pop-up, his autocopy-setting is the only thing that still matters
+		const dontShowPopUp = this.settings.get('dontShowSharedReadOnlyPopUp');
+		if (dontShowPopUp) {
+			const autocopy = this.settings.get('autocopySharedReadOnly');
+			if (autocopy) {
+				/* click the button, so there will be visual feedback */
+				const copyButton = this.$el.querySelector ('.actionbar .copy');
+				copyButton.click ();
+			}
+			await this.setWorkspaceVisited();
+		} else {
+			await this.setWorkspaceVisited();
+			await this.$router.push({ name: 'workspaceSecurityPrompt', params: { wsid: this.workspace.metadata._id } });
+		}
+	},
 	computed: {
+		settings: function () {
+			return this.state.settings;
+		},
 		workspaces: function () { return this.state.workspaces; },
 		username: function () { return this.state.user?.name; },
 		workspace: function () {
 			return this.workspaces?.getById (this.wsid);
 		},
+		isOwnWorkspace: function () { return this.workspace.owner().includes(this.username) },
 		permissions: function () {
 			return this.workspace?.getPermissions (this.username)[0];
 		},
@@ -147,16 +177,21 @@ export default {
 		sharedWith: function () { return Object.entries (this.workspace.permissions.group).filter (([k, v]) => this.owners.indexOf (k) == -1 && k != this.username) },
 		/* user can edit project metadata */
 		canEditMeta: function () { return this.permissions.canWrite (); },
+		workspaceAlreadyVisitedKey: function () { return `alreadyVisited${this.workspace.metadata._id}`; }
 	},
 	methods: {
-        save: async function () {
+		setWorkspaceVisited: async function () {
+			this.settings.set (this.workspaceAlreadyVisitedKey, true);
+			await this.settings.sync();
+		},
+		save: async function () {
 			const name = this.$el.querySelector ('.title input').value;
 			const description = this.$el.querySelector ('.description textarea').value;
 			const w = this.workspace;
 
 			w.metadata.name = name;
 			w.metadata.description = description;
-            await this.workspaces.update (w);
+			await this.workspaces.update (w);
 
 			this.editable = false;
 		},
