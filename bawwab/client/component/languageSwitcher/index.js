@@ -2,6 +2,7 @@
  */
 
 import template from './template.html';
+import { setLanguage } from '../../i18n';
 
 export default {
 	name: 'LanguageSwitcher',
@@ -9,12 +10,8 @@ export default {
 	props: ['state', 'languages'],
 	template: template,
 	methods: {
-		switchTo: function (l) {
-			if (this.$i18n.availableLocales.includes (l)) {
-				console.debug ('switching to language', l);
-				this.$i18n.locale = l;
-				window.localStorage.setItem('language', l);
-			}
+		switchTo: async function (l) {
+			await setLanguage (l);
 		},
 		isActive: function (l) {
 			if (this.$i18n.locale == l) {
@@ -23,10 +20,5 @@ export default {
 				return '';
 			}
 		}
-	},
-	created: function () {
-		const lang = window.localStorage.getItem ('language');
-		const browserLang = navigator.language?.split ('-')[0];
-		this.switchTo (lang ?? browserLang ?? 'en');
 	},
 };

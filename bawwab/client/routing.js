@@ -1,24 +1,24 @@
-import AccountDeleteView from './view/accountDelete';
-import AccountView from './view/account';
-import ActionView from './view/action';
-import ApplicationView from './view/application';
-import FaqView from './view/faq';
-import IndexView from './view/index';
-import LoginView from './view/login';
-import LogoutView from './view/logout';
-import NotFoundView from './view/notFound';
-import OpenSourceView from './view/opensource';
-import TermsOfServiceView from './view/tos';
-import TermsOfServicePromptView from './view/tosPrompt';
-import WorkspaceSecurityPromptView from './view/workspaceSecurityPrompt';
-import WorkspaceImportView from './view/workspaceImport';
-import WorkspaceShareView from './view/workspaceShare';
-import WorkspacePublishView from './view/workspacePublish';
-import WorkspaceListView from './view/workspaceList';
-import WorkspaceShowView from './view/workspaceShow';
-import WorkspaceExportView from './view/workspaceExport';
-import WorkspaceDeleteView from './view/workspaceDelete';
-import WorkspacePackagesView from './view/workspacePackages';
+const AccountDeleteView = () => import ('./view/accountDelete');
+const AccountView = () => import ('./view/account');
+const ActionView = () => import ('./view/action');
+const ApplicationView = () => import ('./view/application');
+const FaqView = () => import('./view/faq');
+const IndexView = () => import ('./view/index');
+const LoginView = () => import ('./view/login');
+const LogoutView = () => import ('./view/logout');
+const NotFoundView = () => import ('./view/notFound');
+const OpenSourceView = () => import ('./view/opensource');
+const TermsOfServiceView = () => import ('./view/tos');
+const TermsOfServicePromptView = () => import ('./view/tosPrompt');
+const WorkspaceImportView = () => import ('./view/workspaceImport');
+const WorkspaceSecurityPromptView = () => import ('./view/workspaceSecurityPrompt');
+const WorkspaceShareView = () => import ('./view/workspaceShare');
+const WorkspacePublishView = () => import ('./view/workspacePublish');
+const WorkspaceListView = () => import ('./view/workspaceList');
+const WorkspaceShowView = () => import ('./view/workspaceShow');
+const WorkspaceExportView = () => import ('./view/workspaceExport');
+const WorkspaceDeleteView = () => import ('./view/workspaceDelete');
+const WorkspacePackagesView = () => import ('./view/workspacePackages');
 
 import { createRouter, createWebHistory } from 'vue-router';
 
@@ -60,7 +60,7 @@ const routes = [
 	{ path: '/:pathMatch(.*)*', component: NotFoundView }
 ]
 
-export default router = createRouter ({
+export default createRouter ({
 	routes: routes,
 	history: createWebHistory (),
 });

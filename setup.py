@@ -32,6 +32,9 @@ class Esbuild (Command):
 				'--loader:.svg=file',
 				'--loader:.md=text',
 				'--loader:.html=text',
+				# For code splitting.
+				'--splitting',
+				'--format=esm',
 				# We support:
 				# Chrome: Last three versions. No LTS release.
 				# Edge: Last three versions.
