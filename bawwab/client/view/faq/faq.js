@@ -1,6 +1,6 @@
 import { translations, i18nMixin } from '../../i18n.js';
-import docDE from "./faq-content-de.txt";
-import docEN from "./faq-content-en.txt";
+import docDE from "./faq-content-de.md";
+import docEN from "./faq-content-en.md";
 
 export default {
 	name: 'FaqView',
