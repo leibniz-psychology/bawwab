@@ -84,12 +84,17 @@ async def fileGetDelete (request, user, path):
 				raise Forbidden ('invalid_type')
 
 		async def doStream (response):
-			while True:
-				buf = await fd.read (10*1024)
-				if not buf:
-					break
-				await response.write (buf)
-			await fd.close ()
+			try:
+				while True:
+					buf = await fd.read (10*1024)
+					if not buf:
+						break
+					await response.write (buf)
+			finally:
+				# We cannot	use	async with to open the fd, because
+				# the streaming	response goes out of scope before
+				# finishing. Thus close	it here	explicitly.
+				await fd.close ()
 
 		mimetype, encoding = mimetypes.guess_type (filename)
 		headers = {
@@ -123,12 +128,14 @@ async def fileGetDelete (request, user, path):
 	elif request.method == 'PUT':
 		with translateSSHError ():
 			fd = await client.open (path, 'wb')
-			while True:
-				buf = await request.stream.read ()
-				if buf is None:
-					break
-				await fd.write (buf)
-			await fd.close ()
+			try:
+				while True:
+					buf = await request.stream.read ()
+					if buf is None:
+						break
+					await fd.write (buf)
+			finally:
+				await fd.close ()
 			return json ({'status': 'ok'})
 	elif request.method == 'DELETE':
 		with translateSSHError ():
