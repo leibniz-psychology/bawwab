@@ -43,8 +43,6 @@ export default {
 			await this.$router.push (this.closeLink);
 		},
 		handleKeydown: function (event) {
-			console.log ('keydown', event);
-
 			if (event.defaultPrevented) {
 				return;
 			}
