@@ -230,6 +230,7 @@ import MessageComponent from './component/message.js';
 import ModalComponent from './component/modal.js';
 import SpinnerComponent from './component/spinner.js';
 import CommonmarkComponent from './component/commonmark.js';
+import DropdownComponent from './component/dropdown.js';
 import { ApplicationIconComponent, ApplicationItemComponent } from './component/application.js';
 app.component ('action-button', ActionButtonComponent);
 app.component ('dynamic-footer', FooterComponent);
@@ -241,6 +242,7 @@ app.component ('spinner', SpinnerComponent);
 app.component ('application-icon', ApplicationIconComponent);
 app.component ('application-item', ApplicationItemComponent);
 app.component ('commonmark', CommonmarkComponent);
+app.component ('dropdown', DropdownComponent);
 import ClickOutsideDirective from './directive/clickOutside.js';
 app.directive ('click-outside', ClickOutsideDirective);
 
