@@ -1,5 +1,5 @@
-PsychNotebook Dokumentation
-===========================
+Hilfe
+=====
 
 # Inhaltsverzeichnis
 - [Registrieren](#register)

@@ -156,11 +156,13 @@ const app = createApp ({
 				'nav.projects': 'Projekte',
 				'loading': 'Einen Moment bitte…',
 				'locked': 'Dein Benutzerkonto ist zurzeit gesperrt. Bitte melde Dich per E-Mail bei <a href="mailto:%{mail}">%{mail}</a>.',
+				'help': 'Hilfe',
 				},
 			en: {
 				'nav.projects': 'Projects',
 				'loading': 'Just a second…',
 				'locked': 'Your account is locked right now. Please contact <a href="mailto:%{mail}">%{mail}</a> via email.',
+				'help': 'Help',
 			},
 		}),
 		}),

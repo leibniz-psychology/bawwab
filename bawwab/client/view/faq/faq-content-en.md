@@ -1,5 +1,5 @@
-PsychNotebook Documentation
-===========================
+Help
+====
 
 # Table of Contents
 - [Signing up](#register)
