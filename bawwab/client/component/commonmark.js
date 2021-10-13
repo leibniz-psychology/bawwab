@@ -2,7 +2,7 @@ import { Parser, HtmlRenderer } from 'commonmark';
 
 export default {
 	name: 'CommonmarkComponent',
-	props: ['level', 'safe'],
+	props: ['addlevel', 'safe'],
 	/* XXX: We should actually use a render function here
 	 * (https://v3.vuejs.org/guide/render-function.html), but that’d require
 	 * writing a commonmark renderer from scratch. On the upside, we could use
@@ -21,7 +21,7 @@ export default {
 			while ((event = walker.next())) {
 				node = event.node;
 				if (event.entering && node.type === 'heading') {
-					node.level = Math.min (6, node.level+(this.level ?? 0));
+					node.level = Math.min (6, node.level+(this.addlevel ?? 0));
 				}
 			}
 

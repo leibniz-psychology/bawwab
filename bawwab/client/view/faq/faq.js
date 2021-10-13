@@ -4,7 +4,7 @@ import docEN from "./faq-content-en.md";
 
 export default {
 	name: 'FaqView',
-	template: `<div class="faq"><commonmark :safe="false" :level="2">{{ t('content') }}</commonmark></div>`,
+	template: `<div class="faq"><commonmark :safe="false" :addlevel="1">{{ t('content') }}</commonmark></div>`,
 	data: _ => ({
 		/* application strings */
 		strings: translations ({

@@ -38,7 +38,7 @@ Additionally we use the following free software:
 				},
 			}),
 		}),
-	template: `<commonmark :safe="false" :level="2">{{ t('content') }}</commonmark>`,
+	template: `<commonmark :safe="false" :addlevel="1">{{ t('content') }}</commonmark>`,
 	mixins: [i18nMixin],
 };
 

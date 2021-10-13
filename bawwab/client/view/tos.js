@@ -24,7 +24,7 @@ export default {
 		<template v-if="terms">
 			<h2>{{ kindToHeading(terms.kind) }}</h2>
 			<p>{{ formatDate(terms.effective) }}</p>
-			<commonmark :safe="false" :level="2">{{ terms.content }}</commonmark>
+			<commonmark :safe="false" :addlevel="2">{{ terms.content }}</commonmark>
 		</template>
 	</div>`,
 	mixins: [i18nMixin],
