@@ -1187,9 +1187,103 @@ table.workspaces .actions li {
 	display: block;
 }
 
+.faq-content {
+	max-width: 46rem;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: justify;
+}
+
 .faq ul {
     margin-bottom: 1em;
 }
+
+
+.qn--container {
+	z-index: 1000;
+	position: fixed;
+	height: 27rem;
+	left: -19rem;
+	bottom: 1rem;
+	display: grid;
+	grid-template-columns: 19rem auto;
+	flex-direction: row;
+	align-items: flex-start;
+	transition: left 0.4s ease 0s;
+	box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+.qn--slider {
+	box-sizing: border-box;
+	padding-top: 1.4rem;
+	border-left: 1px solid var(--gray-base);
+	font-family: "Zilla Slab", serif;
+	writing-mode: vertical-lr;
+	display: flex;
+	font-weight: bold;
+	font-size: 1.5rem;
+	flex-direction: column;
+	height: 100%;
+	background-color: white;
+	padding-right: 0.5rem;
+	padding-left: 0.5rem;
+}
+
+.qn--item {
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: 16rem 3rem;
+	justify-content: center;
+	align-items: center;
+}
+
+.qn--slider:hover {
+	cursor: pointer;
+}
+
+.qn--link:hover {
+	cursor: pointer;
+	background-color: #f1f1ff;
+}
+
+.qn--list {
+	overflow: auto;
+	padding-top: 1.4rem;
+	background-color: white;
+	margin: 0;
+	list-style: none;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.qn--inner-list {
+	display: none;
+}
+
+.qn--collaptor {
+	padding-left: 1.3rem;
+	padding-right: 1.3rem;
+}
+
+.qn--collaptor:hover {
+	cursor: pointer;
+}
+
+.qn--top-level-item > a, .qn--second-level-item > a {
+	padding-top: 0.3rem;
+	padding-bottom: 0.3rem;
+	padding-left: 0.7rem;
+}
+
+.qn--second-level-item > a {
+	padding-left: 1.4rem;
+}
+
+.qn--top-level-item {
+	font-weight: 600;
+}
+
 
 /* use same breakpoint as pure-m */
 @media screen and (max-width: 48em) {
@@ -1201,4 +1295,3 @@ table.workspaces .actions li {
 	padding: 0;
 }
 }
-

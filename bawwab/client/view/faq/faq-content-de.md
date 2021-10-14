@@ -1,30 +1,5 @@
 # Hilfe
 
-## Inhaltsverzeichnis
-- [Registrieren](#register)
-- [Benutzerkonto](#useraccount)
-- [Neues Projekt erstellen](#new-project)
-    - [Komplett neu erstellen](#new-project-from-scratch)
-    - [Kopieren öffentlicher Projekte](#copy-public-projects)
-    - [Ein Projekt importieren](#import-project)
-    - [Zugriff auf mit Dir geteilte Projecte](#access-shared-projects)
-    - [Risiken](#risks)
-- [Arbeiten mit Psychnotebook](#working-with-psychnotebook)
-    - [Dashboard](#dashboard)
-    - [Projekte](#projects)
-    - [Anwendungen ausführen](#execute-application)
-    - [Pakete installieren](#install-packages)
-- [Projekte teilen](#share-project)
-    - [Projekte teilen mit Kopierrechten](#share-project-copy-access)
-    - [Projekte teilen mit Schreibzugriff](#share-project-write-access)
-- [Projekte veröffentlichen](#publish-project)
-- [Projekte exportieren](#export-project)
-- [FAQ - Häufig gestellte Fragen](#faq)
-    - [Was ist anders in PsychNotebook im Vergleich zu lokalen Installationen?](#whats-different)
-    - [Welche Anwendung nutze ich für was?](#which-application)
-    - [Wie erstelle ich ein R Markdown Tutorial mit learnR?](#make-tutorial)
-- [Hilfe erhalten und Fehler melden](#get-help)
-
 ## Registrieren<a id="register"></a>
 
 Bevor Du Projekte erstellen oder darauf zugreifen kannst, musst Du ein Konto registrieren. Das ZPID bietet ein Single Sign-On System an, mit dem Du Dich mit demselben Benutzernamen und Passwort bei allen Produkten des ZPID anmelden kannst. Du kannst für das Single Sign-On System entweder Deinen ORCID-Account verwenden oder einen neuen (Leibniz-Psychologie-) Account erstellen.
