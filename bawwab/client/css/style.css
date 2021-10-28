@@ -814,6 +814,16 @@ span.placeholder {
 	text-align: center;
 }
 
+.appoverlay header .title ul {
+	margin: 0;
+	padding: 0;
+}
+
+.appoverlay header .title li {
+	display: inline;
+	padding: 0 0.7em;
+}
+
 .appoverlay header .title img {
 	height: 1em;
 	vertical-align: middle;
@@ -829,6 +839,64 @@ span.placeholder {
 
 .appoverlay header .btn {
 	padding: 0 1em;
+}
+
+.appoverlay header .history {
+	display: inline;
+	position: relative;
+}
+
+.appoverlay header .history .body {
+	width: 50vw;
+	min-width: 20em;
+	max-width: 100vw;
+	height: 50vh;
+	min-height: 10em;
+	max-height: 100vh;
+	display: flex;
+	flex-direction: column;
+
+	position: absolute;
+	top: 2rem;
+	right: -1rem;
+	background-color: white;
+	padding: 0;
+	box-shadow: 0 0 0.3em rgba(0,0,0,0.2);
+	border: 0.1em solid #352071;
+	text-align: left !important;
+	z-index: 1000;
+}
+
+.versions {
+	overflow-y: scroll;
+	padding: 0 !important;
+}
+
+.versions table {
+	width: 100%;
+	border-spacing: 0;
+}
+
+.versions table thead {
+    position: sticky;
+    top: 0;
+    background-color: white;
+}
+
+.versions td, .versions th {
+	vertical-align: top;
+	border-bottom: 0.07em solid var(--gray-base);
+	padding: 0.3em;
+}
+
+/* shrink to minimum */
+.versions .date, .versions .select {
+	min-width: 1%;
+	white-space: nowrap;
+}
+
+.versions td:first {
+    padding-left: 0.6em;
 }
 
 .appoverlay iframe {

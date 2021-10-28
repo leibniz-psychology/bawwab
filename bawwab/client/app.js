@@ -28,6 +28,7 @@ import { translations, i18nMixin } from './i18n.js';
 import { getResponse } from './helper.js';
 import User from './user.js';
 import Workspaces from './workspaces.js';
+import BorgBackup from './borg.js';
 import './directive/clickOutside.js';
 import './css/style.css';
 
@@ -42,7 +43,10 @@ import 'purecss/build/grids-responsive.css';*/
 export const config = Object.freeze ({
 	publicData: '/storage/public',
 	privateData: '/storage/home',
-	});
+	autosaveInterval: 10*60*1000, /* ms */
+	/* Make sure to keep at least 1 hour of autosaves by adjusting secondly */
+	autosaveKeep: {secondly: 6, hourly: 12, daily: 14},
+});
 
 export function whoami () {
 	if (store.state.user) {
@@ -59,6 +63,7 @@ export const store = {
 		session: null,
 		user: null,
 		workspaces: null,
+		borg: null,
 		/* current language */
 		language: 'en',
 		/* cache for terms of service. Hash prefix is reserved for private
@@ -80,6 +85,7 @@ export const store = {
 		/* event manager must be started before we can run programs, otherwise
 		 * workspaces.fetch() below deadlocks. */
 		this.state.events.start ();
+		this.state.borg = new BorgBackup (this.state.events);
 
 		await this.initUser ();
 		await this.initWorkspaces ();

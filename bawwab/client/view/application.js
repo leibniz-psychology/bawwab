@@ -1,6 +1,8 @@
 import { translations, i18nMixin } from '../i18n.js';
-import { store } from '../app.js';
+import { store, config } from '../app.js';
 import { ConductorState } from '../conductor.js';
+import { BorgErrorNonexistent } from '../borg.js';
+import WorkspaceVersionComponent from '../component/workspaceVersion.js';
 
 export default {
 	name: 'ApplicationView',
@@ -12,9 +14,20 @@ export default {
 						   <router-link :to="{name: 'workspaces'}">{{ t('projects') }}</router-link>
 				   </div>
 				   <div class="pure-u-3-5 title">
-						<action-button v-if="program && program.error !== null" :f="reset" icon="redo">{{ t('reset') }}</action-button>
-						<action-button v-if="program && program.state != ConductorState.exited" :f="terminate" icon="stop">{{ t('stop') }}</action-button>
-					   <router-link v-if="workspace" :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><application-icon :workspace="workspace" :application="application"></application-icon> {{ workspace.metadata.name }}</router-link>
+						<ul>
+							<li v-if="program && program.error !== null"><action-button :f="reset" icon="redo">{{ t('reset') }}</action-button></li>
+							<li v-if="program && program.state != ConductorState.exited"><action-button :f="terminate" icon="stop">{{ t('stop') }}</action-button></li>
+							<li v-if="workspace"><router-link :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><application-icon :workspace="workspace" :application="application"></application-icon> {{ workspace.metadata.name }}</router-link></li>
+							<li><dropdown class="history">
+								<template v-slot:button>
+									<action-button :f="createManualVersion" icon="history" importance="low">{{ t('createVersion') }}</action-button>
+									<i class="fas fa-caret-down"></i>
+								</template>
+								<template v-slot:default>
+									<workspace-version :wsid="wsid" class="body"></workspace-version>
+								</template>
+							</dropdown></li>
+						</ul>
 				   </div>
 				   <div class="pure-u-1-5 logo">
 						   <router-link :to="{name: 'index'}"><img src="https://www.lifp.de/assets/images/psychnotebook.svg" style="height: 1.5em; filter: invert(100%) opacity(50%);"></router-link>
@@ -40,6 +53,7 @@ export default {
 	data: _ => ({
 		state: store.state,
 		ConductorState: ConductorState,
+		autosaveTimer: null,
 		strings: translations({
 			de: {
 				'nonexistent': 'Anwendung existiert nicht.',
@@ -52,6 +66,7 @@ export default {
 				'stop': 'Beenden',
 				'needrestart': 'Die Änderungen am Projekt werden für diese Anwendung erst sichbar, wenn sie neugestartet wird.',
 				'busy': 'Das Projekt wird zurzeit aktualisiert. Die Anwendung kann erst danach gestartet werden.',
+				'createVersion': 'Sicherung erstellen',
 				},
 			en: {
 				'nonexistent': 'Application does not exist.',
@@ -64,17 +79,81 @@ export default {
 				'stop': 'Stop',
 				'needrestart': 'Changes made to the project apply to this application only after a restart.',
 				'busy': 'The project is being updated currently. This application can only be started afterwards.',
+				'createVersion': 'Create new version',
 				},
 		}),
 	}),
 	mixins: [i18nMixin],
+	components: {
+		'workspace-version': WorkspaceVersionComponent,
+	},
+	created: async function () {
+		/* Save immediately before user can do anything */
+		await this.createVersion ();
+	},
+	unmounted: function() {
+		if (this.autosaveTimer) {
+			clearTimeout (this.autosaveTimer);
+		}
+	},
 	methods: {
 		reset: function () {
 			this.state.workspaces.resetRunningApplication (this.workspace, this.application);
 		},
 		terminate: async function () {
 			await this.program.terminate ();
-		}
+		},
+		createManualVersion: async function () {
+			await this.createVersion('manual-{now:%Y-%m-%dT%H:%M:%S}');
+		},
+		createVersion: async function (name=null) {
+			/* first check when the last backup was created and then create a new
+			/* one. Obviously there is a race condition here, but that should be fine.
+			/* We can just prune away old backups. */
+			let wait = config.autosaveInterval;
+			try {
+				let latest = null;
+				try {
+					const repo = await this.state.borg.list (this.workspace);
+					const archives = Array.from (repo.archives.values ());
+					archives.sort ((a, b) => a.date > b.date ? -1 : 1);
+					latest = archives[0];
+				} catch (e) {
+					if (e instanceof BorgErrorNonexistent) {
+						await this.state.borg.init (this.workspace);
+					} else {
+						throw e;
+					}
+				}
+
+				const now = new Date ();
+				if (latest) {
+					console.log ('last backup was', latest.date, 'now', now, 'diff', now-latest.date);
+					wait = config.autosaveInterval - (now - latest.date);
+				} else {
+					console.log ('no latest backup');
+				}
+				if (name || !latest || (now - latest.date) >= config.autosaveInterval) {
+					if (!name) {
+						name = 'auto-{now:%Y-%m-%dT%H:%M:%S}';
+					}
+					const snapshot = await this.state.borg.create (this.workspace, name);
+					/* Prune old automatic backups (not the manual ones) */
+					await this.state.borg.prune (this.workspace,
+							config.autosaveKeep, 'auto-');
+
+					/* Just made a new one */
+					wait = config.autosaveInterval;
+				}
+			} finally {
+				/* Add jitter of up to 5 seconds. Obviously this is not a proper
+				 * synchronization mechanism, but it works well in practise. */
+				const jitter = Math.floor (Math.random ()*5000);
+				this.autosaveTimer = setTimeout (
+						function () { this.createVersion().then (() => {}) }.bind (this),
+						Math.max (0, wait)+jitter);
+			}
+		},
 	},
 	computed: {
 		/* argument is a string */
@@ -124,7 +203,7 @@ export default {
 				return false;
 			}
 			return p.profilePath != this.workspace.profilePath;
-		}
+		},
 	},
 	watch: {
 		'program.state': async function () {
