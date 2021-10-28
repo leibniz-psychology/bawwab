@@ -7,30 +7,31 @@ export default {
 	template: `<modal icon="users" :title="t('headline')" :closeName="t('close')" :closeLink="{name: 'workspaces'}" :scaling="true">
 			<p>{{ t('description') }}</p>
 			<p>
-				<label for="importFiles">{{ t('fromfile') }}:</label>
-				<input type="file" id="importFiles" @change="validate" :disabled="busy"><br>
+				<label for="importFiles" class="btn high" :disabled="busy">{{ t('fromfile') }}</label>
+				<input type="file" id="importFiles" @change="validate" :disabled="busy" style="display: none">
+				{{ selectedFile?.name }}
 			</p>
 			<template v-slot:buttons>
-				<action-button icon="file-import" :f="run" importance="high" :disabled="!valid" class="submit">{{ t('submit') }}</action-button>
+				<action-button icon="file-import" :f="run" importance="high" :disabled="selectedFile===null" class="submit">{{ t('submit') }}</action-button>
 			</template>
 </modal>`,
 	data: _ => ({
 		state: store.state,
 		path: [],
-		valid: false,
 		busy: false,
+		selectedFile: null,
 		strings: translations({
 			de: {
 				'close': 'Abbrechen',
 				'headline': 'Projekt importieren',
-				'fromfile': 'Aus Datei importieren',
+				'fromfile': 'Datei wählen',
 				'description': 'Hier können Projekte, die zuvor aus dem Notebook exportiert wurden, wieder importiert werden. Der Import kann einige Minuten in Anspruch nehmen.',
 				'submit': 'Importieren',
 				},
 			en: {
 				'close': 'Cancel',
 				'headline': 'Import project',
-				'fromfile': 'Import from file',
+				'fromfile': 'Select file',
 				'description': 'Here you can import projects that were previously exported from the notebook. The process may take a few minutes.',
 				'submit': 'Import',
 				},
@@ -39,15 +40,13 @@ export default {
 	mixins: [i18nMixin],
 	methods: {
 		/* cannot make this reactive (i.e. computed method) for some reason */
-		validate: function () {
-			const filePicker = document.getElementById ('importFiles');
-			this.valid = filePicker.length != 1 && this.state.workspaces;
+		validate: function (e) {
+			this.selectedFile = e.target.files[0];
 		},
         run: async function() {
 			this.busy = true;
 
-			const filePicker = document.getElementById ('importFiles');
-			const f = filePicker.files[0];
+			const f = this.selectedFile;
 			/* XXX do not hardcode homedir */
 			const path = `${config.privateData}/${this.state.user.name}/.cache/${f.name}`;
 			const url = new URL (`/api/filesystem${path}`, window.location.href);
