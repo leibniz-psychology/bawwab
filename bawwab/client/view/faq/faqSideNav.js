@@ -1,93 +1,142 @@
-import { translations, i18nMixin } from '../../i18n.js';
-import navDE from "./faq-nav-de.md";
-import navEN from "./faq-nav-en.md";
-import { slideToggle } from "../../effects";
+import {i18nMixin, translations} from '../../i18n.js';
+import docDE from "./faq-content-en.md";
+import docEN from "./faq-content-en.md";
+import {Parser} from "commonmark";
 
 export default {
 	name: 'FaqSideNav',
 	template: `<div id="quick-navigator" class="qn--container" v-click-outside="hideSideNav">
-  <ul class="qn--list" v-html="sideNavItemMarkup()">
-  </ul>
-  <div id="qn--slider" class="qn--slider">
+	<ul class="qn--list">
+		<li v-for="item in tocData" 
+			:key="item.anchor" 
+			class="qn--item qn--top-level-item" 
+			:class="{'qn--collaptor-item':item.children.length > 0}">
+			<a class="qn--link" :href="'#'+item.anchor" @click="smoothScrollIntoView($event)">{{ item.text }}</a>
+			<i v-if="item.children.length > 0" class="qn--collaptor fas fa-angle-right" @click="toggleSubListShown(item.anchor, $event)"></i>
+			<transition name="transition-slide">
+				<ul v-if="item.children.length > 0 && subListShown[item.anchor]" class="qn--inner-list">
+					<li v-for="innerItem in item.children" :key="innerItem.anchor" class="qn--item qn--second-level-item">
+						<a class="qn--link" :href="'#'+innerItem.anchor" @click="smoothScrollIntoView($event)">{{ innerItem.text }}</a>
+					</li>
+				</ul>
+			</transition>
+		</li>
+	</ul>
+	<div id="qn--slider" class="qn--slider" @click="toggleSideNav">
 		<span class="qn--text">{{ t('toc') }}</span>
 	</div>
 </div>`,
+	data: _ => ({
+		subListShown: [],
+		/* application strings */
+		strings: translations({
+			de: {
+				doc: docDE,
+				toc: "Inhaltsverzeichnis",
+			},
+			en: {
+				doc: docEN,
+				toc: "Table of Contents"
+			},
+		}),
+	}),
+	mixins: [i18nMixin],
 	mounted: function () {
-		const collaptorItems = this.quickNavigator.getElementsByClassName("qn--collaptor-item");
-		const hideSideNav = this.hideSideNav;
-
-		//smooth scrolling to content
-		this.quickNavigator.querySelectorAll('a[href^="#"]').forEach(anchor => {
-			anchor.addEventListener('click', function (e) {
-				e.preventDefault();
-				hideSideNav();
-				document.querySelector(this.getAttribute('href')).scrollIntoView({
-					behavior: 'smooth'
-				});
-			});
-		});
-
-		//collapsible second-level-items
-		for (const collaptorItem of collaptorItems) {
-			const collaptor = collaptorItem.getElementsByClassName("qn--collaptor")[0];
-			collaptor.addEventListener("click", () => {
-				slideToggle(collaptorItem.nextElementSibling);
-				collaptor.classList.toggle("fa-angle-right");
-				collaptor.classList.toggle("fa-angle-down");
-			});
+		for (let item of this.tocData) {
+			if (item.children.length > 0) {
+				this.subListShown[item.anchor] = false;
+			}
 		}
 
 		this.quickNavigator.style.left = this.navigatorOffset + "px";
-		this.quickNavigatorSlider.addEventListener('click', this.toggleSideNav);
 	},
 	computed: {
-		quickNavigator: function () { return document.getElementById("quick-navigator"); },
-		quickNavigatorSlider: function () { return document.getElementById("qn--slider"); },
-		navigatorOffset: function () { return - this.quickNavigator.clientWidth + this.quickNavigatorSlider.clientWidth;},
+		quickNavigator: function () {
+			return document.getElementById("quick-navigator");
+		},
+		navigatorOffset: function () {
+			const quickNavigatorSlider = document.getElementById("qn--slider");
+			return -this.quickNavigator.clientWidth + quickNavigatorSlider.clientWidth;
+		},
+		tocData: function () {
+			let rawTocData = [];
+			const reader = new Parser();
+			const parsed = reader.parse(this.t('doc'));
+
+			const walker = parsed.walker();
+			let event, node;
+
+			let domParser = new DOMParser();
+			while ((event = walker.next())) {
+				node = event.node;
+				if (event.entering && node.type === 'heading') {
+					if (node.level === 1 || node.level > 3) {
+						continue;
+					}
+					rawTocData[rawTocData.length] = {
+						text: node.firstChild.literal,
+						level: node.level,
+						anchor: domParser.parseFromString(node?.firstChild?.next?.literal, "text/html")
+							.getElementsByTagName("a")[0]
+							?.getAttribute("id"),
+						parent: null,
+						children: [],
+					};
+				}
+			}
+			return this.levelTocData(rawTocData);
+		},
 	},
 	methods: {
-		sideNavItemMarkup: function () {
-			let navItems = this.t('nav').split(/\r?\n/).map((line) => {
-				let item = {};
-				const matches = line.match(/(\s*)-\s*\[(.*)\]\s*\((.*)\)/);
-				if (!matches) {
-					return null;
-				}
-				item.secondLevel = matches[1].length > 0;
-				item.text = matches[2];
-				item.href = matches[3];
-				return item;
-			}).filter((item) => item !== null);
-
-			let navMarkup = ``;
-			let lastWasSecondLevel = false;
-			for (let i = 0; i < navItems.length; i++){
-				const navItem = navItems[i];
-				if (navItem.secondLevel) {
-					navMarkup += `<li class="qn--item qn--second-level-item"><a class="qn--link" href="` + navItem.href + `">` + navItem.text + `</a></li>`;
-				} else if (!navItem.secondLevel) {
-					if (lastWasSecondLevel) {
-						navMarkup += `</ul>`;
+		//transforms the flat array of headings into a tree-like structure
+		levelTocData: function (tocData) {
+			//dummy-root-node, old trick to reduce number of edge-cases with tree-like structures
+			let result = {
+				level: 0,
+				children: [tocData[0]],
+			};
+			let previous = tocData[0];
+			previous.parent = result;
+			for (let i = 1; i < tocData.length; i++) {
+				const date = tocData[i];
+				if (date.level > previous.level) {
+					previous.children.push(date);
+					date.parent = previous;
+				} else if (date.level === previous.level) {
+					previous.parent.children.push(date);
+					date.parent = previous.parent;
+				} else if (date.level < previous.level) {
+					let climber = previous.parent;
+					while (date.level <= climber.level) {
+						climber = climber.parent;
 					}
-					if (navItems[i + 1] && navItems[i + 1].secondLevel) {
-						navMarkup += `<li class="qn--item qn--top-level-item qn--collaptor-item"><a class="qn--link" href="` + navItem.href + `">` + navItem.text + `</a><i class="qn--collaptor fas fa-angle-right"></i></li>`;
-						navMarkup += `<ul class="qn--inner-list">`;
-					} else {
-						navMarkup += `<li class="qn--item qn--top-level-item"><a class="qn--link" href="` + navItem.href + `">` + navItem.text + `</a></li>`;
-					}
+					climber.children.push(date);
+					date.parent = climber;
 				}
-
-				lastWasSecondLevel = navItem.secondLevel;
+				previous = date;
 			}
-			return navMarkup;
+			return result.children;
 		},
-		hideSideNav: function() {
+		toggleSubListShown: function (anchor, $event) {
+			this.subListShown[anchor] = !this.subListShown[anchor];
+
+			$event.target.classList.toggle("fa-angle-right");
+			$event.target.classList.toggle("fa-angle-down");
+		},
+		smoothScrollIntoView: function ($event) {
+			$event.preventDefault();
+			this.hideSideNav();
+			document.querySelector($event.target.getAttribute('href')).scrollIntoView({
+				behavior: 'smooth'
+			});
+		},
+		hideSideNav: function () {
 			this.quickNavigator.style.left = this.navigatorOffset + "px";
 		},
-		showSideNav: function() {
+		showSideNav: function () {
 			this.quickNavigator.style.left = "0px";
 		},
-		toggleSideNav: function() {
+		toggleSideNav: function () {
 			if (!this.quickNavigator.style.left || this.quickNavigator.style.left === "0px") {
 				this.hideSideNav();
 			} else {
@@ -95,20 +144,6 @@ export default {
 			}
 		}
 	},
-	data: _ => ({
-		/* application strings */
-		strings: translations ({
-			de: {
-				nav: navDE,
-				toc: "Inhaltsverzeichnis",
-			},
-			en: {
-				nav: navEN,
-				toc: "Table of Contents"
-			},
-		}),
-	}),
-	mixins: [i18nMixin],
 };
 
 

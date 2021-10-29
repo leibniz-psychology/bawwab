@@ -1194,23 +1194,23 @@ table.workspaces .actions li {
 	text-align: justify;
 }
 
-.faq ul {
-    margin-bottom: 1em;
-}
-
 
 .qn--container {
 	z-index: 1000;
 	position: fixed;
-	height: 27rem;
-	left: -19rem;
+	height: 23rem;
+	left: -20rem;
 	bottom: 1rem;
 	display: grid;
-	grid-template-columns: 19rem auto;
+	grid-template-columns: 20.0rem auto;
 	flex-direction: row;
 	align-items: flex-start;
 	transition: left 0.4s ease 0s;
 	box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+.qn--container a {
+	padding: 0;
 }
 
 .qn--slider {
@@ -1232,14 +1232,18 @@ table.workspaces .actions li {
 .qn--item {
 	margin: 0;
 	padding: 0;
-	display: grid;
-	grid-template-columns: 16rem 3rem;
 	justify-content: center;
 	align-items: center;
 }
 
 .qn--slider:hover {
 	cursor: pointer;
+}
+
+.qn--link {
+	padding-left: 0.3rem;
+	display: inline-block;
+	line-height: 1.2rem;
 }
 
 .qn--link:hover {
@@ -1255,10 +1259,12 @@ table.workspaces .actions li {
 	list-style: none;
 	height: 100%;
 	box-sizing: border-box;
+	padding-left: 1.0rem;
 }
 
 .qn--inner-list {
-	display: none;
+	list-style: none;
+	margin: 0.5rem 0 0 1.2rem;
 }
 
 .qn--collaptor {
@@ -1270,20 +1276,33 @@ table.workspaces .actions li {
 	cursor: pointer;
 }
 
-.qn--top-level-item > a, .qn--second-level-item > a {
-	padding-top: 0.3rem;
-	padding-bottom: 0.3rem;
-	padding-left: 0.7rem;
-}
-
-.qn--second-level-item > a {
-	padding-left: 1.4rem;
-}
-
 .qn--top-level-item {
+	display: grid;
+	grid-template-columns: 16rem 3rem;
 	font-weight: 600;
+	margin-bottom: 1.0rem;
 }
 
+.qn--second-level-item {
+	font-weight: 500;
+}
+
+.transition-slide-enter-active,
+.transition-slide-leave-active {
+	transition: max-height 0.7s;
+}
+
+.transition-slide-enter-to,
+.transition-slide-leave-from {
+	overflow: hidden;
+	max-height: 10rem;
+}
+
+.transition-slide-enter-from,
+.transition-slide-leave-to {
+	overflow: hidden;
+	max-height: 0;
+}
 
 /* use same breakpoint as pure-m */
 @media screen and (max-width: 48em) {
