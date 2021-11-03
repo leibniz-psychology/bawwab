@@ -1199,14 +1199,18 @@ table.workspaces .actions li {
 	z-index: 1000;
 	position: fixed;
 	height: 23rem;
-	left: -20rem;
 	bottom: 1rem;
+	left: 0;
 	display: grid;
 	grid-template-columns: 20.0rem auto;
 	flex-direction: row;
 	align-items: flex-start;
 	transition: left 0.4s ease 0s;
 	box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+.qn--hide {
+	left: -20rem;
 }
 
 .qn--container a {

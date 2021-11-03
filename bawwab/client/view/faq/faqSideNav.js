@@ -1,11 +1,11 @@
 import {i18nMixin, translations} from '../../i18n.js';
-import docDE from "./faq-content-en.md";
+import docDE from "./faq-content-de.md";
 import docEN from "./faq-content-en.md";
 import {Parser} from "commonmark";
 
 export default {
 	name: 'FaqSideNav',
-	template: `<div id="quick-navigator" class="qn--container" v-click-outside="hideSideNav">
+	template: `<div id="quick-navigator" class="qn--container" :class="{'qn--hide': hideNav}" v-click-outside="hideSideNav">
 	<ul class="qn--list">
 		<li v-for="item in tocData" 
 			:key="item.anchor" 
@@ -27,6 +27,7 @@ export default {
 	</div>
 </div>`,
 	data: _ => ({
+		hideNav: true,
 		subListShown: [],
 		/* application strings */
 		strings: translations({
@@ -47,16 +48,10 @@ export default {
 				this.subListShown[item.anchor] = false;
 			}
 		}
-
-		this.quickNavigator.style.left = this.navigatorOffset + "px";
 	},
 	computed: {
 		quickNavigator: function () {
 			return document.getElementById("quick-navigator");
-		},
-		navigatorOffset: function () {
-			const quickNavigatorSlider = document.getElementById("qn--slider");
-			return -this.quickNavigator.clientWidth + quickNavigatorSlider.clientWidth;
 		},
 		tocData: function () {
 			let rawTocData = [];
@@ -73,7 +68,7 @@ export default {
 					if (node.level === 1 || node.level > 3) {
 						continue;
 					}
-					rawTocData[rawTocData.length] = {
+					rawTocData.push({
 						text: node.firstChild.literal,
 						level: node.level,
 						anchor: domParser.parseFromString(node?.firstChild?.next?.literal, "text/html")
@@ -81,7 +76,7 @@ export default {
 							?.getAttribute("id"),
 						parent: null,
 						children: [],
-					};
+					});
 				}
 			}
 			return this.levelTocData(rawTocData);
@@ -131,16 +126,16 @@ export default {
 			});
 		},
 		hideSideNav: function () {
-			this.quickNavigator.style.left = this.navigatorOffset + "px";
+			this.hideNav = true;
 		},
 		showSideNav: function () {
-			this.quickNavigator.style.left = "0px";
+			this.hideNav = false;
 		},
 		toggleSideNav: function () {
-			if (!this.quickNavigator.style.left || this.quickNavigator.style.left === "0px") {
-				this.hideSideNav();
-			} else {
+			if (this.hideNav) {
 				this.showSideNav();
+			} else {
+				this.hideSideNav();
 			}
 		}
 	},
