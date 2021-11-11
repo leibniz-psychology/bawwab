@@ -12,7 +12,9 @@ export default {
 			class="qn--item qn--top-level-item" 
 			:class="{'qn--collaptor-item':item.children.length > 0}">
 			<a class="qn--link" :href="'#'+item.anchor" @click="smoothScrollIntoView($event)">{{ item.text }}</a>
-			<i v-if="item.children.length > 0" class="qn--collaptor fas fa-angle-right" @click="toggleSubListShown(item.anchor, $event)"></i>
+			<i v-if="item.children.length > 0"
+					:class="expanderClass(item.anchor)"
+					@click="toggleSubListShown(item.anchor)"></i>
 			<transition name="transition-slide">
 				<ul v-if="item.children.length > 0 && subListShown.has (item.anchor)" class="qn--inner-list">
 					<li v-for="innerItem in item.children" :key="innerItem.anchor" class="qn--item qn--second-level-item">
@@ -105,15 +107,12 @@ export default {
 			}
 			return result.children;
 		},
-		toggleSubListShown: function (anchor, $event) {
+		toggleSubListShown: function (anchor) {
 			if (this.subListShown.has (anchor)) {
 				this.subListShown.delete (anchor);
 			} else {
 				this.subListShown.add (anchor);
 			}
-
-			$event.target.classList.toggle("fa-angle-right");
-			$event.target.classList.toggle("fa-angle-down");
 		},
 		smoothScrollIntoView: function ($event) {
 			$event.preventDefault();
@@ -134,7 +133,10 @@ export default {
 			} else {
 				this.hideSideNav();
 			}
-		}
+		},
+		expanderClass: function (anchor) {
+			return 'qn--collaptor fas fa-angle-' + (this.subListShown.has (anchor) ? 'down' : 'right');
+		},
 	},
 };
 
