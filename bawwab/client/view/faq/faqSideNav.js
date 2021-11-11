@@ -14,7 +14,7 @@ export default {
 			<a class="qn--link" :href="'#'+item.anchor" @click="smoothScrollIntoView($event)">{{ item.text }}</a>
 			<i v-if="item.children.length > 0" class="qn--collaptor fas fa-angle-right" @click="toggleSubListShown(item.anchor, $event)"></i>
 			<transition name="transition-slide">
-				<ul v-if="item.children.length > 0 && subListShown[item.anchor]" class="qn--inner-list">
+				<ul v-if="item.children.length > 0 && subListShown.has (item.anchor)" class="qn--inner-list">
 					<li v-for="innerItem in item.children" :key="innerItem.anchor" class="qn--item qn--second-level-item">
 						<a class="qn--link" :href="'#'+innerItem.anchor" @click="smoothScrollIntoView($event)">{{ innerItem.text }}</a>
 					</li>
@@ -28,7 +28,7 @@ export default {
 </div>`,
 	data: _ => ({
 		hideNav: true,
-		subListShown: [],
+		subListShown: new Set (),
 		/* application strings */
 		strings: translations({
 			de: {
@@ -42,13 +42,6 @@ export default {
 		}),
 	}),
 	mixins: [i18nMixin],
-	mounted: function () {
-		for (let item of this.tocData) {
-			if (item.children.length > 0) {
-				this.subListShown[item.anchor] = false;
-			}
-		}
-	},
 	computed: {
 		quickNavigator: function () {
 			return document.getElementById("quick-navigator");
@@ -113,7 +106,11 @@ export default {
 			return result.children;
 		},
 		toggleSubListShown: function (anchor, $event) {
-			this.subListShown[anchor] = !this.subListShown[anchor];
+			if (this.subListShown.has (anchor)) {
+				this.subListShown.delete (anchor);
+			} else {
+				this.subListShown.add (anchor);
+			}
 
 			$event.target.classList.toggle("fa-angle-right");
 			$event.target.classList.toggle("fa-angle-down");
@@ -140,6 +137,4 @@ export default {
 		}
 	},
 };
-
-
 
