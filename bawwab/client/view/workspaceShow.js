@@ -140,10 +140,11 @@ export default {
 		}
 
 		//if user specified to skip the pop-up, his autocopy-setting is the only thing that still matters
-		const dontShowPopUp = this.settings.get('dontShowSharedReadOnlyPopUp');
+		const dontShowPopUp = (this.isReadOnlyWorkspace && this.settings.get('dontShowSharedReadOnlyPopUp'))
+			|| (!this.isReadOnlyWorkspace && this.settings.get('dontShowSharedWriteAccessPopUp'));
 		if (dontShowPopUp) {
 			const autocopy = this.settings.get('autocopySharedReadOnly');
-			if (autocopy) {
+			if (autocopy && this.isReadOnlyWorkspace) {
 				/* click the button, so there will be visual feedback */
 				const copyButton = this.$el.querySelector ('.actionbar .copy');
 				copyButton.click ();
@@ -177,6 +178,7 @@ export default {
 		sharedWith: function () { return Object.entries (this.workspace.permissions.group).filter (([k, v]) => this.owners.indexOf (k) == -1 && k != this.username) },
 		/* user can edit project metadata */
 		canEditMeta: function () { return this.permissions.canWrite (); },
+		isReadOnlyWorkspace: function () { return !this.permissions.canWrite(); },
 		workspaceAlreadyVisitedKey: function () { return `alreadyVisited${this.workspace.metadata._id}`; }
 	},
 	methods: {

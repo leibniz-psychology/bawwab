@@ -25,8 +25,12 @@ export default {
 			<label for="autocopy">{{ t('autoCopyReadOnlyShared') }}</label>
 		</div>
 		<div>
-			<input id="not-again" type="checkbox" name="not-again" v-model="dontShowSharedReadOnlyPopUp">
-			<label for="not-again">{{ t('dontShowReadOnlySharedModal') }}</label>
+			<input id="read-only-not-again" type="checkbox" name="read-only-not-again" v-model="dontShowSharedReadOnlyPopUp">
+			<label for="read-only-not-again">{{ t('dontShowReadOnlySharedPopUp') }}</label>
+		</div>
+		<div>
+			<input id="write-access-not-again" type="checkbox" name="write-access-not-again" v-model="dontShowSharedWriteAccessPopUp">
+			<label for="write-access-not-again">{{ t('dontShowSharedWriteAccessPopUp') }}</label>
 		</div>
 	</div>
 	<div v-if="canDelete">
@@ -48,7 +52,8 @@ export default {
 				'unixaccount': 'UNIX-Nutzername',
 				'locked': 'Du kannst Dein Konto derzeit nicht löschen.',
 				'settings': 'Einstellungen',
-				'dontShowReadOnlySharedModal': 'Kein Info-Pop-Up für mit Kopierrechten geteilte Projekte anzeigen.',
+				'dontShowReadOnlySharedPopUp': 'Kein Info-Pop-Up für mit Kopierrechten geteilte Projekte anzeigen.',
+				'dontShowSharedWriteAccessPopUp': 'Kein Info-Pop-Up für mit Schreibrechten geteilte Projekte anzeigen.',
 				'autoCopyReadOnlyShared': 'Mit Kopierrechten geteilte Projekte automatisch kopieren. Ich verstehe die Risiken!'
 				},
 			en: {
@@ -59,7 +64,8 @@ export default {
 				'unixaccount': 'UNIX account name',
 				'locked': 'You cannot delete your account at this time.',
 				'settings': 'Settings',
-				'dontShowReadOnlySharedModal': 'Don\'t show info-pop-up for projects shared with copy rights.',
+				'dontShowReadOnlySharedPopUp': 'Don\'t show info-pop-up for projects shared with copy rights.',
+				'dontShowSharedWriteAccessPopUp': 'Don\'t show info-pop-up for projects shared with write rights.',
 				'autoCopyReadOnlyShared': 'Automatically copy projects shared with copy rights. I understand the risks!'
 				},
 			}),
@@ -76,6 +82,7 @@ export default {
 		settings: function () { return this.state.settings; },
 		autocopySharedReadOnly: settingsProp ('autocopySharedReadOnly'),
 		dontShowSharedReadOnlyPopUp: settingsProp ('dontShowSharedReadOnlyPopUp'),
+		dontShowSharedWriteAccessPopUp: settingsProp ('dontShowSharedWriteAccessPopUp'),
 	},
 	methods: {
 		mailto: function (a) {
