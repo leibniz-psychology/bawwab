@@ -1219,6 +1219,7 @@ table.workspaces .actions li {
 
 .qn--slider {
 	box-sizing: border-box;
+	width: 3rem;
 	padding-top: 1.4rem;
 	border-left: 1px solid var(--gray-base);
 	font-family: "Zilla Slab", serif;
