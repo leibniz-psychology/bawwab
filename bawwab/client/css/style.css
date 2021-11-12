@@ -1255,8 +1255,126 @@ table.workspaces .actions li {
 	display: block;
 }
 
-.faq ul {
-    margin-bottom: 1em;
+.faq-content {
+	max-width: 46rem;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: justify;
+}
+
+
+.qn--container {
+	z-index: 1000;
+	position: fixed;
+	height: 23rem;
+	bottom: 1rem;
+	left: 0;
+	display: grid;
+	grid-template-columns: 20.0rem auto;
+	flex-direction: row;
+	align-items: flex-start;
+	transition: left 0.4s ease 0s;
+	box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+.qn--hide {
+	left: -20rem;
+}
+
+.qn--container a {
+	padding: 0;
+}
+
+.qn--slider {
+	box-sizing: border-box;
+	width: 3rem;
+	padding-top: 1.4rem;
+	border-left: 1px solid var(--gray-base);
+	font-family: "Zilla Slab", serif;
+	writing-mode: vertical-lr;
+	display: flex;
+	font-weight: bold;
+	font-size: 1.5rem;
+	flex-direction: column;
+	height: 100%;
+	background-color: white;
+	padding-right: 0.5rem;
+	padding-left: 0.5rem;
+}
+
+.qn--item {
+	margin: 0;
+	padding: 0;
+	justify-content: center;
+	align-items: center;
+}
+
+.qn--slider:hover {
+	cursor: pointer;
+}
+
+.qn--link {
+	padding-left: 0.3rem;
+	display: inline-block;
+	line-height: 1.2rem;
+}
+
+.qn--link:hover {
+	cursor: pointer;
+	background-color: #f1f1ff;
+}
+
+.qn--list {
+	overflow: auto;
+	padding-top: 1.4rem;
+	background-color: white;
+	margin: 0;
+	list-style: none;
+	height: 100%;
+	box-sizing: border-box;
+	padding-left: 1.0rem;
+}
+
+.qn--inner-list {
+	list-style: none;
+	margin: 0.5rem 0 0 1.2rem;
+}
+
+.qn--collaptor {
+	padding-left: 1.3rem;
+	padding-right: 1.3rem;
+}
+
+.qn--collaptor:hover {
+	cursor: pointer;
+}
+
+.qn--top-level-item {
+	display: grid;
+	grid-template-columns: 16rem 3rem;
+	font-weight: 600;
+	margin-bottom: 1.0rem;
+}
+
+.qn--second-level-item {
+	font-weight: 500;
+}
+
+.transition-slide-enter-active,
+.transition-slide-leave-active {
+	transition: max-height 0.7s;
+}
+
+.transition-slide-enter-to,
+.transition-slide-leave-from {
+	overflow: hidden;
+	max-height: 10rem;
+}
+
+.transition-slide-enter-from,
+.transition-slide-leave-to {
+	overflow: hidden;
+	max-height: 0;
 }
 
 /* use same breakpoint as pure-m */
@@ -1269,4 +1387,3 @@ table.workspaces .actions li {
 	padding: 0;
 }
 }
-
