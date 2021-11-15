@@ -127,22 +127,34 @@ export default class BorgBackup {
 		}
 
 		const ret = await p.wait ();
+
 		/* make sure we remove stale entries, which raise an error below. */
 		this.repos.delete (k);
+
+		let resp = null;
 		switch (ret) {
 			case 0:
 				const r = JSON.parse (p.stdoutBuf);
 				const repo = BorgRepository.fromObject (r);
 				this.repos.set (k, repo);
-				this.listInProgress.get (k).notify (repo);
-				this.listInProgress.delete (k);
-				return repo;
+				resp = repo;
+				break;
 
 			case 2:
-				throw new BorgErrorNonexistent ();
+				resp = new BorgErrorNonexistent ();
+				break;
 
 			default:
-				throw new BorgError (ret);
+				resp = new BorgError (ret);
+				break;
+		}
+
+		await this.listInProgress.get (k).notify (resp);
+		this.listInProgress.delete (k);
+		if (resp instanceof Error) {
+			throw resp;
+		} else {
+			return resp;
 		}
 	}
 
