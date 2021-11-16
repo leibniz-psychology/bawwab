@@ -1,0 +1,6 @@
+<modal :title="canDelete ? t('deletetitle') : t('hidetitle')" :closeName="t('cancel')" icon="trash" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true">
+	<p>{{ canDelete ? t('deletequestion', { name: workspace.metadata.name }) : t('hidequestion', {name: workspace.metadata.name}) }}</p>
+	<template v-slot:buttons>
+		<action-button :f="deleteWorkspace" icon="trash" importance="high">{{ canDelete ? t('delete') : t('hide') }}</action-button>
+	</template>
+</modal>

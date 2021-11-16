@@ -1,0 +1,17 @@
+<div class="landingpage">
+	<h2>{{ t('description') }}</h2>
+	<div class="overview">
+		<div class="left-photo">
+		</div>
+		<div class="mission" v-html="t('mission')">
+		</div>
+		<div class="features" v-html="t('features')">
+		</div>
+		<div class="right-photo">
+		</div>
+	</div>
+	<p class="goto">
+		<a v-if="state.user === null" class="btn high" href="/api/session/login">{{ t('login') }}</a>
+		<router-link v-else class="btn high" :to="{name: 'workspaces'}">{{ t('toprojects') }}</router-link>
+	</p>
+</div>

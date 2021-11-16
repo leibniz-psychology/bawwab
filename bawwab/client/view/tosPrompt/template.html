@@ -1,0 +1,12 @@
+<modal :title="t('welcome')" icon="file-alt" :closeName="t('close')" :closeLink="{name: 'index'}" :scaling="true" class="tosprompt">
+	<p>{{ t('acceptToContinue') }}</p>
+	<ul class="accept">
+		<li v-for="term of termsForCurrentLanguage">
+			<input type="checkbox" :id="`accept-${term.id}`" v-model="checkedTerms" :value="term.id">&nbsp;
+			<label :for="`accept-${term.id}`" v-html="acceptText (term.kind)"></label>
+		</li>
+	</ul>
+	<template v-slot:buttons>
+		<action-button :f="cont" importance="high" :disabled="!accepted" icon="check">{{ t('accept') }}</action-button>
+	</template>
+</modal>

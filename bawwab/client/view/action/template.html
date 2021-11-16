@@ -1,0 +1,5 @@
+<div>
+	<h2>{{ t('headline') }}</h2>
+	<p v-if="running">{{ t('pleasewait') }} <spinner></spinner></p>
+	<p v-else>{{ t(message) }}</p>
+</div>

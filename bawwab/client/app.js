@@ -236,16 +236,16 @@ router.beforeEach (async function (to, from) {
 app.use (router);
 
 /* register components with this app */
-import ActionButtonComponent from './component/actionButton.js';
-import FooterComponent from './component/footer.js';
-import LanguageSwitcherComponent from './component/languageSwitcher.js';
-import LoginComponent from './component/login.js';
-import MessageComponent from './component/message.js';
-import ModalComponent from './component/modal.js';
-import SpinnerComponent from './component/spinner.js';
-import CommonmarkComponent from './component/commonmark.js';
-import DropdownComponent from './component/dropdown.js';
-import { ApplicationIconComponent, ApplicationItemComponent } from './component/application.js';
+import ActionButtonComponent from './component/actionButton';
+import FooterComponent from './component/footer';
+import LanguageSwitcherComponent from './component/languageSwitcher';
+import LoginComponent from './component/login';
+import MessageComponent from './component/message';
+import ModalComponent from './component/modal';
+import SpinnerComponent from './component/spinner';
+import CommonmarkComponent from './component/commonmark';
+import DropdownComponent from './component/dropdown';
+import { ApplicationIconComponent, ApplicationItemComponent } from './component/application';
 app.component ('action-button', ActionButtonComponent);
 app.component ('dynamic-footer', FooterComponent);
 app.component ('language-switcher', LanguageSwitcherComponent);

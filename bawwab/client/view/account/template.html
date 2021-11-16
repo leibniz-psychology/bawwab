@@ -1,0 +1,35 @@
+<div>
+	<h2>{{ t('headline') }}</h2>
+	<dl>
+		<dt>{{ t('name') }}</dt>
+		<dd>{{ oauthInfo.given_name }} {{ oauthInfo.family_name }}</dd>
+
+		<dt>{{ t('email') }}</dt>
+		<dd><a :href="mailto(oauthInfo.email)">{{ oauthInfo.email }}</a></dd>
+
+		<dt>{{ t('unixaccount') }}</dt>
+		<dd v-if="state.user">{{ state.user.name }}</dd>
+		<dd v-else>–</dd>
+	</dl>
+	<h3>{{ t('settings') }}</h3>
+	<div class="settings-checkboxes">
+		<div>
+			<input id="autocopy" type="checkbox" name="autocopy" v-model="autocopySharedReadOnly">
+			<label for="autocopy">{{ t('autoCopyReadOnlyShared') }}</label>
+		</div>
+		<div>
+			<input id="read-only-not-again" type="checkbox" name="read-only-not-again" v-model="dontShowSharedReadOnlyPopUp">
+			<label for="read-only-not-again">{{ t('dontShowReadOnlySharedPopUp') }}</label>
+		</div>
+		<div>
+			<input id="write-access-not-again" type="checkbox" name="write-access-not-again" v-model="dontShowSharedWriteAccessPopUp">
+			<label for="write-access-not-again">{{ t('dontShowSharedWriteAccessPopUp') }}</label>
+		</div>
+	</div>
+	<div v-if="canDelete">
+		<h3>{{ t('delete') }}</h3>
+		<p>
+			<router-link class="btn" :to="{name: 'accountDelete'}"><i class="fas fa-trash"></i> {{ t('delete') }}</router-link>
+		</p>
+	</div>
+</div>

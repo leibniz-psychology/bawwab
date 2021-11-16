@@ -31,6 +31,7 @@ class Esbuild (Command):
 				'--loader:.jpg=file',
 				'--loader:.svg=file',
 				'--loader:.md=text',
+				'--loader:.html=text',
 				# We support:
 				# Chrome: Last three versions. No LTS release.
 				# Edge: Last three versions.

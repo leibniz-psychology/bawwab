@@ -1,0 +1,3 @@
+<ul class="topline-nav">
+	<li v-for="l in languages"><a @click="switchTo(l)" :class="isActive(l)">{{ l }}</a></li>
+</ul>

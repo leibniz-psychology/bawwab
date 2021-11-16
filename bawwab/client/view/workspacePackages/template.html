@@ -1,0 +1,32 @@
+<modal :title="t('title')" icon="box" :closeName="t('close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="false">
+		<p v-html="t('description')"></p>
+		<div class="packageSearch">
+			<input type="search" :placeholder="t('searchPackage')" :disabled="busy" v-model="search">
+		</div>
+		<p v-if="searchFailed">{{ t('searchFailed') }}</p>
+		<p v-else-if="searching === true"><spinner></spinner></p>
+		<div class="packages" v-else-if="filteredPackages.length > 0">
+			<div v-for="ps of filteredPackages" class="package">
+				<div class="left">
+				<p><strong class="name">{{ ps.p.name }}</strong> <small class="version">{{ ps.p.version }}</small></p>
+				<p class="state">
+					<span v-if="ps.state.add">{{ t('packageStateAdd') }}</span>
+					<span v-else-if="ps.state.remove">{{ t('packageStateRemove') }}</span>
+					<span v-else-if="ps.state.installed">{{ t('packageStateInstalled') }}</span>
+					<action-button v-if="ps.state.add || ps.state.remove" icon="undo" :disabled="busy" :f="_ => undoPackageAction(ps)">{{ t('undo') }}</action-button>
+				</p>
+				<p v-if="ps.p.synopsis">{{ ps.p.synopsis }}</p>
+				</div>
+				<div class="right">
+				<action-button v-if="!ps.state.installed && !ps.state.add" icon="plus" :disabled="busy" :f="_ => addPackage(ps)">{{ t('addPackage') }}</action-button>
+				<!-- Package removal is disabled by request. -->
+				<action-button v-if="ps.state.installed && !ps.state.remove" icon="trash" :disabled="busy" :f="_ => removePackage(ps)">{{ t('removePackage') }}</action-button>
+				</div>
+			</div>
+		</div>
+		<p v-else>{{ t('nopackages') }}</p>
+	<template v-slot:buttons>
+		<action-button icon="check" :f="doPackageModify" :disabled="!haveModifications" :importance="haveModifications ? 'high' : 'low'">{{ t('apply', packageTransforms.length) }}</action-button>
+		<action-button icon="sync" :f="doPackageUpgrade" :disabled="busy" importance="medium">{{ t('upgrade') }}</action-button>
+	</template>
+</modal>

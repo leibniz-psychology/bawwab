@@ -1,0 +1,11 @@
+<modal icon="users" :title="t('headline')" :closeName="t('close')" :closeLink="{name: 'workspaces'}" :scaling="true">
+	<p>{{ t('description') }}</p>
+	<p>
+		<label for="importFiles" class="btn high" :disabled="busy">{{ t('fromfile') }}</label>
+		<input type="file" id="importFiles" @change="validate" :disabled="busy" style="display: none">
+		{{ selectedFile?.name }}
+	</p>
+	<template v-slot:buttons>
+		<action-button icon="file-import" :f="run" importance="high" :disabled="selectedFile===null" class="submit">{{ t('submit') }}</action-button>
+	</template>
+</modal>

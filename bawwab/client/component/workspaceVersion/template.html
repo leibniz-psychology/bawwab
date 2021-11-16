@@ -1,0 +1,37 @@
+<div>
+	<p v-if="nonexistent || !archives">{{ t('nonexistent') }}</p>
+	<div class="versions" v-else>
+	<table>
+		<thead>
+			<tr>
+				<th class="select"><input type="checkbox" v-model="selectAll"></th>
+				<th colspan="3">
+					<action-button v-if="editable.length > 0" :f="rename" icon="save" importance="low" class="save">{{ t('save') }}</action-button>
+					<action-button v-else :f="makeEditable" icon="edit" importance="low" :disabled="noElementSelected">{{ t('edit') }}</action-button>
+					<action-button :f="removeSelected" icon="trash" importance="low" :disabled="noElementSelected">{{ t('delete') }}</action-button>
+					<action-button :f="restoreSelected" icon="undo" importance="low" :disabled="restoreDisabled">{{ t('restore') }}</action-button>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+		<tr v-for="v of archives">
+			<!-- Use the name from the original object (i.e. underscore), so editing the input won’t change this identifier -->
+			<td class="select"><input v-model="selected" type="checkbox" name="selected" :value="v._.name"></td>
+			<td class="date"><ago :date="v.date"></ago></td>
+			<td class="name">
+				<template v-if="editable.includes (v._.name)">
+					<input v-model="v.name" class="name" required :placeholder="t('namePlaceholder')"><br>
+				</template>
+				<template v-else>
+					{{ renameAuto (v.name) }} <i class="fas fa-check" v-if="highlight == v.name"></i>
+				</template>
+			</td>
+			<td class="comment">
+				<input v-if="editable.includes (v._.name)" v-model="v.comment" class="comment" :placeholder="t('commentPlaceholder')">
+				<span v-else-if="v.comment">{{ v.comment }}</span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	</div>
+</div>
