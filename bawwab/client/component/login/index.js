@@ -1,22 +1,11 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import template from './template.html';
 
 export default {
 	name: 'Login',
     props: ['session'],
-	data: _ => ({strings: translations ({
-		de: {
-			'login': 'Anmelden',
-			'logout': 'Abmelden',
-			'account': 'Benutzerkonto',
-			},
-		en: {
-			'login': 'Login',
-			'logout': 'Logout',
-			'account': 'Account',
-			}})}),
+	data: _ => ({
+	}),
     template: template,
-	mixins: [i18nMixin],
 	computed: {
 		authenticated: function () {
 			return this.session && this.session.authenticated ();

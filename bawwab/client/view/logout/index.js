@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import template from './template.html';
 
@@ -7,18 +6,6 @@ export default {
 	template: template,
 	data: _ => ({
 		done: false,
-		strings: translations({
-			'de': {
-				'logout': 'Abmelden',
-				'done': 'Du wurdest von PsychNotebook abgemeldet.',
-				'ssologout': 'Vom Single-Sign-On abmelden',
-				},
-			'en': {
-				'logout': 'Logout',
-				'done': 'You have been logged off from PsychNotebook.',
-				'ssologout': 'Log off from single-sign-on as well',
-				},
-			}),
 		}),
 	computed: {
 		ssoLogoutUrl: function () {
@@ -36,5 +23,4 @@ export default {
 		await store.init ();
 		this.done = true;
 	},
-	mixins: [i18nMixin],
 };

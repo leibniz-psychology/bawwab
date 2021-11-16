@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { ref } from 'vue/dist/vue.esm-bundler.js';
 import template from './template.html';
 
@@ -11,74 +10,13 @@ const nowInterval = setInterval (function () { now.value = new Date (); }, 60*10
 export default {
 	name: 'naturalAgo',
 	props: ['date'],
-	data: _ => ({
-		strings: translations ({
-			de: {
-				'now': 'eben gerade',
-				'minutes': [
-					[0, 0, 'vor %n Minuten'],
-					[1, 1, 'vor %n Minute'],
-					[2, null, 'vor %n Minuten'],
-					],
-				'hours': [
-					[0, 0, 'vor %n Stunden'],
-					[1, 1, 'vor %n Stunde'],
-					[2, null, 'vor %n Stunden'],
-					],
-				'days': [
-					[0, 0, 'vor %n Tagen'],
-					[1, 1, 'gestern'],
-					[2, null, 'vor %n Tagen'],
-					],
-				'weeks': [
-					[0, 0, 'vor %n Wochen'],
-					[1, 1, 'letzte Woche'],
-					[2, null, 'vor %n Wochen'],
-					],
-				'months': [
-					[0, 0, 'vor %n Monaten'],
-					[1, 1, 'letzten Monat'],
-					[2, null, 'vor %n Monaten'],
-					],
-				},
-			en: {
-				'now': 'just now',
-				'minutes': [
-					[0, 0, '%n minutes ago'],
-					[1, 1, '%n minute ago'],
-					[2, null, '%n minutes ago'],
-					],
-				'hours': [
-					[0, 0, '%n hours ago'],
-					[1, 1, '%n hour ago'],
-					[2, null, '%n hours ago'],
-					],
-				'days': [
-					[0, 0, '%n days ago'],
-					[1, 1, 'yesterday'],
-					[2, null, '%n days ago'],
-					],
-				'weeks': [
-					[0, 0, '%n weeks ago'],
-					[1, 1, 'last week'],
-					[2, null, '%n weeks ago'],
-					],
-				'months': [
-					[0, 0, '%n months ago'],
-					[1, 1, 'last month'],
-					[2, null, '%n months ago'],
-					],
-				},
-			}),
-	}),
-	mixins: [i18nMixin],
 	template: template,
 	computed: {
 		delta: function () {
 			return this.date ? now.value - this.date : null;
 		},
 		absdate: function () {
-			return Intl.DateTimeFormat (this.state.language,
+			return Intl.DateTimeFormat (this.$i18n.locale,
 					{timeStyle: 'full', dateStyle: 'full'}).format (this.date);
 		},
 	},
@@ -97,10 +35,10 @@ export default {
 			for (const [div, kind] of units) {
 				const value = Math.floor (d/div);
 				if (value >= 1) {
-					return this.t(kind, value);
+					return this.$tc('c.naturalAgo.' + kind, value);
 				}
 			}
-			return this.t('now');
+			return this.$t('now');
 		}
 	},
 };

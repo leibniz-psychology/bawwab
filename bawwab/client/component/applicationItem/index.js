@@ -1,33 +1,23 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import template from './template.html';
 
 export default {
 	name: 'ApplicationItem',
     props: ['workspace', 'application'],
-	mixins: [i18nMixin],
 	data: _ => ({
 		state: store.state,
-		strings: translations({
-			de: {
-				'run': 'Starten',
-				},
-			en: {
-				'run': 'Run',
-				},
-			}),
 		}),
     template: template,
 	computed: {
 		name() {
-			let name = this.application[`name[${this.language}]`];
+			let name = this.application[`name[${this.$i18n.locale}]`];
 			if (!name) {
 				name = this.application.name;
 			}
 			return name;
 		},
 		description() {
-			let desc = this.application[`description[${this.language}]`];
+			let desc = this.application[`description[${this.$i18n.locale}]`];
 			if (!desc) {
 				desc = this.application.description;
 			}

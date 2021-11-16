@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import { queryParamProp } from '../../utils.js';
 import Workspace from '../../workspace.js';
@@ -11,54 +10,7 @@ export default {
 	data: _ => ({
 		state: store.state,
 		name: '',
-		strings: translations({
-			de: {
-				'copyname': 'Kopie von %{name}', /* name after copying a project */
-				'projects': 'Projekte',
-				'description': 'Hier können Projekte eingerichtet und aufgerufen werden. Projekte sind Sammlungen von Analyseskripten, Daten und anderen Materialien.',
-				'projectname': 'Projektname',
-				'create': 'Neues Projekt',
-				'share': 'Teilen',
-				'copy': 'Kopieren',
-				'delete': 'Löschen',
-				'publish': 'Veröffentlichen',
-				'export': 'Exportieren',
-				'manage': 'Pakete verwalten',
-				'unnamed': 'Unbenanntes Projekt',
-				'myprojects': 'Meine Projekte',
-				'sharedprojects': 'Geteilte Projekte',
-				'publicprojects': 'Öffentliche Projekte',
-				'thtitle': 'Titel',
-				'thdescription': 'Beschreibung',
-				'thapplications': 'Anwendungen',
-				'thactions': 'Aktionen',
-				'import': 'Projekt importieren',
-				},
-			en: {
-				'copyname': 'Copy of %{name}', /* name after copying a project */
-				'projects': 'Projects',
-				'description': 'Projects can be set up and accessed here. Projects are collections of analysis scripts, data, and other materials.',
-				'projectname': 'Project name',
-				'create': 'New project',
-				'share': 'Share',
-				'copy': 'Copy',
-				'delete': 'Delete',
-				'publish': 'Publish',
-				'export': 'Export',
-				'manage': 'Manage packages',
-				'unnamed': 'Unnamed project',
-				'myprojects': 'My projects',
-				'sharedprojects': 'Shared projects',
-				'publicprojects': 'Public projects',
-				'thtitle': 'Title',
-				'thdescription': 'Description',
-				'thapplications': 'Applications',
-				'thactions': 'Actions',
-				'import': 'Import project',
-				},
-			}),
 		}),
-	mixins: [i18nMixin],
 	mounted: function () {
 	},
 	computed: {

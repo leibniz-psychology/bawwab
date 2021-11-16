@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import { getResponse } from '../../helper.js';
 import Workspace from '../../workspace.js';
@@ -12,22 +11,6 @@ export default {
 		running: true,
 		message: null,
 		state: store.state,
-		strings: translations({
-			'de': {
-				'headline': 'Aktion ausführen',
-				'pleasewait': 'Einen Moment bitte…',
-				'done': 'Ausgeführt!',
-				'expired': 'Die Aktion ist nicht mehr gültig.',
-				'not_found': 'Die Aktion existiert nicht.',
-				},
-			'en': {
-				'headline': 'Run action',
-				'pleasewait': 'Just a second…',
-				'done': 'Done!',
-				'expired': 'This action has expired.',
-				'not_found': 'The action does not exist.',
-				},
-			}),
 		}),
 	created: async function () {
 		await this.state.ready.wait ();
@@ -46,7 +29,7 @@ export default {
 	 				const ret = await p.wait ();
 	 				if (ret == 0) {
 						this.state.workspaces.add (newws);
-	 					this.message = 'done';
+						this.message = 'v.action.done';
 	 					await this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
 	 				} else {
 	 					throw Error ('unhandled');
@@ -64,12 +47,11 @@ export default {
 				console.debug ('unauthicanted, going to %o', url.toString ());
 				document.location = url.toString ();
 			} else {
-				this.message = e.message;
+				this.message = 'v.action.' + e.message;
 			}
 	    } finally {
 	 	   this.running = false;
 	    }
 	},
-	mixins: [i18nMixin],
 };
 

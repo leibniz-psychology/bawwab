@@ -41,6 +41,11 @@ class Esbuild (Command):
 				f'--define:process.env.NODE_ENV=\"{node_env}\"',
 				'--define:__VUE_OPTIONS_API__=true',
 				'--define:__VUE_PROD_DEVTOOLS__=false',
+				# Configure vue-i18n.
+				'--define:__VUE_I18N_FULL_INSTALL__=true',
+				# For some reason we need the legacy API.
+				'--define:__VUE_I18N_LEGACY_API__=true',
+				'--define:__INTLIFY_PROD_DEVTOOLS__=false',
 				'--outdir=bawwab/assets/'] + extraOpts, check=True)
 
 setup(

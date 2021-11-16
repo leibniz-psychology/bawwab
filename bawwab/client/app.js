@@ -24,7 +24,6 @@ import EventManager from './eventManager.js';
 import ProcessManager from './processManager.js';
 import router from './routing.js';
 import Session from './session.js';
-import { translations, i18nMixin } from './i18n.js';
 import { getResponse } from './helper.js';
 import User from './user.js';
 import Workspaces from './workspaces.js';
@@ -65,8 +64,6 @@ export const store = {
 		workspaces: null,
 		borg: null,
 		settings: null,
-		/* current language */
-		language: 'en',
 		/* cache for terms of service. Hash prefix is reserved for private
 		 * props. */
 		'#termsOfService': null,
@@ -165,20 +162,6 @@ const app = createApp ({
     data: _ => ({
 		state: store.state,
 		loading: true,
-		strings: translations ({
-			de: {
-				'nav.projects': 'Projekte',
-				'loading': 'Einen Moment bitte…',
-				'locked': 'Dein Benutzerkonto ist zurzeit gesperrt. Bitte melde Dich per E-Mail bei <a href="mailto:%{mail}">%{mail}</a>.',
-				'help': 'Hilfe',
-				},
-			en: {
-				'nav.projects': 'Projects',
-				'loading': 'Just a second…',
-				'locked': 'Your account is locked right now. Please contact <a href="mailto:%{mail}">%{mail}</a> via email.',
-				'help': 'Help',
-			},
-		}),
 		}),
     created: async function () {
 		try {
@@ -217,7 +200,6 @@ const app = createApp ({
 			document.documentElement.className = 'magenta ' + this.htmlClass;
 		}},
 	},
-	mixins: [i18nMixin],
 });
 
 router.onError (function (err) {
@@ -234,6 +216,9 @@ router.beforeEach (async function (to, from) {
 	return true;
 });
 app.use (router);
+
+import i18n from './i18n';
+app.use (i18n);
 
 /* register components with this app */
 import ActionButtonComponent from './component/actionButton';

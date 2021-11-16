@@ -1,36 +1,36 @@
 <div class="workspace-list">
-	<h2>{{ t('projects') }}</h2>
+	<h2>{{ $t('v.workspaceList.projects') }}</h2>
 	<div class="actionbar" v-if="!disabled">
 		<div class="left" style="max-width: 50em">
-			<p>{{ t('description') }}</p>
+			<p>{{ $t('v.workspaceList.description') }}</p>
 		</div>
 		<div class="right">
-			<router-link class="btn low" :to="{name: 'workspaceImport'}"><i class="fas fa-file-import"></i> {{ t('import') }}</router-link>
-			<action-button icon="plus-square" :f="createWorkspace" importance="high">{{ t('create') }}</action-button>
+			<router-link class="btn low" :to="{name: 'workspaceImport'}"><i class="fas fa-file-import"></i> {{ $t('v.workspaceList.import') }}</router-link>
+			<action-button icon="plus-square" :f="createWorkspace" importance="high">{{ $t('v.workspaceList.create') }}</action-button>
 		</div>
 	</div>
 	<form class="filter">
 	<!--<input type="search" id="filtersearch" v-model="filtertext">-->
 	<div>
 		<input type="radio" name="filter" value="mine" id="filtermine" v-model="filter">
-		<label for="filtermine">{{ t('myprojects') }}</label>
+		<label for="filtermine">{{ $t('v.workspaceList.myprojects') }}</label>
 	</div>
 	<div>
 		<input type="radio" name="filter" value="shared" id="filtershared" v-model="filter">
-		<label for="filtershared">{{ t('sharedprojects') }}</label>
+		<label for="filtershared">{{ $t('v.workspaceList.sharedprojects') }}</label>
 	</div>
 	<div>
 		<input type="radio" name="filter" value="world" id="filterworld" v-model="filter">
-		<label for="filterworld">{{ t('publicprojects') }}</label>
+		<label for="filterworld">{{ $t('v.workspaceList.publicprojects') }}</label>
 	</div>
 	</form>
 	<table class="workspaces pure-table pure-table-striped pure-table-horizontal" v-if="filteredWorkspaces.length > 0">
 	<thead>
 		<tr>
-			<th class="title">{{ t('thtitle') }}</th>
-			<th class="description">{{ t('thdescription') }}</th>
-			<th class="applications">{{ t('thapplications') }}</th>
-			<th class="actions">{{ t('thactions') }}</th>
+			<th class="title">{{ $t('v.workspaceList.thtitle') }}</th>
+			<th class="description">{{ $t('v.workspaceList.thdescription') }}</th>
+			<th class="applications">{{ $t('v.workspaceList.thapplications') }}</th>
+			<th class="actions">{{ $t('v.workspaceList.thactions') }}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -38,7 +38,7 @@
 		<td class="title">
 			<router-link :to="{name: 'workspace', params: {wsid: w.metadata._id}}">
 				<span v-if="w.metadata.name">{{ w.metadata.name }}</span>
-				<span v-else class="placeholder">{{ t('unnamed') }}</span>
+				<span v-else class="placeholder">{{ $t('v.workspaceList.unnamed') }}</span>
 			</router-link>
 		</td>
 		<td class="description">
@@ -60,15 +60,15 @@
 			<ul class="actions-container" v-if="w.getPermissions (this.username)[0].canShare ()">
 				<li class="action-container">
 					<router-link class="action-button btn small" :to="{name: 'workspaceShare', params: {wsid: w.metadata._id}}" aria-label="share"><i class="fas fa-share"></i></router-link>
-					<span class="action-tooltip popup">{{ t('share') }}</span>
+					<span class="action-tooltip popup">{{ $t('v.workspaceList.share') }}</span>
 				</li>
 				<li class="action-container">
 					<action-button class="action-button btn small" icon="copy" :f="() => copy(w)" aria-label="copy"></action-button>
-					<span class="action-tooltip popup">{{ t('copy') }}</span>
+					<span class="action-tooltip popup">{{ $t('v.workspaceList.copy') }}</span>
 				</li>
 				<li class="action-container">
 					<router-link class="action-button btn small" :to="{name: 'workspaceDelete', params: {wsid: w.metadata._id}}" aria-label="delete"><i class="fas fa-trash"></i></router-link>
-					<span class="action-tooltip popup">{{ t('delete') }}</span>
+					<span class="action-tooltip popup">{{ $t('v.workspaceList.delete') }}</span>
 				</li>
 				<li><dropdown>
 					<template v-slot:button>
@@ -77,13 +77,13 @@
 					<template v-slot:default>
 						<ul>
 							<li><router-link class="btn small" :to="{name: 'workspacePublish', params: {wsid: w.metadata._id}}">
-								<i class="fas fa-globe"></i> {{ t('publish') }}
+								<i class="fas fa-globe"></i> {{ $t('v.workspaceList.publish') }}
 							</router-link></li>
 							<li><router-link class="btn small" :to="{name: 'workspaceExport', params: {wsid: w.metadata._id}}">
-								<i class="fas fa-file-export"></i> {{ t('export') }}
+								<i class="fas fa-file-export"></i> {{ $t('v.workspaceList.export') }}
 							</router-link></li>
 							<li><router-link class="btn small" :to="{name: 'workspacePackages', params: {wsid: w.metadata._id}}">
-								<i class="fas fa-box"></i> {{ t('manage') }}
+								<i class="fas fa-box"></i> {{ $t('v.workspaceList.manage') }}
 							</router-link></li>
 						</ul>
 					</template>

@@ -53,9 +53,9 @@
         <nav id="main-nav">
           <ul>
             <li>
-              <router-link :to="{name: 'workspaces'}">{{ t('nav.projects') }}</router-link>
+              <router-link :to="{name: 'workspaces'}">{{ $t('app.projects') }}</router-link>
             </li>
-			<li><router-link :to="{name: 'faq'}">{{ t('help') }}</router-link></li>
+			<li><router-link :to="{name: 'faq'}">{{ $t('app.help') }}</router-link></li>
             <login-item :session="state.session"></login-item>
           </ul>
         </nav>
@@ -78,9 +78,9 @@
         <div class="wrapped pure-g">
           <div class="pure-u-1">
             <main>
-				<message v-if="isLockedOut" kind="warning"><span v-html="t('locked', {mail: supportMail})"></span></message>
+				<message v-if="isLockedOut" kind="warning"><span v-html="$t('app.locked', {mail: supportMail})"></span></message>
 				<message v-if="motd" kind="info"><pre>{{ motd }}</pre></message>
-				<p style="text-align: center" v-if="loading">{{ t('loading') }}<br><spinner :big="true"></spinner></p>
+				<p style="text-align: center" v-if="loading">{{ $t('app.loading') }}<br><spinner :big="true"></spinner></p>
 				<router-view v-else></router-view>
             </main>
           </div>

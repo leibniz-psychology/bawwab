@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import template from './template.html';
 
@@ -12,25 +11,7 @@ export default {
 		/* share url for reading (false), writing (true) */
 		shareUrl: {false: null, true: null},
 		selectedShareUrl: false,
-
-		strings: translations({
-			de: {
-				'title': 'Projekt veröffentlichen',
-				'cancel': 'Abbrechen',
-				'explain': 'Öffentliche Projekte können von allen Nutzern kopiert werden. Die Veröffentlichung eines Projekts kann rückgängig gemacht werden, Kopien anderer Nutzer bleiben davon unberührt.',
-				'sharepublic': 'Projekt veröffentlichen',
-				'unsharepublic': 'Veröffentlichung widerrufen',
-				},
-			en: {
-				'title': 'Publish project',
-				'cancel': 'Cancel',
-				'explain': 'Public projects can be copied by all users. It is possible to edit and retract published projects but copies made by other users will remain unaffected.',
-				'sharepublic': 'Enable public access',
-				'unsharepublic': 'Revoke public access',
-				},
-			}),
 	}),
-	mixins: [i18nMixin],
 	computed: {
 		workspaces: function () { return this.state.workspaces; },
 		workspace: function () {

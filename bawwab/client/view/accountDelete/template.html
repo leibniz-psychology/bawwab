@@ -1,6 +1,6 @@
-<modal icon="trash" :title="t('delete')" :closeName="t('cancel')" :closeLink="{name: 'account'}" :scaling="true">
-	<p>{{ t('deletequestion') }}</p>
+<modal icon="trash" :title="$t('v.accountDelete.delete')" :closeName="$t('v.accountDelete.cancel')" :closeLink="{name: 'account'}" :scaling="true">
+	<p>{{ $t('v.accountDelete.deletequestion') }}</p>
 	<template v-slot:buttons>
-		<action-button :f="deleteAccount" icon="trash" importance="high">{{ t('dodelete') }}</action-button>
+		<action-button :f="deleteAccount" icon="trash" importance="high">{{ $t('v.accountDelete.dodelete') }}</action-button>
 	</template>
 </modal>

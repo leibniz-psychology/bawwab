@@ -1,12 +1,12 @@
 <li v-if="session === null || !session.authenticated ()">
-<a href="/api/session/login">{{ t('login') }}</a></li>
+<a href="/api/session/login">{{ $t('c.login.login') }}</a></li>
 <li v-else>
 	<dropdown class="usermenu">
 		<template v-slot:button><span class="initials">{{ initials }} <i class="fas fa-caret-down"></i></span></template>
 		<template v-slot:default>
 			<ul>
-				<li><router-link :to="{name: 'account'}">{{ t('account') }}</router-link></li>
-				<li><router-link :to="{name: 'logout'}">{{ t('logout') }}</router-link></li>
+				<li><router-link :to="{name: 'account'}">{{ $t('c.login.account') }}</router-link></li>
+				<li><router-link :to="{name: 'logout'}">{{ $t('c.login.logout') }}</router-link></li>
 			</ul>
 		</template>
 	</dropdown>

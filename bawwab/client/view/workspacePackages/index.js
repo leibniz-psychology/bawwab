@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import { queryParamProp, CancelledError } from '../../utils.js';
 import template from './template.html';
@@ -17,50 +16,7 @@ export default {
 		defaultPackageFilter: ['add', 'remove'],
 		/* Currently applying changes */
 		busy: false,
-		strings: translations ({
-			de: {
-				'apply': [
-					[0, 0, 'Keine Änderungen'],
-					[1, 1, '%n Änderung anwenden'],
-					[2, null, '%n Änderungen anwenden'],
-					],
-				'undo': 'Rückgängig',
-				'packageStateInstalled': 'Installiert',
-				'packageStateAdd': 'Wird hinzugefügt',
-				'packageStateRemove': 'Wird entfernt',
-				'removePackage': 'Entfernen',
-				'addPackage': 'Installieren',
-				'searchPackage': 'Paket suchen',
-				'upgrade': 'Alle Pakete aktualisieren',
-				'close': 'Schließen',
-				'title': 'Pakete verwalten',
-				'nopackages': 'Keine Pakete gefunden',
-				'description': 'Hier können Pakete zum Projekt hinzugefügt werden. Um das R-Paket <em>beispiel</em> zu suchen, verwende <kbd>^r-beispiel</kbd>.',
-				'searchFailed': 'Die Suche ist fehlgeschlagen. Bitte versuche es erneut.',
-				},
-			en: {
-				'apply': [
-					[0, 0, 'No changes'],
-					[1, 1, 'Apply %n change'],
-					[2, null, 'Apply %n changes'],
-					],
-				'undo': 'Undo',
-				'packageStateInstalled': 'Installed',
-				'packageStateAdd': 'Will be added',
-				'packageStateRemove': 'Will be removed',
-				'removePackage': 'Remove',
-				'addPackage': 'Install',
-				'searchPackage': 'Search package',
-				'upgrade': 'Upgrade all packages',
-				'close': 'Close',
-				'title': 'Manage packages',
-				'nopackages': 'No packages found',
-				'description': 'Here you can add packages to your project. Use <kbd>^r-package</kbd> to search for R packages only.',
-				'searchFailed': 'The search failed. Please try again.',
-				},
-			}),
 	}),
-	mixins: [i18nMixin],
     template: template,
 	beforeRouteLeave: async function (to, from) {
 		if (this.cancel) {

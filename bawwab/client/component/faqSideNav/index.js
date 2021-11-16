@@ -1,4 +1,3 @@
-import {i18nMixin, translations} from '../../i18n.js';
 import {Parser} from "commonmark";
 import template from './template.html';
 
@@ -11,16 +10,7 @@ export default {
 		hideNav: true,
 		subListShown: new Set (),
 		/* application strings */
-		strings: translations({
-			de: {
-				toc: "Inhaltsverzeichnis",
-			},
-			en: {
-				toc: "Table of Contents"
-			},
-		}),
 	}),
-	mixins: [i18nMixin],
 	computed: {
 		quickNavigator: function () {
 			return document.getElementById("quick-navigator");

@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import { nextTick } from 'vue/dist/vue.esm-bundler.js';
 import { copy } from "../../workspaceUtil";
@@ -12,60 +11,7 @@ export default {
 	data: _ => ({
 		state: store.state,
 		editable: false,
-		strings: translations({
-			de: {
-				'nonexistent': 'Projekt existiert nicht.',
-				'copyname': 'Kopie von %{name}', /* name after copying a project */
-				'save': 'Speichern',
-				'cancel': 'Verwerfen',
-				'edit': 'Bearbeiten',
-				'share': 'Teilen',
-				'publish': 'Veröffentlichen',
-				'export': 'Exportieren',
-				'copy': 'Kopieren',
-				'delete': 'Löschen',
-				'hide': 'Verbergen',
-				'back': 'Zurück zur Übersicht',
-				'projectname': 'Name des Projekts',
-				'sharedwith': 'Geteilt mit Gruppen',
-				'publicproject': 'Öffentliches Projekt',
-				'ownedby': 'Gehört',
-				'projectdescription': 'Beschreibung des Projekts',
-				'readonly': 'nur Lesen',
-				'readwrite': 'Lesen und Schreiben',
-				'noaccess': 'kein Zugriff',
-				'noTitle': 'Klicken, um einen Titel hinzuzufügen',
-				'noDescription': 'Klicken, um eine Beschreibung hinzuzufügen.',
-				'editpackages': 'Pakete verwalten',
-				},
-			en: {
-				'nonexistent': 'Project does not exist.',
-				'copyname': 'Copy of %{name}', /* name after copying a project */
-				'save': 'Save',
-				'cancel': 'Cancel',
-				'edit': 'Edit',
-				'share': 'Share',
-				'publish': 'Publish',
-				'export': 'Export',
-				'copy': 'Copy',
-				'delete': 'Delete',
-				'hide': 'Hide',
-				'back': 'Back to projects',
-				'projectname': 'Name of the project',
-				'sharedwith': 'Shared with',
-				'publicproject': 'Public project',
-				'ownedby': 'Owned by',
-				'projectdescription': 'Description of the project',
-				'readonly': 'read-only',
-				'readwrite': 'read and write',
-				'noaccess': 'no access',
-				'noTitle': 'Click to add a title',
-				'noDescription': 'Click to add a description.',
-				'editpackages': 'Manage packages',
-				},
-			}),
 	}),
-	mixins: [i18nMixin],
 	mounted: async function () {
 		if (!this.workspace || this.isOwnWorkspace) {
 			return;
@@ -162,11 +108,11 @@ export default {
 			const canRead = p.canRead ();
 			const canWrite = p.canWrite ();
 			if (canRead && canWrite) {
-				return this.t('readwrite');
+				return this.$t('v.workspaceShow.readwrite');
 			} else if (canRead) {
-				return this.t('readonly');
+				return this.$t('v.workspaceShow.readonly');
 			}
-			return this.t('noaccess');
+			return this.$t('v.workspaceShow.noaccess');
 		},
 	}
 };

@@ -5,18 +5,19 @@ import template from './template.html';
 
 export default {
 	name: 'LanguageSwitcher',
+	/* XXX: remove languages prop */
 	props: ['state', 'languages'],
 	template: template,
 	methods: {
 		switchTo: function (l) {
-			if (this.languages.includes (l)) {
+			if (this.$i18n.availableLocales.includes (l)) {
 				console.debug ('switching to language', l);
-				this.state.language = l;
+				this.$i18n.locale = l;
 				window.localStorage.setItem('language', l);
 			}
 		},
 		isActive: function (l) {
-			if (this.state.language == l) {
+			if (this.$i18n.locale == l) {
 				return 'active';
 			} else {
 				return '';

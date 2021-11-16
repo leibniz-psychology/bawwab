@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store, config } from '../../app.js';
 import template from './template.html';
 
@@ -11,24 +10,7 @@ export default {
 		path: [],
 		busy: false,
 		selectedFile: null,
-		strings: translations({
-			de: {
-				'close': 'Abbrechen',
-				'headline': 'Projekt importieren',
-				'fromfile': 'Datei wählen',
-				'description': 'Hier können Projekte, die zuvor aus dem Notebook exportiert wurden, wieder importiert werden. Der Import kann einige Minuten in Anspruch nehmen.',
-				'submit': 'Importieren',
-				},
-			en: {
-				'close': 'Cancel',
-				'headline': 'Import project',
-				'fromfile': 'Select file',
-				'description': 'Here you can import projects that were previously exported from the notebook. The process may take a few minutes.',
-				'submit': 'Import',
-				},
-			}),
 	}),
-	mixins: [i18nMixin],
 	methods: {
 		/* cannot make this reactive (i.e. computed method) for some reason */
 		validate: function (e) {

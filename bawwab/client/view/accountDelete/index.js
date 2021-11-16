@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import template from './template.html';
 
@@ -7,22 +6,6 @@ export default {
 	template: template,
 	data: _ => ({
 		state: store.state,
-		/* application strings */
-		strings: translations ({
-			de: {
-				'delete': 'Benutzerkonto löschen',
-				'deletequestion': 'Möchtest Du Dein Benutzerkonto und alle gespeicherten Daten wirklich löschen? Die Aktion kann nicht rückgängig gemacht werden.',
-				'dodelete': 'Unwiderruflich löschen',
-				'cancel': 'Abbrechen',
-				},
-			en: {
-				'headline': 'My account',
-				'delete': 'Delete account',
-				'deletequestion': 'Do you want to delete your account and all data? This cannot be undone.',
-				'dodelete': 'Delete permanently',
-				'cancel': 'Cancel',
-				},
-			}),
 	}),
 	methods: {
 		deleteAccount: async function () {
@@ -38,6 +21,5 @@ export default {
 			}
 		}
 	},
-	mixins: [i18nMixin],
 };
 

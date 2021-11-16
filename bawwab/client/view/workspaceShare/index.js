@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import { postData } from '../../helper.js';
 import { queryParamProp } from '../../utils.js';
@@ -30,49 +29,7 @@ export default {
 
 		/* for the template */
 		SendStatus: SendStatus,
-
-		strings: translations({
-			de: {
-				'sharetitle': 'Projekt teilen',
-				'share': 'Teilen',
-				'close': 'Schließen',
-				'copy': 'Link kopieren',
-				'sendmail': 'E-Mail verschicken',
-				'read': 'Nur Lesen',
-				'readMeaning': 'Der Benutzer kann das Projekt nur kopieren.',
-				'write': 'Schreibzugriff',
-				'writeMeaning': 'Der Benutzer kann das Projekt kopieren, Anwendungen starten und alle Daten ändern oder löschen. Bitte beachte, dass diese Funktion noch experimentell ist und der gleichzeitige Zugriff mehrerer Benutzer Probleme verursachen kann.',
-				'sharelink': 'Teile den folgenden Link',
-				'quotareached': 'Du hast das Sendelimit erreicht und kannst heute keine weiteren E-Mails verschicken.',
-				'preview': 'Vorschau',
-				'messagePlaceholder': 'Deine Nachricht',
-				'messageLabel': 'Nachricht',
-				'nameLabel': 'Name (optional)',
-				'emailPlaceholder': 'max@example.com oder Max Muster <max@example.com>, …',
-				'emailInstruct': 'Bitte gib unten E-Mail-Adresse und Namen des Empfängers, sowie Deine Nachricht ein.',
-				},
-			en: {
-				'sharetitle': 'Share project',
-				'share': 'Share',
-				'close': 'Close',
-				'copy': 'Copy link',
-				'sendmail': 'Send e-mail',
-				'read': 'Read-only',
-				'readMeaning': 'The user can only copy this project.',
-				'write': 'Write access',
-				'writeMeaning': 'The user can copy the project, start applications and modify or delete all data. Please note that this feature is experimental and simultaneous access by multiple users may cause problems.',
-				'sharelink': 'Share the link below',
-				'quotareached': 'You’ve reached your email send quota. Please wait until tomorrow.',
-				'preview': 'Preview',
-				'messagePlaceholder': 'Your message',
-				'messageLabel': 'Message',
-				'nameLabel': 'Name (optional)',
-				'emailPlaceholder': 'john@example.com or Jane Doe <jane@example.com>, …',
-				'emailInstruct': 'Please enter email address and name of the recipient below, as well as your message.',
-				},
-			}),
 	}),
-	mixins: [i18nMixin],
 	computed: {
 		workspaces: function () { return this.state.workspaces; },
 		workspace: function () {
@@ -80,9 +37,9 @@ export default {
 		},
 		shareMeaning: function () {
 			if (!this.selectedShareUrl) {
-				return this.t ('readMeaning');
+				return this.$t ('v.workspaceShare.readMeaning');
 			} else {
-				return this.t ('writeMeaning');
+				return this.$t ('v.workspaceShare.writeMeaning');
 			}
 		},
 		modeLink: function () { return this.mode == 'link'; },
@@ -142,7 +99,7 @@ export default {
 					projectName: this.workspace.metadata.name,
 					message: this.emailMessage,
 					link: this.shareUrl[this.selectedShareUrl],
-					lang: this.language,
+					lang: this.$i18n.locale,
 					template: 'invite',
 					dryRun: dryRun,
 					});

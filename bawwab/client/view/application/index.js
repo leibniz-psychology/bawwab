@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store, config } from '../../app.js';
 import { ConductorState } from '../../conductor.js';
 import { BorgErrorNonexistent } from '../../borg.js';
@@ -13,36 +12,7 @@ export default {
 		state: store.state,
 		ConductorState: ConductorState,
 		autosaveTimer: null,
-		strings: translations({
-			de: {
-				'nonexistent': 'Anwendung existiert nicht.',
-				'nonexistentws': 'Projekt existiert nicht.',
-				'starting': 'Anwendung wird gestartet…',
-				'exited': 'Anwendung wurde beendet.',
-				'failed': 'Anwendung konnte nicht ausgeführt werden. (%{reason})',
-				'projects': 'Projekte',
-				'reset': 'Neustarten',
-				'stop': 'Beenden',
-				'needrestart': 'Die Änderungen am Projekt werden für diese Anwendung erst sichbar, wenn sie neugestartet wird.',
-				'busy': 'Das Projekt wird zurzeit aktualisiert. Die Anwendung kann erst danach gestartet werden.',
-				'createVersion': 'Sicherung erstellen',
-				},
-			en: {
-				'nonexistent': 'Application does not exist.',
-				'nonexistentws': 'Project does not exist.',
-				'starting': 'Starting application…',
-				'exited': 'Application finished.',
-				'failed': 'Application failed to run. (%{reason})',
-				'projects': 'Projects',
-				'reset': 'Restart',
-				'stop': 'Stop',
-				'needrestart': 'Changes made to the project apply to this application only after a restart.',
-				'busy': 'The project is being updated currently. This application can only be started afterwards.',
-				'createVersion': 'Create new version',
-				},
-		}),
 	}),
-	mixins: [i18nMixin],
 	components: {
 		'workspace-version': WorkspaceVersionComponent,
 	},

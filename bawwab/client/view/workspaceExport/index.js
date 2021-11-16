@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import template from './template.html';
 
@@ -11,36 +10,7 @@ export default {
 		kind: 'zip',
 		path: {},
 		supportedFormats: ['zip', 'tar+lzip'],
-		strings: translations({
-			de: {
-				'headline': 'Projekt exportieren',
-				'description': 'Hier kann das Projekt %{project} in unterschiedlichen Formaten exportiert werden.',
-				'kind-zip': 'ZIP-Archiv',
-				'description-zip': 'Enthält alle Dateien des Projekts.',
-				'kind-tar+lzip': 'LZIP-komprimierter Tarball',
-				'description-tar+lzip': 'Enthält alle Dateien des Projekts.',
-				'exportas': 'Exportieren als',
-				'submit': 'Exportieren',
-				'download': 'Herunterladen',
-				'notfound': 'Projekt existiert nicht.',
-				'back': 'Abbrechen',
-				},
-			en: {
-				'headline': 'Export project',
-				'description': 'Here you can export the project %{project} in different formats.',
-				'kind-zip': 'ZIP archive',
-				'description-zip': 'Contains all files of the project.',
-				'kind-tar+lzip': 'LZIP-compressed Tarball',
-				'description-tar+lzip': 'Contains all files of the project.',
-				'exportas': 'Export as',
-				'submit': 'Export',
-				'download': 'Download',
-				'notfound': 'Project does not exist.',
-				'back': 'Back',
-				},
-			}),
 	}),
-	mixins: [i18nMixin],
 	computed: {
 		workspaces: function () { return this.state.workspaces; },
 		workspace: function () {

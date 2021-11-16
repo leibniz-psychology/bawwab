@@ -1,4 +1,3 @@
-import { translations, i18nMixin } from '../../i18n.js';
 import { store } from '../../app.js';
 import template from './template.html';
 
@@ -7,29 +6,18 @@ export default {
 	props: ['status'],
 	template: template,
 	data: _ => ({
-		strings: translations({
-			'de': {
-				'login': 'Anmelden',
-				'status-failure': 'Die Anmeldung war nicht erfolgreich. Bitte versuche es noch einmal.',
-				'status-success': 'Angemeldet',
-				},
-			'en': {
-				'login': 'Login',
-				'status-failure': 'Login was not successful. Please try again.',
-				'status-success': 'Logged in',
-				},
-			}),
+		state: store.state
 		}),
 	computed: {
 		message: function () {
-			var m = this.t('status-' + this.status, this.t('status-failure'));
+			var m = this.$t('status-' + this.status);
 			return m;
 		},
 	},
 	created: async function () {
         const wsRoute = {name: 'workspaces'};
 		if (this.status == 'success') {
-            switch (store.state.user.loginStatus) {
+            switch (this.state.user.loginStatus) {
                 case 'success':
                     await this.$router.push (wsRoute);
                     break;
@@ -44,5 +32,4 @@ export default {
 			}
 		}
 	},
-	mixins: [i18nMixin],
 };
