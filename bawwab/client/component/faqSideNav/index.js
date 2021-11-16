@@ -1,11 +1,11 @@
 import {i18nMixin, translations} from '../../i18n.js';
-import docDE from "../../view/faq/faq-content-de.md";
-import docEN from "../../view/faq/faq-content-en.md";
 import {Parser} from "commonmark";
 import template from './template.html';
 
 export default {
 	name: 'FaqSideNav',
+	/* The markdown text to extract headings from */
+	props: ['text'],
 	template: template,
 	data: _ => ({
 		hideNav: true,
@@ -13,11 +13,9 @@ export default {
 		/* application strings */
 		strings: translations({
 			de: {
-				doc: docDE,
 				toc: "Inhaltsverzeichnis",
 			},
 			en: {
-				doc: docEN,
 				toc: "Table of Contents"
 			},
 		}),
@@ -30,7 +28,7 @@ export default {
 		tocData: function () {
 			let rawTocData = [];
 			const reader = new Parser();
-			const parsed = reader.parse(this.t('doc'));
+			const parsed = reader.parse(this.text);
 
 			const walker = parsed.walker();
 			let event, node;
