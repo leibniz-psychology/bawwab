@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="https://www.lifp.de/assets/scripts/pure/2.0.3/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://www.lifp.de/assets/scripts/pure/2.0.3/grids-responsive-min.css" integrity="sha384-+lKLtMyKzY/ZdqRXlhw2whazop7duDxgP+oWPB+EGry5wK+vJnZwSsgMnAmDS/39" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://www.lifp.de/assets/scripts/font-awesome/5.13.0/css/all.min.css" integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V" crossorigin="anonymous">
-    <link href="/assets/app.css" rel="stylesheet">
+	<link href="/assets/app.css" rel="stylesheet">
 	<!-- favicon -->
 	<link rel="apple-touch-icon" sizes="180x180" href="https://www.lifp.de/assets/images/favicon/public/apple-touch-icon.png?v=KmzOLrkgP7">
 	<link rel="icon" type="image/png" sizes="32x32" href="https://www.lifp.de/assets/images/favicon/public/favicon-32x32.png?v=KmzOLrkgP7">
@@ -24,8 +24,8 @@
 	<meta name="theme-color" content="#362071">
 	<!-- end favicon -->
   </head>
-  <body>
-	<div id="app" v-cloak>
+<body>
+<div id="app" v-cloak>
 	<router-view v-if="!loading" name="overlay" class="overlay"  v-slot="{ Component }">
 		<transition name="fade">
 			<component :is="Component" />
@@ -90,5 +90,29 @@
     </div>
 	<dynamic-footer></dynamic-footer>
 	</div>
+	<!-- Cookie-Consent / Matomo -->
+	<script type="application/javascript"
+			src="https://www.lifp.de/assets/scripts/zpid-consent-banner/web/zpid_consent.js"></script>
+	<script type="application/javascript">
+		initializeZPIDConsent().then((bannerSettings) => {
+			bannerSettings.language = localStorage.language ? localStorage.language : "de";
+			bannerSettings.paragraphs[1].links.policy.href = "/privacy";
+			Object.assign(settings.container.style, {'font-size': '18px'});
+		}).finally(() => {
+			startZPIDConsent(false).then(() => {
+				_paq.push(['enableLinkTracking']);
+				(function () {
+					var u = "https://mtm.leibniz-psychology.org/";
+					_paq.push(['setTrackerUrl', u + 'zpid.php']);
+					_paq.push(['setSiteId', '17']);
+					var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+					g.async = true;
+					g.src = u + 'zpid.js';
+					s.parentNode.insertBefore(g, s);
+				})();
+			});
+		});
+	</script>
+	<!-- Cookie-Consent / Matomo -->
   </body>
 </html>

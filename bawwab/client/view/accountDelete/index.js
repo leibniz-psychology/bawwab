@@ -1,5 +1,6 @@
 import { store } from '../../app.js';
 import template from './template.html';
+import {getUserIdFromCookie} from "../../matomoHelper";
 
 export default {
 	name: 'AccountDeleteView',
@@ -13,6 +14,7 @@ export default {
 				'method': 'DELETE'
 			});
 			if (r.ok) {
+				_paq.push(["trackEvent", "users", "user-deleted", getUserIdFromCookie()]);
 				this.state.user = null;
 				await this.state.session.destroy ();
 				await this.$router.push ({name: 'index'});

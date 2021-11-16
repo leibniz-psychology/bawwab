@@ -1,5 +1,6 @@
 import { store } from '../../app.js';
 import template from './template.html'
+import {getUserIdFromCookie} from "../../matomoHelper";
 
 export default {
 	name: 'WorkspaceDeleteView',
@@ -23,12 +24,18 @@ export default {
 	methods: {
         deleteWorkspace: async function() {
 			if (this.canDelete) {
+				this.recordProjectDeleted();
 				await this.workspaces.delete (this.workspace);
 			} else {
 				await this.workspaces.ignore (this.workspace);
 			}
 			await this.$router.push ({name: 'workspaces'});
         },
+		recordProjectDeleted() {
+			if (this.workspace?.metadata?._id) {
+				_paq.push(['trackEvent', 'projects', 'project-deleted', getUserIdFromCookie()]);
+			}
+		}
 	}
 };
 

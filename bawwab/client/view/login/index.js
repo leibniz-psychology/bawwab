@@ -19,7 +19,7 @@ export default {
 		if (this.status == 'success') {
             switch (this.state.user.loginStatus) {
                 case 'success':
-                    await this.$router.push (wsRoute);
+					await this.$router.push (wsRoute);
                     break;
 
                 case 'termsOfService':

@@ -3,6 +3,7 @@ import { queryParamProp } from '../../utils.js';
 import Workspace from '../../workspace.js';
 import { copy } from "../../workspaceUtil";
 import template from './template.html';
+import {getUserIdFromCookie} from "../../matomoHelper";
 
 export default {
 	name: 'WorkspaceListView',
@@ -46,10 +47,16 @@ export default {
 		copy,
         createWorkspace: async function() {
 			const w = await this.state.workspaces.create (this.name);
+			this.recordProjectCreation(w);
 			await this.$router.push ({name: 'workspace', params: {wsid: w.metadata._id}});
         },
 		goTo: async function (wsid) {
 			await this.$router.push ({name: 'workspace', params: {wsid: wsid}});
+		},
+		recordProjectCreation: function(workspace) {
+			if (workspace?.metadata?._id) {
+				_paq.push(['trackEvent', 'projects', 'project-created', getUserIdFromCookie()]);
+			}
 		},
 	}
 };

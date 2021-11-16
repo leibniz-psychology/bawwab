@@ -1,15 +1,15 @@
 /* Copyright 2019–2021 Leibniz Institute for Psychology
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -86,6 +86,7 @@ export const store = {
 			if (e.message == 'nonexistent' && this.state.session.authenticated()) {
 				try {
 					this.state.user = await User.create (this.state.session.oauthInfo);
+					_paq.push(["trackEvent", "users", "user-created", getUserIdFromCookie()]);
 				} catch (e) {
 					/* if creating a user fails the back-end must be broken */
 					this.state.user = null;
@@ -189,6 +190,13 @@ const app = createApp ({
 	},
 });
 
+function recordNavigation(data) {
+	_paq.push(['setReferrerUrl', data.referrer]);
+	_paq.push(['setCustomUrl', data.url]);
+	_paq.push(['setDocumentTitle', data.documentTitle]);
+	_paq.push(['trackPageView']);
+}
+
 router.onError (function (err) {
 	console.debug ('router threw error', err);
 });
@@ -199,7 +207,15 @@ router.beforeEach (async function (to, from) {
 		console.debug ('Require terms of service, redirecting', to);
 		return {name: 'termsPrompt', query: {next: to.fullPath}};
 	}
-	console.debug ('accept navigation');
+	console.debug('accept navigation');
+	if (store.state?.session?.oauthInfo?.sub) {
+		recordNavigation({
+			referrer: from.fullPath ? from.fullPath : "",
+			url: to.fullPath ? to.fullPath : "",
+			documentTitle: to.path,
+		});
+	}
+
 	return true;
 });
 app.use (router);
@@ -232,6 +248,7 @@ app.component ('commonmark', CommonmarkComponent);
 app.component ('dropdown', DropdownComponent);
 import ClickOutsideDirective from './directive/clickOutside.js';
 import {Settings} from "./settings";
+import {getUserIdFromCookie} from "./matomoHelper";
 app.directive ('click-outside', ClickOutsideDirective);
 
 app.mount ('#app');
