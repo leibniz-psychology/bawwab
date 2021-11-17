@@ -19,12 +19,21 @@ export function queryParamProp (key, defaultValue=null) {
 export function settingsProp (key, sync=true) {
 	return {
 		get () {
-			return this.settings.get (key);
+			if (this.settings) {
+				return this.settings.get (key);
+			} else {
+				return null;
+			}
 		},
 		async set (value) {
-			this.settings.set (key, value);
-			if (sync) {
-				await this.settings.sync ();
+			if (this.settings) {
+				this.settings.set (key, value);
+				if (sync) {
+					await this.settings.sync ();
+				}
+			} else {
+				/* this should not happen */
+				throw new Error ('settings unavailable');
 			}
 		}
 	}
