@@ -1,267 +1,267 @@
 {
-  "app": {
-    "projects": "Projects",
-    "loading": "Just a second…",
-    "locked": "Your account is locked right now. Please contact <a href=\"mailto:{mail}\">{mail}</a> via email.",
-    "help": "Help"
-  },
-  "g": {
-    "copyname": "Copy of {name}"
-  },
-  "v": {
-    "index": {
-      "description": "PsychNotebook is an online platform for planning and analyzing studies in psychology and related disciplines.",
-      "mission": "<h3>Our mission</h3>\n\n<p>Providing you with the tools to practice open science!</p>\n\n<dl>\n<dt>Education</dt>\n<dd>Learn and instruct others on how to understand and create scripted analyses.</dd>\n<dt>Collaboration</dt>\n<dd>Share your projects with your peers or publicly.</dd>\n<dt>Reproducibility</dt>\n<dd>Export your project dependencies for archiving.</dd>\n</dl>",
-      "features": "<h3>Features</h3>\n\n<p>\nLog in and start coding. No set up required.<br>\nShare your projects – as a copy or for editing.<br>\nCreate, copy and adapt public projects.<br>\nExport your project in a reproducible way.\n</p>",
-      "login": "Login",
-      "toprojects": "Go to my projects"
+    "app": {
+        "projects": "Projects",
+        "loading": "Just a second…",
+        "locked": "Your account is locked right now. Please contact <a href=\"mailto:{mail}\">{mail}</a> via email.",
+        "help": "Help"
     },
-    "opensource": {
-      "content": "# Software\n\nPsychNotebook is free software. It can be used or adapted by anyone for any purpose. Its source code is available on [GitHub](https://github.com/search?q=topic%3Apsychnotebook+org%3Aleibniz-psychology).\n\nAdditionally we use the following free software:\n\n- [GNU Guix](https://guix.gnu.org/), a package manager specialized on reproducibility.\n- [RStudio Server](https://www.rstudio.com/products/rstudio/#rstudio-server), a development environment for R, which is available under the terms of the [GNU Affero General Public License Version\n3](https://www.gnu.org/licenses/agpl-3.0.en.html). Its source code is available on\n[GitHub](https://github.com/rstudio/rstudio/). Our own changes can be studied using our public [Guix channel](https://github.com/leibniz-psychology/guix-zpid).\n- [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/).\n"
+    "g": {
+        "copyname": "Copy of {name}"
     },
-    "account": {
-      "headline": "My account",
-      "delete": "Delete account",
-      "name": "Name",
-      "email": "Email address",
-      "unixaccount": "UNIX account name",
-      "locked": "You cannot delete your account at this time.",
-      "settings": "Settings",
-      "dontShowReadOnlySharedPopUp": "Don't show info-pop-up for projects shared with copy rights.",
-      "dontShowSharedWriteAccessPopUp": "Don't show info-pop-up for projects shared with write rights.",
-      "autoCopyReadOnlyShared": "Automatically copy projects shared with copy rights. I understand the risks!"
+    "v": {
+        "index": {
+            "description": "PsychNotebook is an online platform for planning and analyzing studies in psychology and related disciplines.",
+            "mission": "<h3>Our mission</h3>\n\n<p>Providing you with the tools to practice open science!</p>\n\n<dl>\n<dt>Education</dt>\n<dd>Learn and instruct others on how to understand and create scripted analyses.</dd>\n<dt>Collaboration</dt>\n<dd>Share your projects with your peers or publicly.</dd>\n<dt>Reproducibility</dt>\n<dd>Export your project dependencies for archiving.</dd>\n</dl>",
+            "features": "<h3>Features</h3>\n\n<p>\nLog in and start coding. No set up required.<br>\nShare your projects – as a copy or for editing.<br>\nCreate, copy and adapt public projects.<br>\nExport your project in a reproducible way.\n</p>",
+            "login": "Login",
+            "toprojects": "Go to my projects"
+        },
+        "opensource": {
+            "content": "# Software\n\nPsychNotebook is free software. It can be used or adapted by anyone for any purpose. Its source code is available on [GitHub](https://github.com/search?q=topic%3Apsychnotebook+org%3Aleibniz-psychology).\n\nAdditionally we use the following free software:\n\n- [GNU Guix](https://guix.gnu.org/), a package manager specialized on reproducibility.\n- [RStudio Server](https://www.rstudio.com/products/rstudio/#rstudio-server), a development environment for R, which is available under the terms of the [GNU Affero General Public License Version\n3](https://www.gnu.org/licenses/agpl-3.0.en.html). Its source code is available on\n[GitHub](https://github.com/rstudio/rstudio/). Our own changes can be studied using our public [Guix channel](https://github.com/leibniz-psychology/guix-zpid).\n- [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/).\n"
+        },
+        "account": {
+            "headline": "My account",
+            "delete": "Delete account",
+            "name": "Name",
+            "email": "Email address",
+            "unixaccount": "UNIX account name",
+            "locked": "You cannot delete your account at this time.",
+            "settings": "Settings",
+            "dontShowReadOnlySharedPopUp": "Don't show info-pop-up for projects shared with copy rights.",
+            "dontShowSharedWriteAccessPopUp": "Don't show info-pop-up for projects shared with write rights.",
+            "autoCopyReadOnlyShared": "Automatically copy projects shared with copy rights. I understand the risks!"
+        },
+        "accountDelete": {
+            "headline": "My account",
+            "delete": "Delete account",
+            "deletequestion": "Do you want to delete your account and all data? This cannot be undone.",
+            "dodelete": "Delete permanently",
+            "cancel": "Cancel"
+        },
+        "action": {
+            "headline": "Run action",
+            "pleasewait": "Just a second…",
+            "done": "Done!",
+            "expired": "This action has expired.",
+            "not_found": "The action does not exist."
+        },
+        "workspaceExport": {
+            "headline": "Export project",
+            "description": "Here you can export the project {project} in different formats.",
+            "kind-zip": "ZIP archive",
+            "description-zip": "Contains all files of the project.",
+            "kind-tar+lzip": "LZIP-compressed Tarball",
+            "description-tar+lzip": "Contains all files of the project.",
+            "exportas": "Export as",
+            "submit": "Export",
+            "download": "Download",
+            "notfound": "Project does not exist.",
+            "back": "Back"
+        },
+        "workspaceList": {
+            "projects": "Projects",
+            "description": "Projects can be set up and accessed here. Projects are collections of analysis scripts, data, and other materials.",
+            "projectname": "Project name",
+            "create": "New project",
+            "share": "Share",
+            "copy": "Copy",
+            "delete": "Delete",
+            "publish": "Publish",
+            "export": "Export",
+            "manage": "Manage packages",
+            "unnamed": "Unnamed project",
+            "myprojects": "My projects",
+            "sharedprojects": "Shared projects",
+            "publicprojects": "Public projects",
+            "thtitle": "Title",
+            "thdescription": "Description",
+            "thapplications": "Applications",
+            "thactions": "Actions",
+            "import": "Import project"
+        },
+        "workspaceImport": {
+            "close": "Cancel",
+            "headline": "Import project",
+            "fromfile": "Select file",
+            "description": "Here you can import projects that were previously exported from the notebook. The process may take a few minutes.",
+            "submit": "Import"
+        },
+        "application": {
+            "nonexistent": "Application does not exist.",
+            "nonexistentws": "Project does not exist.",
+            "starting": "Starting application…",
+            "exited": "Application finished.",
+            "failed": "Application failed to run. ({reason})",
+            "projects": "Projects",
+            "reset": "Restart",
+            "stop": "Stop",
+            "needrestart": "Changes made to the project apply to this application only after a restart.",
+            "busy": "The project is being updated currently. This application can only be started afterwards.",
+            "createVersion": "Create backup"
+        },
+        "tos": {
+            "kind_tos": "PsychNotebook Terms of Use",
+            "kind_privacy": "Data Privacy Note"
+        },
+        "workspaceSecurityPrompt": {
+            "copyname": "Copy of {name}",
+            "titleCopy": "Someone shared copy access for a project with you!",
+            "titleWrite": "Someone shared write access for a project with you!",
+            "explainLink": "What does that mean?",
+            "warning": "Please only use/copy this project if you know and trust the person sharing it!",
+            "warningExplanation": "PsychNotebook cannot technically ensure that shared projects do not contain malicious code.",
+            "autoCopy": "Copy projects automatically in the future. I understand the risk and will only follow trustworthy links from now on.",
+            "dontShowAgain": "Do not show this window in the future!",
+            "changeSettingsNotice": "If you specify here that you do not want to see this window in the future, you can change these settings again later via your user account.",
+            "saveSettings": "OK",
+            "cancel": "Close"
+        },
+        "workspaceDelete": {
+            "deletetitle": "Delete project",
+            "hidetitle": "Hide project",
+            "deletequestion": "Do you really want to delete the project {name}?",
+            "hidequestion": "Do you really want to hide the project {name}?",
+            "delete": "Delete",
+            "hide": "Hide",
+            "cancel": "Cancel"
+        },
+        "workspaceShare": {
+            "sharetitle": "Share project",
+            "share": "Share",
+            "close": "Close",
+            "copy": "Copy link",
+            "sendmail": "Send e-mail",
+            "read": "Read-only",
+            "readMeaning": "The user can only copy this project.",
+            "write": "Write access",
+            "writeMeaning": "The user can copy the project, start applications and modify or delete all data. Please note that this feature is experimental and simultaneous access by multiple users may cause problems.",
+            "sharelink": "Share the link below",
+            "quotareached": "You’ve reached your email send quota. Please wait until tomorrow.",
+            "preview": "Preview",
+            "messagePlaceholder": "Your message",
+            "messageLabel": "Message",
+            "nameLabel": "Name (optional)",
+            "emailPlaceholder": "john{'@'}example.com or Jane Doe <jane{'@'}example.com>, …",
+            "emailInstruct": "Please enter email address and name of the recipient below, as well as your message."
+        },
+        "tosPrompt": {
+            "close": "Cancel",
+            "accept": "Continue",
+            "welcome": "Hi, we are glad you are here!",
+            "acceptToContinue": "PsychNotebook is a free open source platform provided by ZPID. We stand for open science, that is, free access to scientific results and their reproducibility. Please read our terms and conditions and our privacy policy before you continue.",
+            "agreeTo-tos": "I hereby confirm that I have read and understood the <a target=\"_blank\" href=\"{target}\">terms of use</a> of PsychNotebook.",
+            "agreeTo-privacy": "I have read PsychNotebook’s <a target=\"_blank\" href=\"{target}\">policy regarding data privacy</a>."
+        },
+        "workspacePackages": {
+            "apply": "No changes | Apply {count} change | Apply {count} changes",
+            "undo": "Undo",
+            "packageStateInstalled": "Installed",
+            "packageStateAdd": "Will be added",
+            "packageStateRemove": "Will be removed",
+            "removePackage": "Remove",
+            "addPackage": "Install",
+            "searchPackage": "Search package",
+            "upgrade": "Upgrade all packages",
+            "close": "Close",
+            "title": "Manage packages",
+            "nopackages": "No packages found",
+            "description": "Here you can add packages to your project. Use <kbd>^r-package</kbd> to search for R packages only.",
+            "searchFailed": "The search failed. Please try again."
+        },
+        "workspacePublish": {
+            "title": "Publish project",
+            "cancel": "Cancel",
+            "explain": "Public projects can be copied by all users. It is possible to edit and retract published projects but copies made by other users will remain unaffected.",
+            "sharepublic": "Enable public access",
+            "unsharepublic": "Revoke public access"
+        },
+        "login": {
+            "login": "Login",
+            "status-failure": "Login was not successful. Please try again.",
+            "status-success": "Logged in"
+        },
+        "notFound": {
+            "notfound": "Not found"
+        },
+        "workspaceShow": {
+            "nonexistent": "Project does not exist.",
+            "copyname": "Copy of {name}",
+            "save": "Save",
+            "cancel": "Cancel",
+            "edit": "Edit",
+            "share": "Share",
+            "publish": "Publish",
+            "export": "Export",
+            "copy": "Copy",
+            "delete": "Delete",
+            "hide": "Hide",
+            "back": "Back to projects",
+            "projectname": "Name of the project",
+            "sharedwith": "Shared with",
+            "publicproject": "Public project",
+            "ownedby": "Owned by",
+            "projectdescription": "Description of the project",
+            "readonly": "read-only",
+            "readwrite": "read and write",
+            "noaccess": "no access",
+            "noTitle": "Click to add a title",
+            "noDescription": "Click to add a description.",
+            "editpackages": "Manage packages"
+        },
+        "faq": {
+            "content": "# Help\n\n## Signing up<a id=\"register\"></a>\n\nBefore you can create or access projects, you need to register an account. ZPID offers a single sign-on system that allows you to log in to all of ZPID's products with the same username and password. To register for the single sign-on system, you can choose to use your ORCID account or to create a new, Leibniz Psychology, account.\n\n## Account<a id=\"useraccount\"></a>\n\nYou can view your saved account information by clicking on your initials in the upper right corner of the menu. A drop-down menu will open where you can click on \"account\" to see your account details and an option to delete your account. \n\n## Creating a new project<a id=\"new-project\"></a>\n\n### From scratch<a id=\"new-project-from-scratch\"></a>\n\nTo create a new project, click on „projects\" in the top menu. The dashboard, that is the overview of all projects, will be shown. Click on the button „new project\" located right above the project table to create a new project from scratch. Add a title and a description of your project and start an application (RStudio or JupyterLab) to write code, or upload any research materials into your project. \n\n### Copying public projects<a id=\"copy-public-projects\"></a>\n\nThe project table has three tabs, called \"my projects\", \"shared projects\", and \"public projects\". Select the tab \"public projects\" to see the projects that have been shared with all PsychNotebook users. Select a project by clicking on its title or description. On the project page, you can select \"copy\" to add a snapshot of the current status of the project to your own projects. Your copy will appear under the tab \"my projects\" and you will be able to modify its contents.\n\n### Importing a project<a id=\"import-project\"></a>\n\nPsychNotebook projects can be exported as zip or tarball files. These files can be re-imported into PsychNotebook again. To import a previously exported PsychNotebook project, go to the project overview (the dashboard) by clicking on \"projects\" in the top menu. Click on the button „import project\" located right above the project table. You will be prompted to select the file from your local system. Clicking \"import\" finishes the process. The imported project will appear under the tab \"my projects\".\n\n### Accessing projects shared with you<a id=\"access-shared-projects\"></a>\n\nProjects can be shared by link or by sending an email from PsychNotebook containing a link to the project.\n\nThere are two options: Sharing with copy access or with write access.\n\n*Copy access*: You can create an independent copy that is a \"snapshot\" of the shared project. This means that at the time of copying, the copy looks exactly the same as the original project of the person sharing. After that, however, the two projects evolve independently and are never synchronized. In the copy of the shared project you have the same comprehensive rights as in a project created by you personally. The person who shared the original project with you cannot view or modify your copy. \n\nTo create such a copy, click the \"copy\" button on the project page of the shared project.\n\n*Write access*: You and the sharing person work on the exact same project. Your changes to the project will be synchronized so that they can be viewed and edited by the other person.\n\nUsing this option, you can start to work with the project by starting your desired application directly from the project page of the shared project.\n\nBe careful, this feature is currently experimental and unexpected behavior may occur.\n\n### Risks<a id=\"risks\"></a>\n\nPsychNotebook cannot technically identify whether projects contain code that has harmful or undesirable effects when executed. Therefore you should only copy/open/execute shared projects from people you personally know and trust!\n\n## Working with PsychNotebook<a id=\"working-with-psychnotebook\"></a>\n\n### Dashboard<a id=\"dashboard\"></a>\n\nThe dashboard contains an overview of all projects divided in three tabs: \n\n1) projects that you created (\"my projects\"), \n\n2) projects that were shared with you specifically (\"shared projects\") and \n\n3) projects that were shared with all users of PsychNotebook (\"public projects\"). \n\n### Projects<a id=\"projects\"></a>\n\nPsychNotebook is structured in projects that can be accessed by different applications, e.g. RStudio and JupyterLab. Thus, if you added a file in RStudio, this file will also be accessible with JupyterLab in that project. Projects can contain all kinds of research materials, such as code, data, or text documents.\n\nA detailed view of the project information and all actions that can be performed on the project (e.g., share, copy, export, delete, etc.) , is presented on the project page. In the dashboard, click on a project's title or description to open its project page. \n\n### Running Applications (e.g., RStudio and JupyterLab)<a id=\"execute-application\"></a>\n\nYou can access the content of a project by starting it with an application. By default, RStudio and JupyterLab are pre-installed for new projects. Click on the RStudio or JupyterLab icon of a project that is displayed in the dashboard and on the project page, to start the respective application. It is also possible to run and work with multiple applications and projects at the same time if you open them in separate tabs in your browser.  \n\n### Installing packages<a id=\"install-packages\"></a>\n\nIf you tried to install a R package, you will notice that the R function `install.packages()` does not work in PsychNotebook. Instead, you can add new packages by clicking on \"Manage packages\" on the project page and then searching for the package you need. Be aware that adding packages may take a while. If an application is already running when you added a new package, you need to quit the application and restart it. Once packages are installed, you can call them in R as usual with the function `library()`.\n\nIt is possible to install packages other than R packages. In fact, all packages that are available on Guix, a software that constitutes the backbone of PsychNotebook, can be installed in PsychNotebook. Please note that while possible, it may not be advisable for every package.\n\nIf your desired package cannot be found in the \"manage packages\" search, you can send a request for installing this package to <psychnotebook{'@'}leibniz-psychology.org>. Make sure to include the name of the package, ideally a link to its documentation (e.g. on CRAN). \n\n## Sharing projects<a id=\"share-project\"></a>\n\nTo share a project, go on the project page by clicking on the title or description of the project in the dashboard. Select \"share\" in the project menu. A dialogue will open where you can select the access rights that will be given to the receiver (copy access or write access) and the mode of sharing (link or email). Links that you generate to share a project will be valid (almost) indefinitely and can be used to make multiple copies.   \n\n### Sharing projects as copy access<a id=\"share-project-copy-access\"></a>\n\nSelecting \"copy access\" in the dropdown menu will allow the receiver of the project link to make their own copy of the shared project. This copy will be independent, thus, changes in the copy will not influence the original project. \n\n### Sharing projects with write access<a id=\"share-project-write-access\"></a>\n\nSelecting \"write access\" in the dropdown menu will give the receiver of the project link the same permissions of the project as you, the sharer. Be careful, this feature is currently experimental and unexpected behavior can occur.\n\n## Publishing projects<a id=\"publish-project\"></a>\n\nWe want to encourage you to share educational content (e.g., tutorials and code for statistical analyses) that you created with others! To share a project with all users of PsychNotebook, you can publish it. To do so, go to the project page of the respective project and click \"publish\" in the project menu. A dialogue window will open that you need to confirm to proceed. Once published, your project can be copied by other users.\n\nYour published project is presented under the tab \"public projects\" in the dashboard. For you, it will also be listed under \"my projects\". Be aware that this is the same project - if you edit your project after publishing it (even if you started it under the tab \"my projects\"), the changes will be visible to everyone immediately. You can retract your projects after publication by deleting them but copies that have already been made by other users will remain unaffected.\n\n## Exporting projects<a id=\"export-project\"></a>\n\nTo archive your project, you can export it to your local system. Go to the project page by clicking on the title and or description of your project in the dashboard. In the project menu, click on \"export\". A dialogue window will open where you can select whether you want to export your project as ZIP or tarball file. Unless you use Linux on your local system, select the ZIP-option. Confirm by clicking on \"export\". The compressed file will contain all the materials that you added to your project as well as all the dependencies that can restore the exact environment of your project. Your project will be reproducible. You can re-import the ZIP-file to PsychNotebook at a later point in time and you will still be able to run and edit your project. \n\n## FAQ<a id=\"faq\"></a>\n\n### What is different in PsychNotebook compared to local installations on my own PC?<a id=\"whats-different\"></a>\n\nPsychNotebook provides various software in an online environment which can be shared with others and offers additional functionalities.\n\nApplications provided in PsychNotebook (e.g. RStudio, JupyterLab) should in principle be able to be used in the same way as if you had installed them on your own PC. However, the following restrictions exist:\n\n1.  Installing packages, e.g. R packages: Read the section above for more information.\n\n2.  Extensions in JupyterLab: At this time, extensions cannot be added to PsychNotebook.\n\n### Which application do I use for which purpose?<a id=\"which-application\"></a>\n\nRStudio is most suitable for evaluating data, i.e. calculating statistical analyses, creating result graphs or inspecting data.\n\nJupyterLab is most suitable for presenting results or analyses. With JupyterLab you can easily integrate formatted text (R Markdown) and executable code (R/Python) and create presentation slides.\n\n### I want to create a R Markdown tutorial with learnR. How do I proceed?<a id=\"make-tutorial\"></a>\n\n1.  Create a new project in PsychNotebook.\n\n2.  Install the package psychnotebook-app-rmarkdown (see above section about installing packages). The package learnR should be installed already.\n\n3.  Start RStudio in your project and create your tutorial. Find more information about this step in the learnR documentation.\n\n4.  Make sure that you save your tutorial file in the root folder, that is, in the directory /home/joeuser.\n\n5.  To allow others to take your tutorial, you can share your project via read access with them. They can then copy your project and start the tutorial via the R Markdown icon on the project page.\n\n## Getting help and reporting bugs<a id=\"get-help\"></a>\n\nA collection of resources for R can be found on [this page](https://support.rstudio.com/hc/en-us/articles/200552336-Getting-Help-with-R).\n\nYou can find the documentation of JupyterLab [here](https://jupyterlab.readthedocs.io/en/stable/).\n\nFor issues directly concerning PsychNotebook, write an email to psychnotebook{'@'}leibniz-psychology.org.\n"
+        },
+        "logout": {
+            "logout": "Logout",
+            "done": "You have been logged off from PsychNotebook.",
+            "ssologout": "Log off from single-sign-on as well"
+        }
     },
-    "accountDelete": {
-      "headline": "My account",
-      "delete": "Delete account",
-      "deletequestion": "Do you want to delete your account and all data? This cannot be undone.",
-      "dodelete": "Delete permanently",
-      "cancel": "Cancel"
-    },
-    "action": {
-      "headline": "Run action",
-      "pleasewait": "Just a second…",
-      "done": "Done!",
-      "expired": "This action has expired.",
-      "not_found": "The action does not exist."
-    },
-    "workspaceExport": {
-      "headline": "Export project",
-      "description": "Here you can export the project {project} in different formats.",
-      "kind-zip": "ZIP archive",
-      "description-zip": "Contains all files of the project.",
-      "kind-tar+lzip": "LZIP-compressed Tarball",
-      "description-tar+lzip": "Contains all files of the project.",
-      "exportas": "Export as",
-      "submit": "Export",
-      "download": "Download",
-      "notfound": "Project does not exist.",
-      "back": "Back"
-    },
-    "workspaceList": {
-      "projects": "Projects",
-      "description": "Projects can be set up and accessed here. Projects are collections of analysis scripts, data, and other materials.",
-      "projectname": "Project name",
-      "create": "New project",
-      "share": "Share",
-      "copy": "Copy",
-      "delete": "Delete",
-      "publish": "Publish",
-      "export": "Export",
-      "manage": "Manage packages",
-      "unnamed": "Unnamed project",
-      "myprojects": "My projects",
-      "sharedprojects": "Shared projects",
-      "publicprojects": "Public projects",
-      "thtitle": "Title",
-      "thdescription": "Description",
-      "thapplications": "Applications",
-      "thactions": "Actions",
-      "import": "Import project"
-    },
-    "workspaceImport": {
-      "close": "Cancel",
-      "headline": "Import project",
-      "fromfile": "Select file",
-      "description": "Here you can import projects that were previously exported from the notebook. The process may take a few minutes.",
-      "submit": "Import"
-    },
-    "application": {
-      "nonexistent": "Application does not exist.",
-      "nonexistentws": "Project does not exist.",
-      "starting": "Starting application…",
-      "exited": "Application finished.",
-      "failed": "Application failed to run. ({reason})",
-      "projects": "Projects",
-      "reset": "Restart",
-      "stop": "Stop",
-      "needrestart": "Changes made to the project apply to this application only after a restart.",
-      "busy": "The project is being updated currently. This application can only be started afterwards.",
-      "createVersion": "Create new version"
-    },
-    "tos": {
-      "kind_tos": "PsychNotebook Terms of Use",
-      "kind_privacy": "Data Privacy Note"
-    },
-    "workspaceSecurityPrompt": {
-      "copyname": "Copy of {name}",
-      "titleCopy": "Someone shared copy access for a project with you!",
-      "titleWrite": "Someone shared write access for a project with you!",
-      "explainLink": "What does that mean?",
-      "warning": "Please only use/copy this project if you know and trust the person sharing it!",
-      "warningExplanation": "PsychNotebook cannot technically ensure that shared projects do not contain malicious code.",
-      "autoCopy": "Copy projects automatically in the future. I understand the risk and will only follow trustworthy links from now on.",
-      "dontShowAgain": "Do not show this window in the future!",
-      "changeSettingsNotice": "If you specify here that you do not want to see this window in the future, you can change these settings again later via your user account.",
-      "saveSettings": "OK",
-      "cancel": "Close"
-    },
-    "workspaceDelete": {
-      "deletetitle": "Delete project",
-      "hidetitle": "Hide project",
-      "deletequestion": "Do you really want to delete the project {name}?",
-      "hidequestion": "Do you really want to hide the project {name}?",
-      "delete": "Delete",
-      "hide": "Hide",
-      "cancel": "Cancel"
-    },
-    "workspaceShare": {
-      "sharetitle": "Share project",
-      "share": "Share",
-      "close": "Close",
-      "copy": "Copy link",
-      "sendmail": "Send e-mail",
-      "read": "Read-only",
-      "readMeaning": "The user can only copy this project.",
-      "write": "Write access",
-      "writeMeaning": "The user can copy the project, start applications and modify or delete all data. Please note that this feature is experimental and simultaneous access by multiple users may cause problems.",
-      "sharelink": "Share the link below",
-      "quotareached": "You’ve reached your email send quota. Please wait until tomorrow.",
-      "preview": "Preview",
-      "messagePlaceholder": "Your message",
-      "messageLabel": "Message",
-      "nameLabel": "Name (optional)",
-      "emailPlaceholder": "john{'@'}example.com or Jane Doe <jane{'@'}example.com>, …",
-      "emailInstruct": "Please enter email address and name of the recipient below, as well as your message."
-    },
-    "tosPrompt": {
-      "close": "Cancel",
-      "accept": "Continue",
-      "welcome": "Hi, we are glad you are here!",
-      "acceptToContinue": "PsychNotebook is a free open source platform provided by ZPID. We stand for open science, that is, free access to scientific results and their reproducibility. Please read our terms and conditions and our privacy policy before you continue.",
-      "agreeTo-tos": "I hereby confirm that I have read and understood the <a target=\"_blank\" href=\"{target}\">terms of use</a> of PsychNotebook.",
-      "agreeTo-privacy": "I have read PsychNotebook’s <a target=\"_blank\" href=\"{target}\">policy regarding data privacy</a>."
-    },
-    "workspacePackages": {
-      "apply": "No changes | Apply {count} change | Apply {count} changes",
-      "undo": "Undo",
-      "packageStateInstalled": "Installed",
-      "packageStateAdd": "Will be added",
-      "packageStateRemove": "Will be removed",
-      "removePackage": "Remove",
-      "addPackage": "Install",
-      "searchPackage": "Search package",
-      "upgrade": "Upgrade all packages",
-      "close": "Close",
-      "title": "Manage packages",
-      "nopackages": "No packages found",
-      "description": "Here you can add packages to your project. Use <kbd>^r-package</kbd> to search for R packages only.",
-      "searchFailed": "The search failed. Please try again."
-    },
-    "workspacePublish": {
-      "title": "Publish project",
-      "cancel": "Cancel",
-      "explain": "Public projects can be copied by all users. It is possible to edit and retract published projects but copies made by other users will remain unaffected.",
-      "sharepublic": "Enable public access",
-      "unsharepublic": "Revoke public access"
-    },
-    "login": {
-      "login": "Login",
-      "status-failure": "Login was not successful. Please try again.",
-      "status-success": "Logged in"
-    },
-    "notFound": {
-      "notfound": "Not found"
-    },
-    "workspaceShow": {
-      "nonexistent": "Project does not exist.",
-      "copyname": "Copy of {name}",
-      "save": "Save",
-      "cancel": "Cancel",
-      "edit": "Edit",
-      "share": "Share",
-      "publish": "Publish",
-      "export": "Export",
-      "copy": "Copy",
-      "delete": "Delete",
-      "hide": "Hide",
-      "back": "Back to projects",
-      "projectname": "Name of the project",
-      "sharedwith": "Shared with",
-      "publicproject": "Public project",
-      "ownedby": "Owned by",
-      "projectdescription": "Description of the project",
-      "readonly": "read-only",
-      "readwrite": "read and write",
-      "noaccess": "no access",
-      "noTitle": "Click to add a title",
-      "noDescription": "Click to add a description.",
-      "editpackages": "Manage packages"
-    },
-    "faq": {
-      "content": "# Help\n\n## Signing up<a id=\"register\"></a>\n\nBefore you can create or access projects, you need to register an account. ZPID offers a single sign-on system that allows you to log in to all of ZPID's products with the same username and password. To register for the single sign-on system, you can choose to use your ORCID account or to create a new, Leibniz Psychology, account.\n\n## Account<a id=\"useraccount\"></a>\n\nYou can view your saved account information by clicking on your initials in the upper right corner of the menu. A drop-down menu will open where you can click on \"account\" to see your account details and an option to delete your account. \n\n## Creating a new project<a id=\"new-project\"></a>\n\n### From scratch<a id=\"new-project-from-scratch\"></a>\n\nTo create a new project, click on „projects\" in the top menu. The dashboard, that is the overview of all projects, will be shown. Click on the button „new project\" located right above the project table to create a new project from scratch. Add a title and a description of your project and start an application (RStudio or JupyterLab) to write code, or upload any research materials into your project. \n\n### Copying public projects<a id=\"copy-public-projects\"></a>\n\nThe project table has three tabs, called \"my projects\", \"shared projects\", and \"public projects\". Select the tab \"public projects\" to see the projects that have been shared with all PsychNotebook users. Select a project by clicking on its title or description. On the project page, you can select \"copy\" to add a snapshot of the current status of the project to your own projects. Your copy will appear under the tab \"my projects\" and you will be able to modify its contents.\n\n### Importing a project<a id=\"import-project\"></a>\n\nPsychNotebook projects can be exported as zip or tarball files. These files can be re-imported into PsychNotebook again. To import a previously exported PsychNotebook project, go to the project overview (the dashboard) by clicking on \"projects\" in the top menu. Click on the button „import project\" located right above the project table. You will be prompted to select the file from your local system. Clicking \"import\" finishes the process. The imported project will appear under the tab \"my projects\".\n\n### Accessing projects shared with you<a id=\"access-shared-projects\"></a>\n\nProjects can be shared by link or by sending an email from PsychNotebook containing a link to the project.\n\nThere are two options: Sharing with copy access or with write access.\n\n*Copy access*: You can create an independent copy that is a \"snapshot\" of the shared project. This means that at the time of copying, the copy looks exactly the same as the original project of the person sharing. After that, however, the two projects evolve independently and are never synchronized. In the copy of the shared project you have the same comprehensive rights as in a project created by you personally. The person who shared the original project with you cannot view or modify your copy. \n\nTo create such a copy, click the \"copy\" button on the project page of the shared project.\n\n*Write access*: You and the sharing person work on the exact same project. Your changes to the project will be synchronized so that they can be viewed and edited by the other person.\n\nUsing this option, you can start to work with the project by starting your desired application directly from the project page of the shared project.\n\nBe careful, this feature is currently experimental and unexpected behavior may occur.\n\n### Risks<a id=\"risks\"></a>\n\nPsychNotebook cannot technically identify whether projects contain code that has harmful or undesirable effects when executed. Therefore you should only copy/open/execute shared projects from people you personally know and trust!\n\n## Working with PsychNotebook<a id=\"working-with-psychnotebook\"></a>\n\n### Dashboard<a id=\"dashboard\"></a>\n\nThe dashboard contains an overview of all projects divided in three tabs: \n\n1) projects that you created (\"my projects\"), \n\n2) projects that were shared with you specifically (\"shared projects\") and \n\n3) projects that were shared with all users of PsychNotebook (\"public projects\"). \n\n### Projects<a id=\"projects\"></a>\n\nPsychNotebook is structured in projects that can be accessed by different applications, e.g. RStudio and JupyterLab. Thus, if you added a file in RStudio, this file will also be accessible with JupyterLab in that project. Projects can contain all kinds of research materials, such as code, data, or text documents.\n\nA detailed view of the project information and all actions that can be performed on the project (e.g., share, copy, export, delete, etc.) , is presented on the project page. In the dashboard, click on a project's title or description to open its project page. \n\n### Running Applications (e.g., RStudio and JupyterLab)<a id=\"execute-application\"></a>\n\nYou can access the content of a project by starting it with an application. By default, RStudio and JupyterLab are pre-installed for new projects. Click on the RStudio or JupyterLab icon of a project that is displayed in the dashboard and on the project page, to start the respective application. It is also possible to run and work with multiple applications and projects at the same time if you open them in separate tabs in your browser.  \n\n### Installing packages<a id=\"install-packages\"></a>\n\nIf you tried to install a R package, you will notice that the R function `install.packages()` does not work in PsychNotebook. Instead, you can add new packages by clicking on \"Manage packages\" on the project page and then searching for the package you need. Be aware that adding packages may take a while. If an application is already running when you added a new package, you need to quit the application and restart it. Once packages are installed, you can call them in R as usual with the function `library()`.\n\nIt is possible to install packages other than R packages. In fact, all packages that are available on Guix, a software that constitutes the backbone of PsychNotebook, can be installed in PsychNotebook. Please note that while possible, it may not be advisable for every package.\n\nIf your desired package cannot be found in the \"manage packages\" search, you can send a request for installing this package to <psychnotebook{'@'}leibniz-psychology.org>. Make sure to include the name of the package, ideally a link to its documentation (e.g. on CRAN). \n\n## Sharing projects<a id=\"share-project\"></a>\n\nTo share a project, go on the project page by clicking on the title or description of the project in the dashboard. Select \"share\" in the project menu. A dialogue will open where you can select the access rights that will be given to the receiver (copy access or write access) and the mode of sharing (link or email). Links that you generate to share a project will be valid (almost) indefinitely and can be used to make multiple copies.   \n\n### Sharing projects as copy access<a id=\"share-project-copy-access\"></a>\n\nSelecting \"copy access\" in the dropdown menu will allow the receiver of the project link to make their own copy of the shared project. This copy will be independent, thus, changes in the copy will not influence the original project. \n\n### Sharing projects with write access<a id=\"share-project-write-access\"></a>\n\nSelecting \"write access\" in the dropdown menu will give the receiver of the project link the same permissions of the project as you, the sharer. Be careful, this feature is currently experimental and unexpected behavior can occur.\n\n## Publishing projects<a id=\"publish-project\"></a>\n\nWe want to encourage you to share educational content (e.g., tutorials and code for statistical analyses) that you created with others! To share a project with all users of PsychNotebook, you can publish it. To do so, go to the project page of the respective project and click \"publish\" in the project menu. A dialogue window will open that you need to confirm to proceed. Once published, your project can be copied by other users.\n\nYour published project is presented under the tab \"public projects\" in the dashboard. For you, it will also be listed under \"my projects\". Be aware that this is the same project - if you edit your project after publishing it (even if you started it under the tab \"my projects\"), the changes will be visible to everyone immediately. You can retract your projects after publication by deleting them but copies that have already been made by other users will remain unaffected.\n\n## Exporting projects<a id=\"export-project\"></a>\n\nTo archive your project, you can export it to your local system. Go to the project page by clicking on the title and or description of your project in the dashboard. In the project menu, click on \"export\". A dialogue window will open where you can select whether you want to export your project as ZIP or tarball file. Unless you use Linux on your local system, select the ZIP-option. Confirm by clicking on \"export\". The compressed file will contain all the materials that you added to your project as well as all the dependencies that can restore the exact environment of your project. Your project will be reproducible. You can re-import the ZIP-file to PsychNotebook at a later point in time and you will still be able to run and edit your project. \n\n## FAQ<a id=\"faq\"></a>\n\n### What is different in PsychNotebook compared to local installations on my own PC?<a id=\"whats-different\"></a>\n\nPsychNotebook provides various software in an online environment which can be shared with others and offers additional functionalities.\n\nApplications provided in PsychNotebook (e.g. RStudio, JupyterLab) should in principle be able to be used in the same way as if you had installed them on your own PC. However, the following restrictions exist:\n\n1.  Installing packages, e.g. R packages: Read the section above for more information.\n\n2.  Extensions in JupyterLab: At this time, extensions cannot be added to PsychNotebook.\n\n### Which application do I use for which purpose?<a id=\"which-application\"></a>\n\nRStudio is most suitable for evaluating data, i.e. calculating statistical analyses, creating result graphs or inspecting data.\n\nJupyterLab is most suitable for presenting results or analyses. With JupyterLab you can easily integrate formatted text (R Markdown) and executable code (R/Python) and create presentation slides.\n\n### I want to create a R Markdown tutorial with learnR. How do I proceed?<a id=\"make-tutorial\"></a>\n\n1.  Create a new project in PsychNotebook.\n\n2.  Install the package psychnotebook-app-rmarkdown (see above section about installing packages). The package learnR should be installed already.\n\n3.  Start RStudio in your project and create your tutorial. Find more information about this step in the learnR documentation.\n\n4.  Make sure that you save your tutorial file in the root folder, that is, in the directory /home/joeuser.\n\n5.  To allow others to take your tutorial, you can share your project via read access with them. They can then copy your project and start the tutorial via the R Markdown icon on the project page.\n\n## Getting help and reporting bugs<a id=\"get-help\"></a>\n\nA collection of resources for R can be found on [this page](https://support.rstudio.com/hc/en-us/articles/200552336-Getting-Help-with-R).\n\nYou can find the documentation of JupyterLab [here](https://jupyterlab.readthedocs.io/en/stable/).\n\nFor issues directly concerning PsychNotebook, write an email to psychnotebook{'@'}leibniz-psychology.org.\n"
-    },
-    "logout": {
-      "logout": "Logout",
-      "done": "You have been logged off from PsychNotebook.",
-      "ssologout": "Log off from single-sign-on as well"
+    "c": {
+        "workspaceVersion": {
+            "title": "Backups",
+            "nonexistent": "So far no backups exist.",
+            "close": "Close",
+            "autogenerated": "Autogenerated backup",
+            "manual": "User-initiated backup",
+            "namePlaceholder": "Name",
+            "commentPlaceholder": "Comment",
+            "delete": "Delete",
+            "restore": "Restore",
+            "edit": "Edit",
+            "save": "Save"
+        },
+        "login": {
+            "login": "Login",
+            "logout": "Logout",
+            "account": "Account"
+        },
+        "faqSideNav": {
+            "toc": "Table of Contents"
+        },
+        "naturalAgo": {
+            "now": "just now",
+            "minutes": "{count} minutes ago | {count} minute ago | {count} minutes ago",
+            "hours": "{count} hours ago | {count} hour ago | {count} hours ago",
+            "days": "{count} days ago | yesterday | {count} days ago",
+            "weeks": "{count} weeks ago | last week | {count} weeks ago",
+            "months": "{count} months ago | last month | {count} months ago"
+        },
+        "applicationItem": {
+            "run": "Run"
+        },
+        "footer": {
+            "offerby": "A service provided by",
+            "learnmore": "Learn more about us!",
+            "questions": "Have a question?",
+            "questionsBody": "Send us an email. We will be happy to help you.",
+            "contact": "Contact",
+            "followus": "Follow us on social media.",
+            "followusBody": "Get the latest ZPID news on Twitter and Facebook.",
+            "termsofservice": "Terms of Use",
+            "software": "Software",
+            "imprint": "Data Privacy Note",
+            "leibnizLogo": "https://www.lifp.de/assets/images/Logo_Leibniz_Association.svg"
+        }
     }
-  },
-  "c": {
-    "workspaceVersion": {
-      "title": "Versions",
-      "nonexistent": "So far no saved versions exist.",
-      "close": "Close",
-      "autogenerated": "Autogenerated version",
-      "manual": "User-initiated version",
-      "namePlaceholder": "Name",
-      "commentPlaceholder": "Comment",
-      "delete": "Delete",
-      "restore": "Restore",
-      "edit": "Edit",
-      "save": "Save"
-    },
-    "login": {
-      "login": "Login",
-      "logout": "Logout",
-      "account": "Account"
-    },
-    "faqSideNav": {
-      "toc": "Table of Contents"
-    },
-    "naturalAgo": {
-      "now": "just now",
-      "minutes": "{count} minutes ago | {count} minute ago | {count} minutes ago",
-      "hours": "{count} hours ago | {count} hour ago | {count} hours ago",
-      "days": "{count} days ago | yesterday | {count} days ago",
-      "weeks": "{count} weeks ago | last week | {count} weeks ago",
-      "months": "{count} months ago | last month | {count} months ago"
-    },
-    "applicationItem": {
-      "run": "Run"
-    },
-    "footer": {
-      "offerby": "A service provided by",
-      "learnmore": "Learn more about us!",
-      "questions": "Have a question?",
-      "questionsBody": "Send us an email. We will be happy to help you.",
-      "contact": "Contact",
-      "followus": "Follow us on social media.",
-      "followusBody": "Get the latest ZPID news on Twitter and Facebook.",
-      "termsofservice": "Terms of Use",
-      "software": "Software",
-      "imprint": "Data Privacy Note",
-      "leibnizLogo": "https://www.lifp.de/assets/images/Logo_Leibniz_Association.svg"
-    }
-  }
 }
