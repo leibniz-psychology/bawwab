@@ -49,7 +49,7 @@ guix-zpid_. Then you can set up a development environment using
 
 .. code:: console
 
-	guix environment -l contrib/bawwab.scm --ad-hoc nss-certs openssl
+	guix shell -L contrib/guix -D bawwab nss-certs openssl
 	virtualenv -p python3 sandbox
 	source sandbox/bin/activate
 	python setup.py develop
