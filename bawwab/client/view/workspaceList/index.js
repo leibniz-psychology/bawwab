@@ -48,9 +48,6 @@ export default {
 			const w = await this.state.workspaces.create (this.name);
 			await this.$router.push ({name: 'workspace', params: {wsid: w.metadata._id}});
         },
-		formatDate: function (d) {
-			return new Intl.DateTimeFormat ('de-DE', {day: 'numeric', month: 'long', year: 'numeric'}).format(d);
-		},
 		goTo: async function (wsid) {
 			await this.$router.push ({name: 'workspace', params: {wsid: wsid}});
 		},

@@ -10,5 +10,23 @@ export default createI18n({
 	locale: 'en',
 	fallbackLocale: 'en',
 	messages: { de, en },
+	datetimeFormats: {
+		'en': {
+			short: {
+				year: 'numeric', month: 'long', day: 'numeric'
+				},
+			full: {
+				timeStyle: 'full', dateStyle: 'full',
+				},
+			},
+		'de': {
+			short: {
+				year: 'numeric', month: 'long', day: 'numeric'
+				},
+			full: {
+				timeStyle: 'full', dateStyle: 'full',
+				},
+			},
+		},
 });
 

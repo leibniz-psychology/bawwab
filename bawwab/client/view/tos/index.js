@@ -21,9 +21,6 @@ export default {
 		kindToHeading: function (k) {
 			return this.$t (`v.tos.kind_${k}`);
 		},
-		formatDate: function (d) {
-			return new Intl.DateTimeFormat (this.$i18n.locale, {day: 'numeric', month: 'long', year: 'numeric'}).format(d);
-		},
 	},
 };
 

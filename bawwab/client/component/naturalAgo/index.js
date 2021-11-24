@@ -16,8 +16,7 @@ export default {
 			return this.date ? now.value - this.date : null;
 		},
 		absdate: function () {
-			return Intl.DateTimeFormat (this.$i18n.locale,
-					{timeStyle: 'full', dateStyle: 'full'}).format (this.date);
+			return this.$d (this.date, 'full');
 		},
 	},
 	methods: {
