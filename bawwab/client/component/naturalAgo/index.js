@@ -38,7 +38,7 @@ export default {
 					return this.$tc('c.naturalAgo.' + kind, value);
 				}
 			}
-			return this.$t('now');
+			return this.$t('c.naturalAgo.now');
 		}
 	},
 };
