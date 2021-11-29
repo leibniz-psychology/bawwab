@@ -8,122 +8,116 @@ class DeferredError extends Error {
 class NotRegisteredError extends Error {
 };
 
-export default class EventManager {
-	constructor () {
-		/* Assuming no two browsers start at exactly the same time */
-		this.tokenPrefix = Date.now ();
-		this.tokenId = 0;
-		this.handler = new Map ();
-		/* disallow all handler at first */
-		this.allowedHandler = /^$/i;
-		/* deferred programs due to allowedHandler mismatch */
-		this.deferred = [];
+const tokenPrefix = Date.now ();
+let tokenId = 0;
+const handler = new Map ();
+/* disallow all handler at first */
+let allowedHandler = /^$/i;
+/* deferred programs due to allowedHandler mismatch */
+let deferred = [];
 
-		this.waiting = new Map ();
+const waiting = new Map ();
+
+export function register (name, f) {
+	handler.set (name, f);
+}
+
+/* Start handling events. Should only be called after all handlers are
+ * registered.
+ */
+export function start () {
+	_listen().then (_ => ({}));
+}
+
+async function handleProc (p, allowedHandler) {
+	if (!p.extraData) {
+		/* nothing we can handle */
+		return;
 	}
 
-	register (name, f) {
-		this.handler.set (name, f);
+	const name = p.extraData.trigger;
+
+	/* defer if not allowed right now */
+	if (!allowedHandler.test (name)) {
+		throw new DeferredError ();
 	}
 
-	/* Start handling events. Should only be called after all handlers are
-	 * registered.
-     */
-	start () {
-		this._listen().then (_ => ({}));
+	if (!handler.has (name)) {
+		throw new NotRegisteredError (`${name} is not registered`);
 	}
 
-	async handleProc (p, allowedHandler) {
-		if (!p.extraData) {
-			/* nothing we can handle */
-			return;
+	const f = handler.get (name);
+	let ret = null;
+	try {
+		ret = await f (p.extraData.args, p);
+	} catch (e) {
+		/* throw exception into notification */
+		ret = e;
+	}
+	if (waiting.has (p.token)) {
+		waiting.get (p.token).notify (ret);
+	}
+}
+
+async function handleProcWithDeferred (p) {
+	try {
+		await handleProc (p, allowedHandler);
+	} catch (e) {
+		if (e instanceof DeferredError) {
+			deferred.push (p);
+		} else {
+			throw e;
 		}
+	}
+}
 
-		const name = p.extraData.trigger;
+async function _listen () {
+	console.debug ('starting em listener');
+	/* process existing programs */
+	const procs = getAllProcs ();
+	for (let i = 0; i < procs.length; i++) {
+		const p = procs[i];
+		await handleProcWithDeferred (p);
+	}
 
-		/* defer if not allowed right now */
-		if (!allowedHandler.test (name)) {
-			throw new DeferredError ();
-		}
+	while (true) {
+		const p = await pmget ();
+		/* fork into the background, to support running multiple handlers
+		 * at the same time */
+		handleProcWithDeferred (p).then (function () {});
+	}
+}
 
-		if (!this.handler.has (name)) {
-			throw new NotRegisteredError (`${name} is not registered`);
-		}
-
-		const f = this.handler.get (name);
-		let ret = null;
+export async function setAllowedHandler (re) {
+	const newDeferred = [];
+	while (deferred.length > 0) {
+		const p = deferred.shift ();
 		try {
-			ret = await f (p.extraData.args, p);
-		} catch (e) {
-			/* throw exception into notification */
-			ret = e;
-		}
-		if (this.waiting.has (p.token)) {
-			this.waiting.get (p.token).notify (ret);
-		}
-	}
-
-	async handleProcWithDeferred (p) {
-		try {
-			await this.handleProc (p, this.allowedHandler);
+			await handleProc (p, re);
 		} catch (e) {
 			if (e instanceof DeferredError) {
-				this.deferred.push (p);
+				newDeferred.push (p);
 			} else {
 				throw e;
 			}
 		}
 	}
 
-	async _listen () {
-		console.debug ('starting em listener');
-		/* process existing programs */
-		const procs = getAllProcs ();
-		for (let i = 0; i < procs.length; i++) {
-			const p = procs[i];
-			await this.handleProcWithDeferred (p);
-		}
-
-		while (true) {
-			const p = await pmget ();
-			/* fork into the background, to support running multiple handlers
-			 * at the same time */
-			this.handleProcWithDeferred (p).then (function () {});
-		}
-	}
-
-	async setAllowedHandler (re) {
-		const newDeferred = [];
-		while (this.deferred.length > 0) {
-			const p = this.deferred.shift ();
-			try {
-				await this.handleProc (p, re);
-			} catch (e) {
-				if (e instanceof DeferredError) {
-					newDeferred.push (p);
-				} else {
-					throw e;
-				}
-			}
-		}
-
-		this.allowedHandler = re;
-		this.deferred = newDeferred;
-	}
-
-	async run (name, args=null, command=null, action=null) {
-		console.debug ('em running', name, args, command, action);
-
-		const token = this.tokenPrefix + '-' + this.tokenId;
-		this.tokenId++;
-		const n = new AsyncNotify ();
-		this.waiting.set (token, n);
-
-		await pmrun (token, command, action, {trigger: name, args: args});
-
-		const ret = await n.wait ();
-		this.waiting.delete (token);
-		return ret;
-	}
+	allowedHandler = re;
+	deferred = newDeferred;
 }
 
+export async function run (name, args=null, command=null, action=null) {
+	console.debug ('em running', name, args, command, action);
+
+	const token = tokenPrefix + '-' + tokenId;
+	tokenId++;
+	const n = new AsyncNotify ();
+	waiting.set (token, n);
+
+	await pmrun (token, command, action, {trigger: name, args: args});
+
+	const ret = await n.wait ();
+	waiting.delete (token);
+	return ret;
+}

@@ -5,6 +5,7 @@
 
 import { reactive } from 'vue/dist/vue.esm-bundler.js';
 import AsyncNotify from './asyncNotify.js';
+import { run as emrun, register as emregister } from './eventManager.js';
 
 export class BorgError extends Error {
 }
@@ -71,16 +72,15 @@ export class BorgRepository {
 }
 
 export default class BorgBackup {
-	constructor (em) {
-		this.em = em;
-		this.em.register ('borg.list', this.onList.bind (this));
-		this.em.register ('borg.create', this.onCreate.bind (this));
-		this.em.register ('borg.init', this.onInit.bind (this));
-		this.em.register ('borg.extract', this.onExtract.bind (this));
-		this.em.register ('borg.rename', this.onRename.bind (this));
-		this.em.register ('borg.changeComment', this.onChangeComment.bind (this));
-		this.em.register ('borg.prune', this.onPrune.bind (this));
-		this.em.register ('borg.delete', this.onDelete.bind (this));
+	constructor () {
+		emregister ('borg.list', this.onList.bind (this));
+		emregister ('borg.create', this.onCreate.bind (this));
+		emregister ('borg.init', this.onInit.bind (this));
+		emregister ('borg.extract', this.onExtract.bind (this));
+		emregister ('borg.rename', this.onRename.bind (this));
+		emregister ('borg.changeComment', this.onChangeComment.bind (this));
+		emregister ('borg.prune', this.onPrune.bind (this));
+		emregister ('borg.delete', this.onDelete.bind (this));
 
 		this.listInProgress = new Map ();
 
@@ -113,7 +113,7 @@ export default class BorgBackup {
 		Object.assign (extraArgsCopy, extraArgs);
 		extraArgsCopy.path = ws?.path;
 		extraArgsCopy.archive = archive;
-		return await this.em.run (name, extraArgsCopy, command);
+		return await emrun (name, extraArgsCopy, command);
 	}
 
 	async onList (extraArgs, p) {

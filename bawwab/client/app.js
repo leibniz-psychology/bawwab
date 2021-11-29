@@ -20,8 +20,8 @@
  */
 
 import AsyncNotify from './asyncNotify.js';
-import EventManager from './eventManager.js';
 import { connect as processManagerConnect } from './processManager.js';
+import { start as emStart, setAllowedHandler as emSetAllowedHandler } from './eventManager.js';
 import router from './routing.js';
 import Session from './session.js';
 import { getResponse } from './helper.js';
@@ -48,7 +48,6 @@ export function whoami () {
 
 export const store = {
 	state: reactive ({
-		events: null,
 		session: null,
 		user: null,
 		workspaces: null,
@@ -67,11 +66,11 @@ export const store = {
 
 		processManagerConnect ();
 
-		this.state.events = new EventManager ();
 		/* event manager must be started before we can run programs, otherwise
 		 * workspaces.fetch() below deadlocks. */
-		this.state.events.start ();
-		this.state.borg = new BorgBackup (this.state.events);
+		/* XXX: This should be implicit */
+		emStart ();
+		this.state.borg = new BorgBackup ();
 
 		await this.initUser ();
 		await this.initWorkspaces ();
@@ -100,7 +99,7 @@ export const store = {
 
 	async initWorkspaces () {
 		if (this.state.user && this.state.user.loginStatus == 'success') {
-			this.state.workspaces = new Workspaces (this.state.events, this.state.user);
+			this.state.workspaces = new Workspaces (this.state.user);
 		} else {
 			this.state.workspaces = null;
 		}
@@ -108,7 +107,7 @@ export const store = {
 		if (this.state.workspaces) {
 			try {
 				/* allow only updating project list */
-				await this.state.events.setAllowedHandler (/^workspaces\.fetch$/);
+				await emSetAllowedHandler (/^workspaces\.fetch$/);
 				await this.state.workspaces.fetch ();
 			} catch (e) {
 				this.state.workspaces = null;
@@ -117,7 +116,7 @@ export const store = {
 		}
 		/* allow all events, but do so in the background, so we don’t block
 		 * this method */
-		this.state.events.setAllowedHandler (/.*/).then (function () {});
+		emSetAllowedHandler (/.*/).then (function () {});
 	},
 
 	async initSettings () {

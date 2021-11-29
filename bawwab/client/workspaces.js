@@ -2,13 +2,12 @@ import Workspace from './workspace.js';
 import { ConductorClient } from './conductor.js';
 import { publicData, privateData } from './config';
 import { postData, getResponse } from './helper.js';
+import { run as emrun, register as emregister } from './eventManager.js';
 
 import { reactive } from 'vue/dist/vue.esm-bundler.js';
 
 export default class Workspaces {
-	constructor (em, user) {
-		/* event manager */
-		this.em = em;
+	constructor (user) {
 		this.user = user;
 		this.loading = false;
 		this.workspaces = reactive (new Map ());
@@ -16,7 +15,7 @@ export default class Workspaces {
 
 		/* welcome to “this hell” */
 		const registerRunWithCb = (name, f) =>
-			this.em.register (name, async function (args, p) {
+			emregister (name, async function (args, p) {
 				return f.bind (this) (args, await this.onRunWith (p));
 			}.bind (this));
 
@@ -37,10 +36,10 @@ export default class Workspaces {
 
 		registerRunWithCb ('workspaces.ignore', this.onIgnore);
 
-		this.em.register ('workspaces.delete', this.onDelete.bind (this));
-		this.em.register ('workspaces.start', this.onStart.bind (this));
-		this.em.register ('workspaces.export', this.onExport.bind (this));
-		this.em.register ('workspaces.packageSearch', this.onPackageSearch.bind (this));
+		emregister ('workspaces.delete', this.onDelete.bind (this));
+		emregister ('workspaces.start', this.onStart.bind (this));
+		emregister ('workspaces.export', this.onExport.bind (this));
+		emregister ('workspaces.packageSearch', this.onPackageSearch.bind (this));
 	}
 
 	/* Run workspace command with more arguments
@@ -60,7 +59,7 @@ export default class Workspaces {
 				extraArgs.path = ws.path;
 			}
 		}
-		return await this.em.run (name, extraArgs, command);
+		return await emrun (name, extraArgs, command);
 	}
 
 	async onRunWith (p) {
@@ -126,7 +125,7 @@ export default class Workspaces {
 	}
 
 	async delete (ws) {
-		return await this.em.run ('workspaces.delete', ws.path, ['trash', '--', ws.path]);
+		return await emrun ('workspaces.delete', ws.path, ['trash', '--', ws.path]);
 	}
 
 	async onDelete (path, p) {

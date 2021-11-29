@@ -1,5 +1,6 @@
 import { store } from '../../app.js';
 import { getResponse } from '../../helper.js';
+import { run as emrun } from '../../eventManager.js';
 import Workspace from '../../workspace.js';
 import template from './template.html';
 
@@ -23,7 +24,7 @@ export default {
 	 		switch (a.name) {
 				case 'run': {
 					console.debug ('got run action');
-					const newws = await this.state.events.run ('workspaces.joinShared', null, null, this.token);
+					const newws = await emrun ('workspaces.joinShared', null, null, this.token);
 					this.message = 'v.action.done';
 					await this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
 	 				break;
