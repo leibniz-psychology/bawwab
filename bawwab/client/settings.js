@@ -1,4 +1,4 @@
-import {config} from "./app";
+import {privateData} from "./config";
 
 const settingsFileName = "settings.json"
 
@@ -28,7 +28,7 @@ export class Settings extends Map {
 	}
 
 	static endpoint (username) {
-		return `/api/filesystem${config.privateData}/${username}/.config/bawwab/userStorage`;
+		return `/api/filesystem${privateData}/${username}/.config/bawwab/userStorage`;
 	}
 
 	async put (path, content) {

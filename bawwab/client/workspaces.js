@@ -1,6 +1,6 @@
 import Workspace from './workspace.js';
 import { ConductorClient } from './conductor.js';
-import { config } from './app.js';
+import { publicData, privateData } from './config';
 import { postData, getResponse } from './helper.js';
 
 import { reactive } from 'vue/dist/vue.esm-bundler.js';
@@ -78,8 +78,8 @@ export default class Workspaces {
 			this.loading = true;
 			return await this.runWith ('workspaces.fetch', null, [
 					'list',
-					'-s', config.publicData,
-					'-s', config.privateData,
+					'-s', publicData,
+					'-s', privateData,
 					]);
 		} catch (e) {
 			this.workspaces.clear ();
@@ -98,7 +98,7 @@ export default class Workspaces {
 
 	async create (name) {
 		return await this.runWith ('workspaces.create', null, [
-				'-d', `${config.publicData}/${this.user.name}`,
+				'-d', `${publicData}/${this.user.name}`,
 				'create',
 				name,
 				]);
@@ -186,7 +186,7 @@ export default class Workspaces {
 	}
 
 	async copy (ws) {
-		const args = ['copy', `${config.publicData}/${this.user.name}/`];
+		const args = ['copy', `${publicData}/${this.user.name}/`];
 		return await this.runWith ('workspaces.copy', ws, args);
 	}
 
@@ -211,7 +211,7 @@ export default class Workspaces {
 	}
 
 	async export (kind, ws) {
-		const args = ['export', kind, `${config.privateData}/${this.user.name}/.cache`];
+		const args = ['export', kind, `${privateData}/${this.user.name}/.cache`];
 		return await this.runWith ('workspaces.export', ws, args);
 	}
 
@@ -225,7 +225,7 @@ export default class Workspaces {
 	}
 
 	async import (path) {
-		const args = ['import', path, `${config.publicData}/${this.user.name}`];
+		const args = ['import', path, `${publicData}/${this.user.name}`];
 		return await this.runWith ('workspaces.import', null, args);
 	}
 

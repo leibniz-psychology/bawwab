@@ -1,4 +1,5 @@
-import { store, config } from '../../app.js';
+import { store } from '../../app.js';
+import { autosaveInterval, autosaveKeep } from '../../config';
 import { ConductorState } from '../../conductor.js';
 import { BorgErrorNonexistent } from '../../borg.js';
 import WorkspaceVersionComponent from '../../component/workspaceVersion';
@@ -42,7 +43,7 @@ export default {
 			/* first check when the last backup was created and then create a new
 			/* one. Obviously there is a race condition here, but that should be fine.
 			/* We can just prune away old backups. */
-			let wait = config.autosaveInterval;
+			let wait = autosaveInterval;
 			try {
 				let latest = null;
 				try {
@@ -61,21 +62,21 @@ export default {
 				const now = new Date ();
 				if (latest) {
 					console.log ('last backup was', latest.date, 'now', now, 'diff', now-latest.date);
-					wait = config.autosaveInterval - (now - latest.date);
+					wait = autosaveInterval - (now - latest.date);
 				} else {
 					console.log ('no latest backup');
 				}
-				if (name || !latest || (now - latest.date) >= config.autosaveInterval) {
+				if (name || !latest || (now - latest.date) >= autosaveInterval) {
 					if (!name) {
 						name = 'auto-{now:%Y-%m-%dT%H:%M:%S}';
 					}
 					const snapshot = await this.state.borg.create (this.workspace, name);
 					/* Prune old automatic backups (not the manual ones) */
 					await this.state.borg.prune (this.workspace,
-							config.autosaveKeep, 'auto-');
+							autosaveKeep, 'auto-');
 
 					/* Just made a new one */
-					wait = config.autosaveInterval;
+					wait = autosaveInterval;
 				}
 			} finally {
 				/* Add jitter of up to 5 seconds. Obviously this is not a proper

@@ -1,4 +1,5 @@
-import { store, config } from '../../app.js';
+import { store } from '../../app.js';
+import { privateData } from '../../config';
 import template from './template.html';
 
 export default {
@@ -21,7 +22,7 @@ export default {
 
 			const f = this.selectedFile;
 			/* XXX do not hardcode homedir */
-			const path = `${config.privateData}/${this.state.user.name}/.cache/${f.name}`;
+			const path = `${privateData}/${this.state.user.name}/.cache/${f.name}`;
 			const url = new URL (`/api/filesystem${path}`, window.location.href);
 			const r = await fetch (url.toString (), {method: 'PUT', body: f});
 			const j = await r.json();

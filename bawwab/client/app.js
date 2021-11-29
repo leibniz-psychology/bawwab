@@ -38,15 +38,6 @@ import { createApp, reactive } from 'vue/dist/vue.esm-bundler.js';
 /*import 'purecss/build/pure.css';
 import 'purecss/build/grids-responsive.css';*/
 
-/* XXX: load config from server */
-export const config = Object.freeze ({
-	publicData: '/storage/public',
-	privateData: '/storage/home',
-	autosaveInterval: 10*60*1000, /* ms */
-	/* Make sure to keep at least 1 hour of autosaves by adjusting secondly */
-	autosaveKeep: {secondly: 6, hourly: 12, daily: 14},
-});
-
 export function whoami () {
 	if (store.state.user) {
 		return store.state.user.name;
