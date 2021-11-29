@@ -1,3 +1,5 @@
+import { getAllProcs, get as pmget, run as pmrun } from './processManager';
+
 import AsyncNotify from './asyncNotify.js';
 
 class DeferredError extends Error {
@@ -7,9 +9,7 @@ class NotRegisteredError extends Error {
 };
 
 export default class EventManager {
-	constructor (pm) {
-		/* process manager */
-		this.pm = pm;
+	constructor () {
 		/* Assuming no two browsers start at exactly the same time */
 		this.tokenPrefix = Date.now ();
 		this.tokenId = 0;
@@ -78,13 +78,14 @@ export default class EventManager {
 	async _listen () {
 		console.debug ('starting em listener');
 		/* process existing programs */
-		for (let i = 0; i < this.pm.procs.length; i++) {
-			const p = this.pm.procs[i];
+		const procs = getAllProcs ();
+		for (let i = 0; i < procs.length; i++) {
+			const p = procs[i];
 			await this.handleProcWithDeferred (p);
 		}
 
 		while (true) {
-			const p = await this.pm.get ();
+			const p = await pmget ();
 			/* fork into the background, to support running multiple handlers
 			 * at the same time */
 			this.handleProcWithDeferred (p).then (function () {});
@@ -112,14 +113,13 @@ export default class EventManager {
 
 	async run (name, args=null, command=null, action=null) {
 		console.debug ('em running', name, args, command, action);
-		const pm = this.pm;
 
 		const token = this.tokenPrefix + '-' + this.tokenId;
 		this.tokenId++;
 		const n = new AsyncNotify ();
 		this.waiting.set (token, n);
 
-		await pm.run (token, command, action, {trigger: name, args: args});
+		await pmrun (token, command, action, {trigger: name, args: args});
 
 		const ret = await n.wait ();
 		this.waiting.delete (token);

@@ -1,8 +1,9 @@
+import { receive } from './processManager';
+
 /* Abstracting a running program
  */
 export default class Program {
-	constructor(mgr, token, command, extraData) {
-		this.mgr = mgr;
+	constructor(token, command, extraData) {
 		/* identifier used to distinguish messages for this program */
 		this.token = token;
 		this.command = command;
@@ -22,7 +23,7 @@ export default class Program {
 	/* Process incoming messages.
 	 */
 	async handleMessages () {
-		const msg = await this.mgr.receive (this.token);
+		const msg = await receive (this.token);
 		switch (msg.notify) {
 			case 'processData':
 				console.debug ('got more data for', msg.kind, msg.data);

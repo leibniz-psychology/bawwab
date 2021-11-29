@@ -21,7 +21,7 @@
 
 import AsyncNotify from './asyncNotify.js';
 import EventManager from './eventManager.js';
-import ProcessManager from './processManager.js';
+import { connect as processManagerConnect } from './processManager.js';
 import router from './routing.js';
 import Session from './session.js';
 import { getResponse } from './helper.js';
@@ -48,7 +48,6 @@ export function whoami () {
 
 export const store = {
 	state: reactive ({
-		processes: null,
 		events: null,
 		session: null,
 		user: null,
@@ -66,11 +65,9 @@ export const store = {
 	async init () {
 		this.state.session = await Session.get ();
 
-		/* needs a valid session */
-		const url = new URL ('/api/process/notify', window.location.href);
-		this.state.processes = new ProcessManager (url);
+		processManagerConnect ();
 
-		this.state.events = new EventManager (this.state.processes);
+		this.state.events = new EventManager ();
 		/* event manager must be started before we can run programs, otherwise
 		 * workspaces.fetch() below deadlocks. */
 		this.state.events.start ();
