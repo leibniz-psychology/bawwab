@@ -29,7 +29,7 @@ from itertools import chain
 
 from sanic import Blueprint
 from sanic.response import json as jsonResponse
-from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound
+from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound, InvalidUsage
 
 from websockets.exceptions import WebSocketException
 
@@ -39,7 +39,7 @@ from structlog import get_logger
 
 from .user import User, authenticated, TermsNotAccepted
 from .action import getAction
-from .util import randomSecret, periodic
+from .util import periodic
 
 logger = get_logger ()
 
@@ -143,6 +143,7 @@ async def processRun (request, authenticatedUser):
 	command = reqData.get ('command', None)
 	# client-defined extra data, forwarded to start notification
 	extraData = reqData.get ('extraData', None)
+	token = reqData.get ('token', None)
 	isAction = bool (actionToken)
 	isCommand = bool (command)
 
@@ -166,10 +167,10 @@ async def processRun (request, authenticatedUser):
 	else:
 		processes = perUserProcesses[authenticatedUser]
 
-		while True:
-			token = randomSecret ()
-			if token not in processes:
-				break
+		if token in processes:
+			raise InvalidUsage ('process_exists')
+		elif not token:
+			raise InvalidUsage ('missing_token')
 
 		p = WebsocketProcess (token, user,
 				broadcastFunc=partial (broadcast, authenticatedUser),

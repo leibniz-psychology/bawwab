@@ -10,6 +10,9 @@ export default class EventManager {
 	constructor (pm) {
 		/* process manager */
 		this.pm = pm;
+		/* Assuming no two browsers start at exactly the same time */
+		this.tokenPrefix = Date.now ();
+		this.tokenId = 0;
 		this.handler = new Map ();
 		/* disallow all handler at first */
 		this.allowedHandler = /^$/i;
@@ -110,9 +113,15 @@ export default class EventManager {
 	async run (name, args=null, command=null, action=null) {
 		console.debug ('em running', name, args, command, action);
 		const pm = this.pm;
-		const token = await pm.run (command, action, {trigger: name, args: args});
-		this.waiting.set (token, new AsyncNotify ());
-		const ret = await this.waiting.get (token).wait ();
+
+		const token = this.tokenPrefix + '-' + this.tokenId;
+		this.tokenId++;
+		const n = new AsyncNotify ();
+		this.waiting.set (token, n);
+
+		await pm.run (token, command, action, {trigger: name, args: args});
+
+		const ret = await n.wait ();
 		this.waiting.delete (token);
 		return ret;
 	}

@@ -140,12 +140,12 @@ export default class ProcessManager {
 
 	/* Run an application and on success return a token.
 	 */
-	async run (command=null, action=null, extraData=null) {
+	async run (token, command=null, action=null, extraData=null) {
 		/* We cannot start processes if not connected, otherwise we’re going to
 		 * miss their notifications. Wait until ready. */
 		await this.ready.wait ();
 
-		const payload = {extraData: extraData};
+		const payload = {extraData, token};
 		if (command && action) {
 			console.debug ('both command and action given', command, action);
 			throw Error ('bug');
