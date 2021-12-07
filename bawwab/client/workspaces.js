@@ -26,6 +26,7 @@ export default class Workspaces {
 		/* use same callback */
 		registerRunWithCb ('workspaces.copy', this.onCreate);
 		registerRunWithCb ('workspaces.import', this.onCreate);
+		registerRunWithCb ('workspaces.joinShared', this.onCreate);
 
 		registerRunWithCb ('workspaces.update', this.onUpdate);
 		/* use the same callback */

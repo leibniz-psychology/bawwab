@@ -21,19 +21,11 @@ export default {
 	 		const a = await getResponse (r);
 	 		console.debug ('got action %o', a);
 	 		switch (a.name) {
-	 			case 'run': {
-	 				console.debug ('got run action');
-	 				const p = await this.state.processes.get (await this.state.processes.run (null, this.token));
-	 				console.debug ('got program %o', p);
-	 				const newws = new Workspace (await p.getObject ());
-	 				const ret = await p.wait ();
-	 				if (ret == 0) {
-						this.state.workspaces.add (newws);
-						this.message = 'v.action.done';
-	 					await this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
-	 				} else {
-	 					throw Error ('unhandled');
-	 				}
+				case 'run': {
+					console.debug ('got run action');
+					const newws = await this.state.events.run ('workspaces.joinShared', null, null, this.token);
+					this.message = 'v.action.done';
+					await this.$router.push ({name: 'workspace', params: {wsid: newws.metadata._id}});
 	 				break;
 	 			}
 	 		}
