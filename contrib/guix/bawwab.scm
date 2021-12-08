@@ -57,7 +57,7 @@
     (description "asyncio SMTP client")
     (license license:expat)))
 
-(define %source-dir (dirname (dirname (current-filename))))
+(define %source-dir (dirname (dirname (dirname (current-filename)))))
 
 (define-public bawwab
   (package
