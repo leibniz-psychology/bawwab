@@ -14,7 +14,9 @@ class Esbuild (Command):
 		pass
 
 	def run(self):
-		shutil.copy ('bawwab/client/app.html', 'bawwab/assets')
+		assetdir = 'bawwab/assets'
+		os.makedirs (assetdir, exist_ok=True)
+		shutil.copy ('bawwab/client/app.html', assetdir)
 
 		node_env = 'development' if self.debug else 'production'
 		extraOpts = []
@@ -49,7 +51,7 @@ class Esbuild (Command):
 				# For some reason we need the legacy API.
 				'--define:__VUE_I18N_LEGACY_API__=true',
 				'--define:__INTLIFY_PROD_DEVTOOLS__=false',
-				'--outdir=bawwab/assets/'] + extraOpts, check=True)
+				f'--outdir={assetdir}'] + extraOpts, check=True)
 
 setup(
     name='bawwab',
