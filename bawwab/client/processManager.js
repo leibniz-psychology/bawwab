@@ -23,7 +23,6 @@ export function connect () {
 	socket.addEventListener ('open', onOpen);
 	socket.addEventListener ('message', onMessage);
 	socket.addEventListener ('close', doReconnect);
-	ready.notify (true).then (function () {});
 	/* onclose is called after an error, so no need to reconnect onerror
 	 * too */
 	//this.socket.addEventListener ('error', this.doReconnect.bind (this));
@@ -32,6 +31,7 @@ export function connect () {
 /* Connection was opened.
  */
 function onOpen (event) {
+	ready.notify (true).then (function () {});
 }
 
 function doReconnect (event) {
