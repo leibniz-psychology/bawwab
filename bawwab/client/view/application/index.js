@@ -19,6 +19,9 @@ export default {
 	created: async function () {
 		/* Save immediately before user can do anything */
 		await this.createVersion ();
+		if (!this.program) {
+			await this.state.workspaces.start (this.workspace, this.application);
+		}
 	},
 	unmounted: function() {
 		if (this.autosaveTimer) {
@@ -117,12 +120,7 @@ export default {
 			const application = this.application;
 			console.debug ('application changed to %o', application);
 			const p = this.state.workspaces.getRunningApplication (workspace, application);
-			if (p) {
-				return p.conductor;
-			}
-			console.debug ('starting new instance of', workspace, application);
-			this.state.workspaces.start (workspace, application);
-			return null;
+			return p?.conductor;
 		},
 		/* wheck whether the application’s exec has changed */
 		needRestart: function () {
