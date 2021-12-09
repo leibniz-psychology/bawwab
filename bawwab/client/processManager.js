@@ -65,10 +65,11 @@ function onMessage (event) {
 		newProcsWaiting.notify (p);
 	} else {
 		/* data for existing process */
-		if (recvWaiting.has (token)) {
+		const waiting = recvWaiting.get (token);
+		if (waiting !== undefined && waiting.length > 0) {
 			/* if someone is waiting, forward directly */
 			console.debug ('forwarding message', token, 'to waiting clients', recvWaiting);
-			recvWaiting.get (token).forEach (f => f(data));
+			waiting.forEach (f => f(data));
 			/* XXX: what if calling f() has the side-effect of adding another waiter? */
 			recvWaiting.set (token, []);
 		} else {
