@@ -156,7 +156,7 @@ export default {
 			if (this.canSend) {
 				/* simple debounce */
 				this.previewTimeout = window.setTimeout (function () {
-					this.sendMail (this.emailAddresses[0], dryRun=true)
+					this.sendMail (this.emailAddresses[0], true)
 						.then (function (ret) {
 							this.preview = ret.message;
 						}.bind (this));
