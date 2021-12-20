@@ -1,0 +1,113 @@
+.faq-toc_container {
+    z-index: 1000;
+    position: fixed;
+    height: 23rem;
+    bottom: 1rem;
+    left: 0;
+    display: grid;
+    grid-template-columns: 20.0rem auto;
+    flex-direction: row;
+    align-items: flex-start;
+    transition: left 0.4s ease 0s;
+    box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+.faq-toc_container--hide {
+    left: -20rem;
+}
+
+.faq-toc_container a {
+    padding: 0;
+}
+
+.faq-toc_slider {
+    box-sizing: border-box;
+    width: 3rem;
+    padding-top: 1.4rem;
+    border-left: 1px solid var(--gray-base);
+    font-family: "Zilla Slab", serif;
+    writing-mode: vertical-lr;
+    display: flex;
+    font-weight: bold;
+    font-size: 1.5rem;
+    flex-direction: column;
+    height: 100%;
+    background-color: white;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.faq-toc_slider:hover {
+    cursor: pointer;
+}
+
+.faq-toc_item {
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.faq-toc_toplevelitem {
+    display: grid;
+    grid-template-columns: 16rem 3rem;
+    font-weight: 600;
+    margin-bottom: 1.0rem;
+}
+
+.faq-toc_secondlevelitem {
+    font-weight: 500;
+}
+
+.faq-toc_link {
+    padding-left: 0.3rem;
+    display: inline-block;
+    line-height: 1.2rem;
+}
+
+.faq-toc_link:hover {
+    cursor: pointer;
+    background-color: #f1f1ff;
+}
+
+.faq-toc_list {
+    overflow: auto;
+    padding-top: 1.4rem;
+    background-color: white;
+    margin: 0;
+    list-style: none;
+    height: 100%;
+    box-sizing: border-box;
+    padding-left: 1.0rem;
+}
+
+.faq-toc_innerlist {
+    list-style: none;
+    margin: 0.5rem 0 0 1.2rem;
+}
+
+.faq-toc_collaptor {
+    padding-left: 1.3rem;
+    padding-right: 1.3rem;
+}
+
+.faq-toc_collaptor:hover {
+    cursor: pointer;
+}
+
+.faq-toc--slide-enter-active,
+.faq-toc--slide-leave-active {
+    transition: max-height 0.7s;
+}
+
+.faq-toc--slide-enter-to,
+.faq-toc--slide-leave-from {
+    overflow: hidden;
+    max-height: 10rem;
+}
+
+.faq-toc--slide-enter-from,
+.faq-toc--slide-leave-to {
+    overflow: hidden;
+    max-height: 0;
+}

@@ -1,5 +1,6 @@
 import {Parser} from "commonmark";
 import template from './template.html';
+import './style.css';
 
 export default {
 	name: 'FaqSideNav',
@@ -13,7 +14,7 @@ export default {
 	}),
 	computed: {
 		quickNavigator: function () {
-			return document.getElementById("quick-navigator");
+			return document.getElementById("faq-toc");
 		},
 		tocData: function () {
 			let rawTocData = [];
@@ -102,7 +103,7 @@ export default {
 			}
 		},
 		expanderClass: function (anchor) {
-			return 'qn--collaptor fas fa-angle-' + (this.subListShown.has (anchor) ? 'down' : 'right');
+			return 'faq-toc_collaptor fas fa-angle-' + (this.subListShown.has (anchor) ? 'down' : 'right');
 		},
 	},
 };

@@ -1,23 +1,23 @@
-<div id="quick-navigator" class="qn--container" :class="{'qn--hide': hideNav}" v-click-outside="hideSideNav">
-	<ul class="qn--list">
+<div id="faq-toc" class="faq-toc_container" :class="{'faq-toc_container--hide': hideNav}" v-click-outside="hideSideNav">
+	<ul class="faq-toc_list">
 		<li v-for="item in tocData" 
 			:key="item.anchor" 
-			class="qn--item qn--top-level-item" 
-			:class="{'qn--collaptor-item':item.children.length > 0}">
-			<a class="qn--link" :href="'#'+item.anchor" @click="smoothScrollIntoView($event)">{{ item.text }}</a>
+			class="faq-toc_item faq-toc_toplevelitem"
+			:class="{'faq-toc_collaptor-item':item.children.length > 0}">
+			<a class="faq-toc_link" :href="'#'+item.anchor" @click="smoothScrollIntoView($event)">{{ item.text }}</a>
 			<i v-if="item.children.length > 0"
 					:class="expanderClass(item.anchor)"
 					@click="toggleSubListShown(item.anchor)"></i>
-			<transition name="transition-slide">
-				<ul v-if="item.children.length > 0 && subListShown.has (item.anchor)" class="qn--inner-list">
-					<li v-for="innerItem in item.children" :key="innerItem.anchor" class="qn--item qn--second-level-item">
-						<a class="qn--link" :href="'#'+innerItem.anchor" @click="smoothScrollIntoView($event)">{{ innerItem.text }}</a>
+			<transition name="faq-toc--slide">
+				<ul v-if="item.children.length > 0 && subListShown.has (item.anchor)" class="faq-toc_innerlist">
+					<li v-for="innerItem in item.children" :key="innerItem.anchor" class="faq-toc_item faq-toc_secondlevelitem">
+						<a class="faq-toc_link" :href="'#'+innerItem.anchor" @click="smoothScrollIntoView($event)">{{ innerItem.text }}</a>
 					</li>
 				</ul>
 			</transition>
 		</li>
 	</ul>
-	<div id="qn--slider" class="qn--slider" @click="toggleSideNav">
+	<div class="faq-toc_slider" @click="toggleSideNav">
 		<span class="qn--text">{{ $t('c.faqSideNav.toc') }}</span>
 	</div>
 </div>
