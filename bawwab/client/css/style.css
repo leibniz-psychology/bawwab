@@ -58,12 +58,20 @@ body {
 }
 
 a {
+	cursor: pointer;
 	text-decoration: none;
 	color: var(--magenta-text);
 }
 
 a:hover {
 	color: var(--magenta-text);
+}
+
+input[type="text"], input[type="search"], textarea {
+	/* better use flexboxes */
+	/*width: 100%;*/
+	border: 0.1em solid #352071;
+	padding: 0.2em;
 }
 
 h1, h2, h3, h4, h5, h6, .abstract {
@@ -294,27 +302,20 @@ footer h3 {
 	vertical-align: middle;
 }
 
-.footer-stripe-contact {
-	background-color: var(--gray-base);
-	border-bottom: 0.1em solid white;
-	overflow-y: hidden;
-}
-
-.footer-stripe-partner > .pure-g > .pure-u-1,
 .footer-stripe-contact > .pure-g > .pure-u-1,
 .footer-stripe-navi > .pure-g > .pure-u-1,
 .footer-stripe-imprint > .pure-g > .pure-u-1 {
 	padding: 0 2em;
 }
 
+.footer-stripe-contact {
+	background-color: var(--gray-base);
+	border-bottom: 0.1em solid white;
+	overflow-y: hidden;
+}
+
 .footer-stripe-contact > .pure-g > .pure-u-1 {
 	padding: 2em 2em;
-}
-
-.footer-stripe-contact > .pure-g > .pure-u-1 {
-}
-
-.footer-stripe-contact > .pure-g > .pure-u-1:first-child {
 }
 
 .footer-stripe-navi {
@@ -425,10 +426,6 @@ table.pure-table {
 .actionbar .right {
 	text-align: right;
 	flex-grow: 3;
-}
-
-a {
-	cursor: pointer;
 }
 
 .overlay {
@@ -557,13 +554,6 @@ a {
 	color: var(--magenta-text);
 }
 
-input[type="text"], input[type="search"], textarea {
-	/* better use flexboxes */
-	/*width: 100%;*/
-	border: 0.1em solid #352071;
-	padding: 0.2em;
-}
-
 span.placeholder {
 	opacity: 0.5;
 }
@@ -599,9 +589,6 @@ span.placeholder {
 .workspaceItem .metadata {
 	font-size: 0.9em;
 	list-style-type: none;
-}
-
-.workspaceItem .metadata {
 	margin: 0;
 	padding: 0;
 }
@@ -701,10 +688,6 @@ span.placeholder {
 	white-space: nowrap;
 }
 
-.versions td:first {
-    padding-left: 0.6em;
-}
-
 .appoverlay iframe {
 	flex: 1;
 }
@@ -739,17 +722,6 @@ span.placeholder {
 /* Hide elements until ready, see https://vuejs.org/v2/api/#v-cloak */
 [v-cloak] {
 	display: none;
-}
-
-.textbutton {
-	display: flex;
-	align-items: baseline;
-}
-
-.textbutton input {
-	flex-grow: 3;
-	width: auto;
-	margin-right: 0.3em;
 }
 
 .fade-enter-active, .fade-leave-active {
