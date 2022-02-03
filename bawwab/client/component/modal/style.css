@@ -1,0 +1,59 @@
+.modal {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+}
+
+.modal .frame {
+    background-color: #ffffff;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* the close button takes up the remaining padding in the top and left corner */
+    padding: 1em 1em 2em 2em;
+    width: 50vw;
+    display: flex;
+    overflow: hidden;
+}
+
+.modal .frame.fixed {
+    height: 80vh;
+}
+
+.modal .frame.scaling {
+    max-height: 80vh;
+}
+
+.modal .frame .icon {
+    margin-right: 2em;
+}
+
+.modal .frame .content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 3;
+}
+
+.modal .frame .userContent {
+    flex-grow: 3;
+    /*flex-shrink: 1;*/
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.modal .frame .buttons {
+    text-align: right;
+    margin-top: 1em;
+}
+
+.modal h2 {
+    margin-top: 0.5em;
+}

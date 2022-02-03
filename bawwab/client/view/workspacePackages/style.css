@@ -1,0 +1,40 @@
+.packages {
+    overflow-y: scroll;
+    flex-grow: 3;
+    flex-shrink: 1;
+}
+
+.package p {
+    margin: 0;
+}
+
+.package .version {
+    opacity: 0.7;
+    font-size: 0.8em;
+}
+
+.package {
+    display: flex;
+    padding: 1em;
+}
+
+.package .state {
+    margin: 0;
+}
+
+.package .left {
+    text-align: left;
+    flex-grow: 1;
+}
+.package .right {
+    text-align: right;
+    flex-grow: 3;
+}
+
+.packages div.package:nth-child(2n-1) {
+    background-color: transparent;
+}
+
+.packages div.package:nth-child(2n) {
+    background-color: var(--gray-light);
+}
