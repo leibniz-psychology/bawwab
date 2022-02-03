@@ -1,6 +1,7 @@
 import { store } from '../../app.js';
 import { queryParamProp, CancelledError } from '../../utils.js';
 import template from './template.html';
+import './style.css';
 
 export default {
 	name: 'WorkspacePackagesView',

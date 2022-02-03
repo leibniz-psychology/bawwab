@@ -286,6 +286,7 @@ table.pure-table {
 .actionbar {
 	margin-bottom: 1em;
 }
+
 .actionbar ul {
 	list-style-type: none;
 	margin: 0;
@@ -295,13 +296,16 @@ table.pure-table {
 .actionbar ul li {
 	display: inline;
 }
+
 .actionbar {
 	display: flex;
 }
+
 .actionbar .left {
 	text-align: left;
 	flex-grow: 1;
 }
+
 .actionbar .right {
 	text-align: right;
 	flex-grow: 3;
@@ -309,66 +313,6 @@ table.pure-table {
 
 .overlay {
 	z-index: 100;
-}
-
-.modal {
-	width: 100%;
-	height: 100%;
-	position: fixed;
-	left: 0;
-	top: 0;
-	z-index: 100;
-	background-color: rgba(0, 0, 0, 0.8);
-	overflow: hidden;
-}
-
-.modal .frame {
-	background-color: #ffffff;
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	/* the close button takes up the remaining padding in the top and left corner */
-	padding: 1em 1em 2em 2em;
-	width: 50vw;
-	display: flex;
-	overflow: hidden;
-}
-
-.modal .frame.fixed {
-	height: 80vh;
-}
-
-.modal .frame.scaling {
-	max-height: 80vh;
-}
-
-.modal .frame .icon {
-	margin-right: 2em;
-}
-
-.modal .frame .content {
-	display: flex;
-	flex-direction: column;
-	flex-grow: 3;
-}
-
-.modal .frame .userContent {
-	flex-grow: 3;
-	/*flex-shrink: 1;*/
-	display: flex;
-	flex-direction: column;
-	overflow-x: hidden;
-	overflow-y: auto;
-}
-
-.modal .frame .buttons {
-	text-align: right;
-	margin-top: 1em;
-}
-
-.modal h2 {
-	margin-top: 0.5em;
 }
 
 [contenteditable=true] {
@@ -724,47 +668,6 @@ form.filter input[type="radio"]:checked ~ label {
 
 .packageSearch > *:last-child {
 	margin-right: 0;
-}
-
-.packages {
-	overflow-y: scroll;
-	flex-grow: 3;
-	flex-shrink: 1;
-}
-
-.package p {
-	margin: 0;
-}
-
-.package .version {
-	opacity: 0.7;
-	font-size: 0.8em;
-}
-
-.package {
-	display: flex;
-	padding: 1em;
-}
-
-.package .state {
-	margin: 0;
-}
-
-.package .left {
-	text-align: left;
-	flex-grow: 1;
-}
-.package .right {
-	text-align: right;
-	flex-grow: 3;
-}
-
-.packages div.package:nth-child(2n-1) {
-	background-color: transparent;
-}
-
-.packages div.package:nth-child(2n) {
-	background-color: var(--gray-light);
 }
 
 .share .kind {
