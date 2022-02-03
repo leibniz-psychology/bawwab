@@ -1,0 +1,120 @@
+footer a {
+    color: var(--blue-text);
+}
+
+footer a:hover {
+    color: var(--magenta-text);
+}
+
+footer .btn {
+    color: #FFFFFF;
+}
+
+footer ul {
+    list-style: none;
+}
+
+footer h3 {
+    margin-top: 0;
+}
+
+.footer-stripe-open {
+    box-shadow: 0 -0.5em 1em -0.3em #b8bdc0;
+    border-bottom: 0.1em solid white;
+    text-align: center;
+    padding: 1em;
+    cursor: pointer;
+}
+
+.footer-stripe-open .arrow-open, .footer-stripe-open .arrow-close {
+    font-size: 3em;
+    margin: 0;
+    padding: 0;
+    line-height: 0.5em;
+}
+
+.footer-stripe-open .arrow-open {
+    margin-top: -0.5em;
+}
+
+.footer-stripe-open .arrow-close {
+    margin-bottom: -0.5em;
+}
+
+.footer-stripe-open img {
+    display: inline-block;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    width: 15rem;
+    border: lightgray solid 1px;
+    border-radius: 50px;
+    padding: .5rem;
+    background-color: white;
+    vertical-align: middle;
+}
+
+.footer-stripe-contact > .pure-g > .pure-u-1,
+.footer-stripe-navi > .pure-g > .pure-u-1,
+.footer-stripe-imprint > .pure-g > .pure-u-1 {
+    padding: 0 2em;
+}
+
+.footer-stripe-contact {
+    background-color: var(--gray-base);
+    border-bottom: 0.1em solid white;
+    overflow-y: hidden;
+}
+
+.footer-stripe-contact > .pure-g > .pure-u-1 {
+    padding: 2em 2em;
+}
+
+.footer-stripe-navi {
+    background-color: var(--gray-light);
+    padding: 2.0em 0;
+    border-bottom: 0.1em solid white;
+    overflow-y: hidden;
+}
+
+.footer-stripe-imprint {
+    background-color: var(--gray-base);
+}
+
+.footer-stripe-imprint .pure-g {
+    align-items: center;
+}
+
+.footer-stripe-imprint ul li {
+    display: inline;
+}
+
+.footer-stripe-imprint .links {
+    text-align: right;
+}
+
+.footer-stripe-imprint .links li {
+    margin-left: 1em;
+}
+
+.social-line {
+    text-align: right;
+}
+
+.social-line li {
+    display: inline;
+}
+
+.social-line img {
+    height: 3em;
+    border-radius: 0.2em;
+    margin-left: 0.3em;
+}
+
+/* hack to get a rectangular icon */
+.social-line .facebook img {
+    background-color: #1877f2;
+}
+
+.ft-contact-btn {
+    text-align: right;
+}

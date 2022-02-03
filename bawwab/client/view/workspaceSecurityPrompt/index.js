@@ -1,6 +1,7 @@
 import { store } from '../../app.js';
 import { settingsProp } from '../../utils.js';
 import template from './template.html';
+import './style.css';
 
 export default {
 	props: ['wsid'],

@@ -1,0 +1,52 @@
+/*NOTE: --- Evtl. workspaces runterbrechen auf single-classes ---*/
+table.workspaces {
+    width: 100%;
+    margin: 1em 0;
+}
+
+table.workspaces tr td {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 0;
+}
+
+table.workspaces td.title {
+    text-align: left;
+    font-weight: 500;
+}
+
+table.workspaces .description {
+    text-align: left;
+}
+
+table.workspaces .applications {
+    text-align: center;
+}
+
+table.workspaces .applications ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+table.workspaces .applications li {
+    display: inline;
+    margin: 0 0.3em;
+}
+
+table.workspaces .actions {
+    text-align: center;
+    overflow: visible;
+}
+
+table.workspaces .actions ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+table.workspaces .actions li {
+    display: inline;
+    margin: 0;
+}

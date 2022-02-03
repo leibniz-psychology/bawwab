@@ -1,5 +1,6 @@
 import sitemap from './sitemap.json';
 import template from './template.html';
+import './style.css';
 
 export default {
 	name: 'Footer',
