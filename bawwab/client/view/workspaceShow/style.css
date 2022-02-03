@@ -1,0 +1,30 @@
+.workspaceItem .shared ul, .workspaceItem .owners ul {
+    list-style-type: none;
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.workspaceItem .title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.workspaceItem .title, .workspaceItem .description {
+    display: flex;
+}
+
+.workspaceItem .title > *, .workspaceItem .description > * {
+    flex-grow: 1;
+}
+
+.workspaceItem .shared ul li, .workspaceItem .owners ul li {
+    display: inline;
+}
+
+.workspaceItem .metadata {
+    font-size: 0.9em;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}

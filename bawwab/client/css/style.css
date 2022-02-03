@@ -247,127 +247,6 @@ main ul li {
 	margin-bottom: 0.6em;
 }
 
-footer a {
-	color: var(--blue-text);
-}
-
-footer a:hover {
-	color: var(--magenta-text);
-}
-
-footer .btn {
-	color: #FFFFFF;
-}
-
-footer ul {
-	list-style: none;
-}
-
-footer h3 {
-	margin-top: 0;
-}
-
-.footer-stripe-open {
-	box-shadow: 0 -0.5em 1em -0.3em #b8bdc0;
-	border-bottom: 0.1em solid white;
-	text-align: center;
-	padding: 1em;
-	cursor: pointer;
-}
-
-.footer-stripe-open .arrow-open, .footer-stripe-open .arrow-close {
-	font-size: 3em;
-	margin: 0;
-	padding: 0;
-	line-height: 0.5em;
-}
-
-.footer-stripe-open .arrow-open {
-	margin-top: -0.5em;
-}
-
-.footer-stripe-open .arrow-close {
-	margin-bottom: -0.5em;
-}
-
-.footer-stripe-open img {
-	display: inline-block;
-	margin-top: 0.25rem;
-	margin-bottom: 0.25rem;
-	width: 15rem;
-	border: lightgray solid 1px;
-	border-radius: 50px;
-	padding: .5rem;
-	background-color: white;
-	vertical-align: middle;
-}
-
-.footer-stripe-contact > .pure-g > .pure-u-1,
-.footer-stripe-navi > .pure-g > .pure-u-1,
-.footer-stripe-imprint > .pure-g > .pure-u-1 {
-	padding: 0 2em;
-}
-
-.footer-stripe-contact {
-	background-color: var(--gray-base);
-	border-bottom: 0.1em solid white;
-	overflow-y: hidden;
-}
-
-.footer-stripe-contact > .pure-g > .pure-u-1 {
-	padding: 2em 2em;
-}
-
-.footer-stripe-navi {
-	background-color: var(--gray-light);
-	padding: 2.0em 0;
-	border-bottom: 0.1em solid white;
-	overflow-y: hidden;
-}
-
-.footer-stripe-imprint {
-	background-color: var(--gray-base);
-}
-
-.footer-stripe-imprint .pure-g {
-	align-items: center;
-}
-
-.footer-stripe-imprint ul li {
-	display: inline;
-}
-
-.footer-stripe-imprint .links {
-	text-align: right;
-}
-
-.footer-stripe-imprint .links li {
-	margin-left: 1em;
-}
-
-.social-line {
-	text-align: right;
-}
-
-.social-line li {
-	display: inline;
-}
-
-.social-line img {
-	height: 3em;
-	border-radius: 0.2em;
-	margin-left: 0.3em;
-}
-
-/* hack to get a rectangular icon */
-.social-line .facebook img {
-	background-color: #1877f2;
-}
-
-.ft-contact-btn {
-	text-align: right;
-}
-
 /* leibniz-psychology.org logo */
 .lp-logo {
 	height: 3.3em;
@@ -560,37 +439,6 @@ span.placeholder {
 
 .application div.actions {
 	text-align: right;
-}
-
-.workspaceItem .shared ul, .workspaceItem .owners ul {
-	list-style-type: none;
-	display: inline;
-	margin: 0;
-	padding: 0;
-}
-
-.workspaceItem .title {
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-
-.workspaceItem .title, .workspaceItem .description {
-	display: flex;
-}
-
-.workspaceItem .title > *, .workspaceItem .description > * {
-	flex-grow: 1;
-}
-
-.workspaceItem .shared ul li, .workspaceItem .owners ul li {
-	display: inline;
-}
-
-.workspaceItem .metadata {
-	font-size: 0.9em;
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
 }
 
 .appoverlay {
@@ -833,58 +681,6 @@ form.filter input[type="radio"]:checked ~ label {
 	border-bottom: 0.1em solid white;
 }
 
-table.workspaces {
-	width: 100%;
-	margin: 1em 0;
-}
-
-table.workspaces tr td {
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-	max-width: 0;
-}
-
-table.workspaces td.title {
-	text-align: left;
-	font-weight: 500;
-}
-
-table.workspaces .description {
-	text-align: left;
-}
-
-table.workspaces .applications {
-	text-align: center;
-}
-
-table.workspaces .applications ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
-
-table.workspaces .applications li {
-	display: inline;
-	margin: 0 0.3em;
-}
-
-table.workspaces .actions {
-	text-align: center;
-	overflow: visible;
-}
-
-table.workspaces .actions ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
-
-table.workspaces .actions li {
-	display: inline;
-	margin: 0;
-}
-
 .actions .dropdown .body {
 	right: -1rem;
 }
@@ -914,43 +710,6 @@ table.workspaces .actions li {
   100% {
 	transform: rotate(360deg);
   }
-}
-
-.message {
-	color: white;
-	padding: 1em;
-	margin: 1em 0;
-	display: flex;
-	align-items: center;
-}
-
-.message a {
-	color: white;
-	text-decoration: underline;
-}
-
-.message.warning {
-	background-color: var(--magenta-base);
-}
-
-.message.info {
-	background-color: var(--green-base);
-}
-
-.message i.icn {
-	font-size: 1.5em;
-	margin-right: 0.5em;
-}
-
-.message pre {
-	margin: 0;
-	white-space: pre-wrap;
-}
-
-.message .close {
-	cursor: pointer;
-	text-align: right;
-	flex-grow: 2;
 }
 
 .packageSearch {
@@ -1071,6 +830,7 @@ table.workspaces .actions li {
 	margin-right: 0.5em;
 	display: block;
 }
+
 .tosprompt ul.accept li label {
 	display: block;
 }
@@ -1093,15 +853,6 @@ table.workspaces .actions li {
 .action-tooltip {
 	padding: 0.3em;
 	pointer-events: none;
-}
-
-.share-prompt-checkboxes {
-	margin-bottom: 0.7em;
-}
-
-.share-prompt-warning {
-	margin-top: 1em;
-	margin-bottom: 1em;
 }
 
 .settings-checkboxes {

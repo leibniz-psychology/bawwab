@@ -4,6 +4,7 @@ import Workspace from '../../workspace.js';
 import { copy } from "../../workspaceUtil";
 import template from './template.html';
 import { trackEvent } from "../../matomo.js";
+import './style.css';
 
 export default {
 	name: 'WorkspaceListView',

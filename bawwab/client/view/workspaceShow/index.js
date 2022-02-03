@@ -1,8 +1,8 @@
-import { store } from '../../app.js';
-import { nextTick } from 'vue/dist/vue.esm-bundler.js';
-import { copy } from "../../workspaceUtil";
-import { Settings } from '../../settings';
+import {store} from '../../app.js';
+import {nextTick} from 'vue/dist/vue.esm-bundler.js';
+import {copy} from "../../workspaceUtil";
 import template from './template.html';
+import './style.css';
 
 export default {
 	name: 'WorkspaceShowView',
