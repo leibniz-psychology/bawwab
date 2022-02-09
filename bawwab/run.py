@@ -26,7 +26,6 @@ import aiohttp
 from sanic import Sanic
 from sanic.response import json as sanicjson, html, file_stream
 from sanic.exceptions import SanicException
-from tortoise import Tortoise
 from tortoise.contrib.sanic import register_tortoise
 from pypika import Query, Table, Field
 
@@ -222,4 +221,42 @@ def loganalyze ():
 							(args.failed and p['exitCode'] != 0):
 						json.dump (p, sys.stdout)
 						sys.stdout.write ('\n')
+
+def passwd ():
+	""" Change UNIX password for a user.
+
+	This is required if the password changed on the backend
+	"""
+
+	import asyncio
+	from getpass import getpass
+	from tortoise import Tortoise
+	from sanic.config import Config
+	from .user import User
+
+	parser = argparse.ArgumentParser(description='Change user password.')
+	parser.add_argument('user', help='Unix username of user')
+	args = parser.parse_args()
+
+	config = Config ()
+	config.from_envvar('BAWWAB_SETTINGS')
+	User.setup (config.DATABASE_PASSWORD_KEY)
+
+	async def run ():
+		await Tortoise.init(db_url=config.DATABASE_URL,
+				modules={'models': ['bawwab.user']})
+		try:
+			user = await User.get_or_none (name=args.user)
+			pass1 = getpass ('Enter new password: ').strip ()
+			pass2 = getpass ('Re-enter new password: ').strip ()
+			if pass1 != pass2:
+				print ('Passwords do not match', file=sys.stderr)
+				return 1
+			user.password = pass1.strip ()
+			await user.save ()
+			return 0
+		finally:
+			await Tortoise.close_connections ()
+
+	return asyncio.run (run ())
 

@@ -88,6 +88,7 @@ setup(
             'bawwab = bawwab.run:main',
             'bawwab-migrate = bawwab.run:migrate',
             'bawwab-loganalyze = bawwab.run:loganalyze',
+            'bawwab-passwd = bawwab.run:passwd',
             ],
     },
     package_data={
