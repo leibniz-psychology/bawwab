@@ -5,6 +5,7 @@ import { nextTick } from 'vue/dist/vue.esm-bundler.js';
 import NaturalAgoComponent from '../naturalAgo';
 import ChangeProxy from '../../changeProxy.js';
 import template from './template.html';
+import './style.css';
 
 export default {
 	name: 'WorkspaceVersion',

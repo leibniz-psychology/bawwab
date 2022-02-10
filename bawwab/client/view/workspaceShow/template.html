@@ -1,20 +1,20 @@
 <div>
 		<div class="workspaceItem" v-if="workspace">
 		<div class="actionbar">
-		<ul class="left">
-			<li><router-link :to="{name: 'workspaces'}">{{ $t('v.workspaceShow.back') }}</router-link></li>
-		</ul>
-		<ul class="right">
-			<li v-if="editable"><action-button icon="save" :f="save" importance="high">{{ $t('v.workspaceShow.save') }}</action-button></li>
-			<li v-if="editable"><action-button icon="window-close" :f="discard" importance="low">{{ $t('v.workspaceShow.cancel') }}</action-button></li>
-			<li v-if="!editable && canEditMeta"><action-button icon="edit" :f="makeTitleEditable" importance="medium">{{ $t('v.workspaceShow.edit') }}</action-button></li>
-			<li><router-link class="btn" v-if="permissions.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ $t('v.workspaceShow.editpackages') }}</router-link></li>
-			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ $t('v.workspaceShow.share') }}</router-link></li>
-			<li><router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspacePublish', params: {wsid: workspace.metadata._id}}"><i class="fas fa-globe"></i> {{ $t('v.workspaceShow.publish') }}</router-link></li>
-			<li><router-link class="btn" v-if="permissions.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ $t('v.workspaceShow.export') }}</router-link></li>
-			<li><action-button v-if="permissions.canRead()" icon="copy" :f="copy" class="copy">{{ $t('v.workspaceShow.copy') }}</action-button></li>
-			<li><router-link class="btn low" :to="{name: 'workspaceDelete', params: {wsid: workspace.metadata._id}}"><i class="fas fa-trash"></i> {{ permissions.canDelete() ? $t('v.workspaceShow.delete') : $t('v.workspaceShow.hide') }}</router-link></li>
-		</ul>
+		<div class="left">
+			<router-link :to="{name: 'workspaces'}">{{ $t('v.workspaceShow.back') }}</router-link>
+		</div>
+		<div class="right">
+			<action-button v-if="editable" icon="save" :f="save" importance="high">{{ $t('v.workspaceShow.save') }}</action-button>
+			<action-button v-if="editable" icon="window-close" :f="discard" importance="low">{{ $t('v.workspaceShow.cancel') }}</action-button>
+			<action-button v-if="!editable && canEditMeta" icon="edit" :f="makeTitleEditable" importance="medium">{{ $t('v.workspaceShow.edit') }}</action-button>
+			<router-link class="btn" v-if="permissions.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ $t('v.workspaceShow.editpackages') }}</router-link>
+			<router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ $t('v.workspaceShow.share') }}</router-link>
+			<router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspacePublish', params: {wsid: workspace.metadata._id}}"><i class="fas fa-globe"></i> {{ $t('v.workspaceShow.publish') }}</router-link>
+			<router-link class="btn" v-if="permissions.canRead ()" :to="{name: 'workspaceExport', params: {wsid: workspace.metadata._id}}"><i class="fas fa-file-export"></i> {{ $t('v.workspaceShow.export') }}</router-link>
+			<action-button v-if="permissions.canRead()" icon="copy" :f="copy" class="copy">{{ $t('v.workspaceShow.copy') }}</action-button>
+			<router-link class="btn low" :to="{name: 'workspaceDelete', params: {wsid: workspace.metadata._id}}"><i class="fas fa-trash"></i> {{ permissions.canDelete() ? $t('v.workspaceShow.delete') : $t('v.workspaceShow.hide') }}</router-link>
+		</div>
 		</div>
 
 		<h3 class="title">

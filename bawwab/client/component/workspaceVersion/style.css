@@ -1,0 +1,22 @@
+.versions table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.versions table thead {
+    position: sticky;
+    top: 0;
+    background-color: white;
+}
+
+.versions td, .versions th {
+    vertical-align: top;
+    border-bottom: 0.07em solid var(--gray-base);
+    padding: 0.3em;
+}
+
+/* shrink to minimum */
+.versions .date, .versions .select {
+    min-width: 1%;
+    white-space: nowrap;
+}
