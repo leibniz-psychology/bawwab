@@ -287,16 +287,6 @@ table.pure-table {
 	margin-bottom: 1em;
 }
 
-.actionbar ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
-
-.actionbar ul li {
-	display: inline;
-}
-
 .actionbar {
 	display: flex;
 }
@@ -307,8 +297,12 @@ table.pure-table {
 }
 
 .actionbar .right {
-	text-align: right;
+	display: flex;
+	align-items: center;
+	justify-content: end;
+	flex-wrap: wrap;
 	flex-grow: 3;
+	text-align: right;
 }
 
 .overlay {
@@ -457,34 +451,6 @@ span.placeholder {
 	padding: 0 !important;
 }
 
-.versions table {
-	width: 100%;
-	border-spacing: 0;
-}
-
-.versions table thead {
-    position: sticky;
-    top: 0;
-    background-color: white;
-}
-
-.versions td, .versions th {
-	vertical-align: top;
-	border-bottom: 0.07em solid var(--gray-base);
-	padding: 0.3em;
-}
-
-/* shrink to minimum */
-.versions .date, .versions .select {
-	min-width: 1%;
-	white-space: nowrap;
-}
-
-/*TODO: needs correction; "first" is not an allowed pseudo selector at this position*/
-.versions td:first {
-    padding-left: 0.6em;
-}
-
 .appoverlay iframe {
 	flex: 1;
 }
@@ -540,14 +506,6 @@ span.placeholder {
 }
 .resize-enter-to, .resize-leave-from {
 	max-height: 20em;
-}
-
-.initials {
-	background-color: var(--magenta-dark-base);
-	color: white;
-	font-weight: bold;
-	border-radius: 0.7em;
-	padding: 0.3em;
 }
 
 details > summary {
