@@ -283,28 +283,6 @@ table.pure-table {
 }
 
 /* notebook-specific styling */
-.actionbar {
-	margin-bottom: 1em;
-}
-
-.actionbar {
-	display: flex;
-}
-
-.actionbar .left {
-	text-align: left;
-	flex-grow: 1;
-}
-
-.actionbar .right {
-	display: flex;
-	align-items: center;
-	justify-content: end;
-	flex-wrap: wrap;
-	flex-grow: 3;
-	text-align: right;
-}
-
 .overlay {
 	z-index: 100;
 }
