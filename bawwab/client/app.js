@@ -219,6 +219,7 @@ import i18n from './i18n';
 app.use (i18n);
 
 /* register components with this app */
+import ActionBar from './component/actionbar';
 import ActionButtonComponent from './component/actionButton';
 import FooterComponent from './component/footer';
 import LanguageSwitcherComponent from './component/languageSwitcher';
@@ -230,6 +231,7 @@ import CommonmarkComponent from './component/commonmark';
 import DropdownComponent from './component/dropdown';
 import ApplicationIconComponent from './component/applicationIcon';
 import ApplicationItemComponent from './component/applicationItem';
+app.component ('action-bar', ActionBar);
 app.component ('action-button', ActionButtonComponent);
 app.component ('dynamic-footer', FooterComponent);
 app.component ('language-switcher', LanguageSwitcherComponent);

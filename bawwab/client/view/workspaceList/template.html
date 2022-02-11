@@ -1,5 +1,16 @@
 <div class="workspace-list">
 	<h2>{{ $t('v.workspaceList.projects') }}</h2>
+
+	<action-bar v-if="!disabled">
+		<template #left>
+			<p>{{ $t('v.workspaceList.description') }}</p>
+		</template>
+		<template #right>
+			<router-link class="btn low" :to="{name: 'workspaceImport'}"><i class="fas fa-file-import"></i> {{ $t('v.workspaceList.import') }}</router-link>
+			<action-button icon="plus-square" :f="createWorkspace" importance="high">{{ $t('v.workspaceList.create') }}</action-button>
+		</template>
+	</action-bar>
+<!--
 	<div class="actionbar" v-if="!disabled">
 		<div class="left" style="max-width: 50em">
 			<p>{{ $t('v.workspaceList.description') }}</p>
@@ -9,6 +20,7 @@
 			<action-button icon="plus-square" :f="createWorkspace" importance="high">{{ $t('v.workspaceList.create') }}</action-button>
 		</div>
 	</div>
+-->
 	<form class="filter">
 	<!--<input type="search" id="filtersearch" v-model="filtertext">-->
 	<div>
