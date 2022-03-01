@@ -3,6 +3,7 @@ import { queryParamProp } from '../../utils.js';
 import Workspace from '../../workspace.js';
 import { copy } from "../../workspaceUtil";
 import template from './template.html';
+import { trackEvent } from "../../matomo.js";
 
 export default {
 	name: 'WorkspaceListView',
@@ -46,6 +47,7 @@ export default {
 		copy,
         createWorkspace: async function() {
 			const w = await this.state.workspaces.create (this.name);
+			trackEvent ('projects', 'project-created');
 			await this.$router.push ({name: 'workspace', params: {wsid: w.metadata._id}});
         },
 		goTo: async function (wsid) {

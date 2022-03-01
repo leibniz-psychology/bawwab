@@ -25,6 +25,7 @@ import { start as emStart, setAllowedHandler as emSetAllowedHandler } from './ev
 import router from './routing.js';
 import Session from './session.js';
 import { getResponse } from './helper.js';
+import { trackEvent, trackNavigation } from './matomo.js';
 import User from './user.js';
 import Workspaces from './workspaces.js';
 import BorgBackup from './borg.js';
@@ -86,6 +87,7 @@ export const store = {
 			if (e.message == 'nonexistent' && this.state.session.authenticated()) {
 				try {
 					this.state.user = await User.create (this.state.session.oauthInfo);
+					trackEvent ("users", "user-created");
 				} catch (e) {
 					/* if creating a user fails the back-end must be broken */
 					this.state.user = null;
@@ -201,6 +203,15 @@ router.beforeEach (async function (to, from) {
 	}
 	console.debug ('accept navigation');
 	return true;
+});
+router.afterEach ((to, from, failure) => {
+	if (!failure && store.state?.session?.authenticated?.()) {
+		trackNavigation ({
+			referrer: from.fullPath,
+			url: to.fullPath,
+			documentTitle: null,
+		});
+	}
 });
 app.use (router);
 

@@ -1,5 +1,6 @@
 import { store } from '../../app.js';
 import template from './template.html'
+import { trackEvent } from '../../matomo.js';
 
 export default {
 	name: 'WorkspaceDeleteView',
@@ -24,6 +25,7 @@ export default {
         deleteWorkspace: async function() {
 			if (this.canDelete) {
 				await this.workspaces.delete (this.workspace);
+				trackEvent ('projects', 'project-deleted');
 			} else {
 				await this.workspaces.ignore (this.workspace);
 			}

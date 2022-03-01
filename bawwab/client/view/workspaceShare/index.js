@@ -2,6 +2,7 @@ import { store } from '../../app.js';
 import { postData } from '../../helper.js';
 import { queryParamProp } from '../../utils.js';
 import template from './template.html';
+import { trackEvent } from "../../matomo.js";
 
 const SendStatus = Object.freeze ({
 	unknown: 0,
@@ -105,6 +106,7 @@ export default {
 					});
 			const j = await r.json ();
 			if (r.ok) {
+				trackEvent ("email", "email-send");
 				return j;
 			} else {
 				/* would be good to move this out, to have a stateless
