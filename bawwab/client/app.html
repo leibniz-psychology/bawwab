@@ -97,7 +97,7 @@
 		initializeZPIDConsent().then((bannerSettings) => {
 			bannerSettings.language = localStorage.language ? localStorage.language : "de";
 			bannerSettings.paragraphs[1].links.policy.href = "/privacy";
-			Object.assign(settings.container.style, {'font-size': '18px'});
+			Object.assign(bannerSettings.container.style, {'font-size': '18px'});
 		}).finally(() => {
 			startZPIDConsent(false).then(() => {
 				_paq.push(['enableLinkTracking']);
