@@ -91,6 +91,12 @@
 	<dynamic-footer></dynamic-footer>
 	</div>
 	<!-- Cookie-Consent / Matomo. It would be nice if we could move this code to matomo.js, but the imported code does not export any functions, i.e. we cannot call them. -->
+	<script type="application/javascript">
+		/* Temporary fix for a cookie fuckup, which contained unencoded JSON data with long expiration date (90 days). */
+		if (document.cookie.match(/_zpid_consent=\{/) !== null) {
+			document.cookie = '_zpid_consent=deleted ;max-age=0 ;samesite=lax'
+		}
+	</script>
 	<script type="application/javascript"
 			src="https://www.lifp.de/assets/scripts/zpid-consent-banner/web/zpid_consent.js"></script>
 	<script type="application/javascript">
