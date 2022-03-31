@@ -161,7 +161,7 @@
             "removePackage": "Remove",
             "addPackage": "Install",
             "searchPackage": "Search package",
-            "upgrade": "Upgrade all packages",
+            "upgrade": "Update all packages",
             "close": "Close",
             "title": "Manage packages",
             "nopackages": "No packages found",
