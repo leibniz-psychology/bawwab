@@ -164,6 +164,9 @@ const app = createApp ({
 		}
 	},
 	computed: {
+		isLoggedIn: function () {
+			return !(this.state.session === null || !this.state.session.authenticated());
+		},
 		fullscreen: function () {
 			return this.$route.matched.length > 0 ? this.$route.matched[0].components.overlay : false;
 		},

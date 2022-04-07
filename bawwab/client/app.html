@@ -53,7 +53,7 @@
         </div>
         <nav id="main-nav">
           <ul>
-            <li>
+            <li v-if="isLoggedIn">
               <router-link :to="{name: 'workspaces'}">{{ $t('app.projects') }}</router-link>
             </li>
 			<li><router-link :to="{name: 'faq'}">{{ $t('app.help') }}</router-link></li>
