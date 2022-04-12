@@ -142,7 +142,7 @@
             "messageLabel": "Message",
             "nameLabel": "Name (optional)",
             "emailPlaceholder": "john{'@'}example.com or Jane Doe <jane{'@'}example.com>, …",
-            "emailInstruct": "Please enter email address and name of the recipient below, as well as your message."
+            "emailInstruct": "You can add multiple recipients for your message."
         },
         "tosPrompt": {
             "close": "Cancel",

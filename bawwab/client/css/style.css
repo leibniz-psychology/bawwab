@@ -729,3 +729,7 @@ form.filter input[type="radio"]:checked ~ label {
 	padding: 0;
 }
 }
+
+input[type="radio"] {
+	margin-right: 0.3em;
+}

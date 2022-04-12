@@ -1,11 +1,11 @@
-<modal icon="users" :title="$t('v.workspaceShare.sharetitle')" :closeName="$t('v.workspaceShare.close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" class="share">
+<modal icon="users" :title="$t('v.workspaceShare.sharetitle')" :closeName="$t('v.workspaceShare.close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" class="share-project">
 	<select v-model="selectedShareUrl" name="shareKind" size="0">
 	<option selected="selected" :value="false" class="read">{{ $t('v.workspaceShare.read') }}</option>
 	<option :value="true" class="write">{{ $t('v.workspaceShare.write') }}</option>
 	</select>
 	<p>{{ shareMeaning }}</p>
 	<template v-if="shareUrl[selectedShareUrl]">
-		<div class="pure-g kind">
+		<div class="pure-g sp-kind">
 			<div class="pure-u-1-2">
 				<input type="radio" name="mode" v-model="mode" value="link" id="shareModeLink">
 				<label for="shareModeLink">Link teilen</label>
@@ -32,13 +32,24 @@
 				</li>
 			</ul>
 
-			<p>{{ $t('v.workspaceShare.emailInstruct') }}</p>
-			<label for="shareEmail">E-Mail</label>
-			<input :placeholder="$t('v.workspaceShare.emailPlaceholder')" type="text" id="shareEmail" v-model="emailAddressesInput">
-			<label for="shareName">{{ $t('v.workspaceShare.nameLabel') }}</label>
-			<input placeholder="Name" type="text" id="shareName" v-model="emailName">
-			<label for="shareMessage">{{ $t('v.workspaceShare.messageLabel') }}</label>
-			<textarea style="flex-shrink: 0" :placeholder="$t('v.workspaceShare.messagePlaceholder')" id="shareMessage" v-model="emailMessage" required @focus="addAddress"></textarea>
+			<div class="email-adder">
+				<p>{{ $t('v.workspaceShare.emailInstruct') }}</p>
+				<div class="ea-input">
+					<label class="ea-label" for="shareEmail">E-Mail</label>
+					<input :placeholder="$t('v.workspaceShare.emailPlaceholder')" type="text" id="shareEmail" v-model="emailAddressesInput">
+				</div>
+				<div class="ea-input">
+					<label class="ea-label" for="shareName">{{ $t('v.workspaceShare.nameLabel') }}</label>
+					<input placeholder="Name" type="text" id="shareName" v-model="emailName">
+				</div>
+				<button @click="addAddress" class="add-address-btn btn high">add</button>
+
+				<div class="ea-input">
+					<label class="ea-label" for="shareMessage">{{ $t('v.workspaceShare.messageLabel') }}</label>
+					<textarea style="flex-shrink: 0" :placeholder="$t('v.workspaceShare.messagePlaceholder')" id="shareMessage" v-model="emailMessage" required></textarea>
+				</div>
+			</div>
+
 			<template v-if="preview">
 				<p>{{ $t('v.workspaceShare.preview') }}:</p>
 				<pre class="mailpreview">{{ preview }}</pre>

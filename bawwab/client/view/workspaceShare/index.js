@@ -3,6 +3,7 @@ import { postData } from '../../helper.js';
 import { queryParamProp } from '../../utils.js';
 import template from './template.html';
 import { trackEvent } from "../../matomo.js";
+import './style.css';
 
 const SendStatus = Object.freeze ({
 	unknown: 0,

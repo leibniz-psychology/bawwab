@@ -1,0 +1,24 @@
+.sp-kind {
+    margin: 0.5em 0;
+}
+
+.email-adder {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.ea-input {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.5em;
+}
+
+.ea-label {
+    margin-bottom: 0.2em;
+}
+
+.add-address-btn {
+    margin-bottom: 1.0em;
+}

@@ -144,7 +144,7 @@
       "messageLabel": "Nachricht",
       "nameLabel": "Name (optional)",
       "emailPlaceholder": "max{'@'}example.com oder Max Muster <max{'@'}example.com>, …",
-      "emailInstruct": "Bitte gib unten E-Mail-Adresse und Namen des Empfängers, sowie Deine Nachricht ein."
+      "emailInstruct": "Du kannst mehrere Empfänger für deine Nachricht hinzufügen."
     },
     "tosPrompt": {
       "close": "Abbrechen",
