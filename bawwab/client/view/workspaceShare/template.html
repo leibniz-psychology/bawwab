@@ -9,11 +9,11 @@
 		<div class="pure-g sp-mode-selector">
 			<div class="pure-u-1-2">
 				<input type="radio" name="mode" v-model="mode" value="link" id="shareModeLink">
-				<label for="shareModeLink">Link teilen</label>
+				<label for="shareModeLink">{{ $t('v.workspaceShare.modeShareLink') }}</label>
 			</div>
 			<div class="pure-u-1-2">
 				<input type="radio" name="mode" v-model="mode" value="email" id="shareModeEmail">
-				<label for="shareModeEmail">E-Mail senden</label>
+				<label for="shareModeEmail">{{ $t('v.workspaceShare.modeShareEmail') }}</label>
 			</div>
 		</div>
 		<template v-if="modeLink">
@@ -48,7 +48,7 @@
 						<label for="shareName" class="sp-input-label">{{ $t('v.workspaceShare.nameLabel') }}</label>
 						<input placeholder="Name" type="text" id="shareName" v-model="emailName">
 					</div>
-					<button @click="addAddress" class="sp-add-address-btn btn high">add</button>
+					<button @click="addAddress" class="sp-add-address-btn btn high">{{ $t('v.workspaceShare.addButton') }}</button>
 
 					<div class="sp-input">
 						<label for="shareMessage" class="sp-input-label">{{ $t('v.workspaceShare.messageLabel') }}</label>
