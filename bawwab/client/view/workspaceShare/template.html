@@ -1,11 +1,12 @@
 <modal icon="users" :title="$t('v.workspaceShare.sharetitle')" :closeName="$t('v.workspaceShare.close')" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true" class="share-project">
-	<select v-model="selectedShareUrl" name="shareKind" size="0">
-	<option selected="selected" :value="false" class="read">{{ $t('v.workspaceShare.read') }}</option>
-	<option :value="true" class="write">{{ $t('v.workspaceShare.write') }}</option>
+	<select v-model="selectedShareUrl" name="shareKind" size="0" class="sp-kind-selector">
+		<option selected="selected" :value="false" class="read">{{ $t('v.workspaceShare.read') }}</option>
+		<option :value="true" class="write">{{ $t('v.workspaceShare.write') }}</option>
 	</select>
-	<p>{{ shareMeaning }}</p>
+	<span class="sp-kind-meaning">{{ shareMeaning }}</span>
+
 	<template v-if="shareUrl[selectedShareUrl]">
-		<div class="pure-g sp-kind">
+		<div class="pure-g sp-mode-selector">
 			<div class="pure-u-1-2">
 				<input type="radio" name="mode" v-model="mode" value="link" id="shareModeLink">
 				<label for="shareModeLink">Link teilen</label>
@@ -16,44 +17,50 @@
 			</div>
 		</div>
 		<template v-if="modeLink">
-			<label for="shareUrl">{{ $t('v.workspaceShare.sharelink') }}</label>
-			<input type="text" v-model="shareUrl[selectedShareUrl]" id="shareUrl" readonly="readonly">
-		</template>
-		<template v-if="modeEmail">
-			<message v-if="emailQuotaReached" kind="warning">{{ $t('v.workspaceShare.quotareached') }}</message>
-			<ul>
-				<li v-for="a in emailAddresses">
-					{{ a.name }}
-					<small>{{ a.address }}</small>
-					<action-button v-if="a.status==SendStatus.unknown" :f="_ => removeAddress(a)" icon="trash" importance="low"></action-button>
-					<spinner v-else-if="a.status==SendStatus.inprogress"></spinner>
-					<i v-else-if="a.status==SendStatus.success" class="fas fa-check"></i>
-					<i v-else-if="a.status==SendStatus.failure" class="fas fa-exclamation"></i>
-				</li>
-			</ul>
-
-			<div class="email-adder">
-				<p>{{ $t('v.workspaceShare.emailInstruct') }}</p>
-				<div class="ea-input">
-					<label class="ea-label" for="shareEmail">E-Mail</label>
-					<input :placeholder="$t('v.workspaceShare.emailPlaceholder')" type="text" id="shareEmail" v-model="emailAddressesInput">
-				</div>
-				<div class="ea-input">
-					<label class="ea-label" for="shareName">{{ $t('v.workspaceShare.nameLabel') }}</label>
-					<input placeholder="Name" type="text" id="shareName" v-model="emailName">
-				</div>
-				<button @click="addAddress" class="add-address-btn btn high">add</button>
-
-				<div class="ea-input">
-					<label class="ea-label" for="shareMessage">{{ $t('v.workspaceShare.messageLabel') }}</label>
-					<textarea style="flex-shrink: 0" :placeholder="$t('v.workspaceShare.messagePlaceholder')" id="shareMessage" v-model="emailMessage" required></textarea>
+			<div class="sp-mode-form">
+				<div class="sp-input">
+					<label for="shareUrl" class="sp-input-label">{{ $t('v.workspaceShare.sharelink') }}</label>
+					<input type="text" v-model="shareUrl[selectedShareUrl]" id="shareUrl" readonly="readonly">
 				</div>
 			</div>
+		</template>
+		<template v-if="modeEmail">
+			<div class="sp-mode-form">
+				<message v-if="emailQuotaReached" kind="warning">{{ $t('v.workspaceShare.quotareached') }}</message>
+				<ul v-if="emailAddresses.length > 0" class="sp-recipient-list">
+					<li v-for="a in emailAddresses">
+						{{ a.name }}
+						<small>{{ a.address }}</small>
+						<action-button v-if="a.status==SendStatus.unknown" :f="_ => removeAddress(a)" icon="trash" importance="low"></action-button>
+						<spinner v-else-if="a.status==SendStatus.inprogress"></spinner>
+						<i v-else-if="a.status==SendStatus.success" class="fas fa-check"></i>
+						<i v-else-if="a.status==SendStatus.failure" class="fas fa-exclamation"></i>
+					</li>
+				</ul>
 
-			<template v-if="preview">
-				<p>{{ $t('v.workspaceShare.preview') }}:</p>
-				<pre class="mailpreview">{{ preview }}</pre>
-			</template>
+				<div class="sp-email-adder">
+					<span>{{ $t('v.workspaceShare.emailInstruct') }}</span>
+					<div class="sp-input">
+						<label for="shareEmail" class="sp-input-label">E-Mail</label>
+						<input :placeholder="$t('v.workspaceShare.emailPlaceholder')" type="text" id="shareEmail" v-model="emailAddressesInput">
+					</div>
+					<div class="sp-input">
+						<label for="shareName" class="sp-input-label">{{ $t('v.workspaceShare.nameLabel') }}</label>
+						<input placeholder="Name" type="text" id="shareName" v-model="emailName">
+					</div>
+					<button @click="addAddress" class="sp-add-address-btn btn high">add</button>
+
+					<div class="sp-input">
+						<label for="shareMessage" class="sp-input-label">{{ $t('v.workspaceShare.messageLabel') }}</label>
+						<textarea style="flex-shrink: 0" :placeholder="$t('v.workspaceShare.messagePlaceholder')" id="shareMessage" v-model="emailMessage" required></textarea>
+					</div>
+				</div>
+
+				<template v-if="preview">
+					<p>{{ $t('v.workspaceShare.preview') }}:</p>
+					<pre class="mailpreview">{{ preview }}</pre>
+				</template>
+			</div>
 		</template>
 	</template>
 	<spinner v-else></spinner>

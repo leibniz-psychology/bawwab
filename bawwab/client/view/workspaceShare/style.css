@@ -1,24 +1,33 @@
-.sp-kind {
-    margin: 0.5em 0;
+.sp-kind-selector {
+    margin-bottom: 0.3em;
 }
 
-.email-adder {
+.sp-kind-meaning, .sp-mode-selector, .sp-recipient-list {
+    margin-bottom: 1em;
+}
+
+.sp-mode-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.sp-email-adder {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }
 
-.ea-input {
+.sp-input {
     width: 100%;
     display: flex;
     flex-direction: column;
     margin-bottom: 0.5em;
 }
 
-.ea-label {
+.sp-input-label {
     margin-bottom: 0.2em;
 }
 
-.add-address-btn {
+.sp-add-address-btn {
     margin-bottom: 1.0em;
 }
