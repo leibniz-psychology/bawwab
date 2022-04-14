@@ -174,7 +174,7 @@
         "workspacePublish": {
             "title": "Publish project",
             "cancel": "Cancel",
-            "explain": "Public projects can be copied by all users. It is possible to edit and retract published projects but copies made by other users will remain unaffected.",
+            "explain": "Public projects can be copied by all users. You can edit and retract your projects after publication but copies that have already been made by other users will remain unaffected.",
             "sharepublic": "Enable public access",
             "unsharepublic": "Revoke public access"
         },

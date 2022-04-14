@@ -176,7 +176,7 @@
     "workspacePublish": {
       "title": "Projekt veröffentlichen",
       "cancel": "Abbrechen",
-      "explain": "Öffentliche Projekte können von allen Nutzern kopiert werden. Die Veröffentlichung eines Projekts kann rückgängig gemacht werden, Kopien anderer Nutzer bleiben davon unberührt.",
+      "explain": "Öffentliche Projekte können von allen Nutzern kopiert werden. Projekte können nach der Veröffentlichung editiert oder die Veröffentlichung rückgängig gemacht werden. Bereits von anderen Usern gemachte Kopien werden dadurch nicht verändert.",
       "sharepublic": "Projekt veröffentlichen",
       "unsharepublic": "Veröffentlichung widerrufen"
     },
