@@ -26,10 +26,16 @@
 	</div>
 	</form>
 	<table class="workspaces pure-table pure-table-striped pure-table-horizontal" v-if="filteredWorkspaces.length > 0">
+		<col class="wl-column-title">
+		<col class="wl-column-description">
+		<col class="wl-column-publishedBy" v-if="filter==='world'">
+		<col class="wl-column-applications">
+		<col class="wl-column-actions">
 	<thead>
 		<tr>
 			<th class="title">{{ $t('v.workspaceList.thtitle') }}</th>
 			<th class="description">{{ $t('v.workspaceList.thdescription') }}</th>
+			<th class="publishedBy" v-if="filter==='world'">{{ $t('v.workspaceList.thpublishedBy') }}</th>
 			<th class="applications">{{ $t('v.workspaceList.thapplications') }}</th>
 			<th class="actions">{{ $t('v.workspaceList.thactions') }}</th>
 		</tr>
@@ -47,6 +53,9 @@
 				<span v-if="w.metadata.description">{{ w.metadata.description }}</span>
 				<span v-else>&nbsp;</span>
 			</router-link>
+		</td>
+		<td class="publishedBy" v-if="filter==='world'">
+			<span>{{ w.owner().join(", ") }}</span>
 		</td>
 		<td class="applications">
 			<ul>

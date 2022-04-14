@@ -74,6 +74,7 @@
       "publicprojects": "Öffentliche Projekte",
       "thtitle": "Titel",
       "thdescription": "Beschreibung",
+      "thpublishedBy": "Veröffentlicht von",
       "thapplications": "Anwendungen",
       "thactions": "Aktionen",
       "import": "Projekt importieren"

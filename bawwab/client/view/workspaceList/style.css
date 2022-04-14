@@ -50,3 +50,23 @@ table.workspaces .actions li {
     display: inline;
     margin: 0;
 }
+
+.wl-column-title {
+    width: 23%;
+}
+
+.wl-column-description {
+    max-width: 46%;
+}
+
+.wl-column-publishedBy {
+    width: 17%;
+}
+
+.wl-column-applications {
+    width: 17%;
+}
+
+.wl-column-actions {
+    width: 17%;
+}
