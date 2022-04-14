@@ -139,7 +139,7 @@
       "write": "Schreibzugriff",
       "writeMeaning": "Der Benutzer kann das Projekt kopieren, Anwendungen starten und alle Daten ändern oder löschen. Bitte beachte, dass diese Funktion noch experimentell ist und der gleichzeitige Zugriff mehrerer Benutzer Probleme verursachen kann.",
       "modeShareLink": "Link teilen",
-      "modeShareEmail": "E-mail senden",
+      "modeShareEmail": "E-Mail senden",
       "addButton": "Hinzufügen",
       "sharelink": "Teile den folgenden Link",
       "quotareached": "Du hast das Sendelimit erreicht und kannst heute keine weiteren E-Mails verschicken.",
