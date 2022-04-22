@@ -353,10 +353,6 @@ span.placeholder {
 	opacity: 0.5;
 }
 
-.application div.actions {
-	text-align: right;
-}
-
 .appoverlay {
 	position: fixed;
 	top: 0;

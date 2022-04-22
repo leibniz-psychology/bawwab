@@ -1,0 +1,20 @@
+.application-item {
+    margin-bottom: 0.5em;
+}
+
+.ai-icon {
+    display: flex;
+}
+
+.ai-information {
+    display: flex;
+    align-items: center;
+}
+
+.ai-description {
+    margin-left: 0.5em;
+}
+
+.ai-actions {
+    text-align: right;
+}

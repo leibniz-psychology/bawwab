@@ -1,9 +1,13 @@
-<div class="pure-g application">
-	<div class="pure-u-md-4-5 pure-u-1">
-		<application-icon :workspace="workspace" :application="application" height="3em"></application-icon>
-		{{ name }}. {{ description }}
+<div class="pure-g application-item">
+	<div class="pure-u-md-4-5 pure-u-1 ai-information">
+		<div class="ai-icon">
+			<application-icon :workspace="workspace" :application="application" height="2.5em"></application-icon>
+		</div>
+		<div class="ai-description">
+			{{ name }}. {{ description }}
+		</div>
 	</div>
-	<div class="pure-u-md-1-5 pure-u-1 actions">
+	<div class="pure-u-md-1-5 pure-u-1 ai-actions">
 	<router-link :to="{name: 'application', params: {wsid: workspace.metadata._id, appid: application._id}}" class="btn medium">
 		<i :class="cls"></i> {{ $t('c.applicationItem.run') }}
 	</router-link>
