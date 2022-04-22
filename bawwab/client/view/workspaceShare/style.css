@@ -17,6 +17,10 @@
     align-items: flex-start;
 }
 
+.sp-email-instruct {
+    margin-bottom: 0.5em;
+}
+
 .sp-input {
     width: 100%;
     display: flex;
