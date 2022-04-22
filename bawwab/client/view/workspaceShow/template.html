@@ -5,8 +5,6 @@
 					<router-link :to="{name: 'workspaces'}">{{ $t('v.workspaceShow.back') }}</router-link>
 				</template>
 				<template #right>
-					<action-button v-if="editable" icon="save" :f="save" importance="high">{{ $t('v.workspaceShow.save') }}</action-button>
-					<action-button v-if="editable" icon="window-close" :f="discard" importance="low">{{ $t('v.workspaceShow.cancel') }}</action-button>
 					<action-button v-if="!editable && canEditMeta" icon="edit" :f="makeTitleEditable" importance="medium">{{ $t('v.workspaceShow.edit') }}</action-button>
 					<router-link class="btn" v-if="permissions.canRun ()" :to="{name: 'workspacePackages', params: {wsid: workspace.metadata._id}}"><i class="fas fa-box"></i> {{ $t('v.workspaceShow.editpackages') }}</router-link>
 					<router-link class="btn" v-if="permissions.canShare ()" :to="{name: 'workspaceShare', params: {wsid: workspace.metadata._id}}"><i class="fas fa-share"></i> {{ $t('v.workspaceShow.share') }}</router-link>
@@ -17,7 +15,7 @@
 				</template>
 			</action-bar>
 		<h3 class="title">
-			<input type="text" v-if="editable" :placeholder="$t('v.workspaceShow.projectname')" :value="name">
+			<input :aria-label="$t('v.workspaceShow.projectname')" type="text" v-if="editable" :placeholder="$t('v.workspaceShow.projectname')" :value="name">
 			<span v-else-if="hasName" v-text="name"></span>
 			<span v-else-if="canEditMeta" class="placeholder" @click="makeTitleEditable">{{ $t('v.workspaceShow.noTitle') }}</span>
 		</h3>
@@ -48,10 +46,14 @@
 		</ul>
 
 		<p class="description">
-			<textarea v-if="editable" :placeholder="$t('v.workspaceShow.projectdescription')" v-text="description"></textarea>
+			<textarea :aria-label="$t('v.workspaceShow.projectdescription')" v-if="editable" :placeholder="$t('v.workspaceShow.projectdescription')" v-text="description"></textarea>
 			<span v-else-if="hasDescription" v-text="description"></span>
 			<span v-else-if="canEditMeta" class="placeholder" @click="makeDescriptionEditable">{{ $t('v.workspaceShow.noDescription') }}</span>
 		</p>
+		<div v-if="editable" class="ws-editModeButtons">
+			<action-button  icon="save" :f="save" importance="high">{{ $t('v.workspaceShow.save') }}</action-button>
+			<action-button  icon="window-close" :f="discard" importance="low" class="ws-editModeButtons-discard">{{ $t('v.workspaceShow.cancel') }}</action-button>
+		</div>
 
 		<div class="applications">
 	<application-item

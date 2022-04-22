@@ -28,3 +28,12 @@
     margin: 0;
     padding: 0;
 }
+
+.ws-editModeButtons {
+    margin-bottom: 2em;
+}
+
+.ws-editModeButtons .ws-editModeButtons-discard {
+    padding: 0;
+    margin-left: 2em;
+}

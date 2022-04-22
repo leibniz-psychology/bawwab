@@ -75,7 +75,7 @@
             "publicprojects": "Public projects",
             "thtitle": "Title",
             "thdescription": "Description",
-            "thpublishedBy": "Published by",
+            "thcreatedBy": "created by",
             "thapplications": "Applications",
             "thactions": "Actions",
             "import": "Import project"

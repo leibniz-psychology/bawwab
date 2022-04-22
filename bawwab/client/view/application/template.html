@@ -7,7 +7,7 @@
 		   <div class="pure-u-3-5 title">
 				<ul>
 					<li v-if="program && program.error !== null"><action-button :f="reset" icon="redo">{{ $t('v.application.reset') }}</action-button></li>
-					<li v-if="program && program.state != ConductorState.exited"><action-button :f="terminate" icon="stop">{{ $t('v.application.stop') }}</action-button></li>
+					<!--<li v-if="program && program.state != ConductorState.exited"><action-button :f="terminate" icon="stop">{{ $t('v.application.stop') }}</action-button></li>-->
 					<li v-if="workspace"><router-link :to="{name: 'workspace', params: {wsid: workspace.metadata._id}}"><application-icon :workspace="workspace" :application="application"></application-icon> {{ workspace.metadata.name }}</router-link></li>
 					<li><dropdown class="history">
 						<template v-slot:button>
