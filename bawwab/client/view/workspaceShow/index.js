@@ -96,7 +96,7 @@ export default {
 			}
 		},
 		makeTitleEditable: function () {
-			this.makeEditable('.title input');
+			this.makeEditable('.ws-headline-title-input');
 		},
 		makeDescriptionEditable: function () {
 			this.makeEditable('.description textarea');
