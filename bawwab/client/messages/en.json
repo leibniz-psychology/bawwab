@@ -197,7 +197,7 @@
             "publish": "Publish",
             "export": "Export",
             "copy": "Copy",
-            "delete": "Delete",
+            "delete": "Delete project",
             "hide": "Hide",
             "back": "Back to projects",
             "projectname": "Name of the project",

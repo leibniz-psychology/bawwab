@@ -70,7 +70,7 @@ export default {
 			await this.settings.sync();
 		},
 		save: async function () {
-			const name = this.$el.querySelector ('.title input').value;
+			const name = this.$el.querySelector ('.ws-headline-title-input').value;
 			const description = this.$el.querySelector ('.description textarea').value;
 			const w = this.workspace;
 

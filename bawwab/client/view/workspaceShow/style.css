@@ -29,6 +29,22 @@
     padding: 0;
 }
 
+.ws-headline {
+    display: flex;
+    justify-content: end;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.ws-headline-title, .ws-headline-title-input {
+    display: flex;
+    flex-grow: 1;
+}
+
+.ws-headline-title {
+    margin: 0.6em 0em;
+}
+
 .ws-editModeButtons {
     margin-bottom: 2em;
     text-align: end;
@@ -37,4 +53,27 @@
 .ws-editModeButtons .ws-editModeButtons-discard {
     padding: 0;
     margin-left: 2em;
+}
+
+.ws-primary-actions {
+    margin-bottom: 2em;
+}
+
+.ws-secondary-actions {
+    margin-bottom: 2em;
+}
+
+.btn.ws-action-button-inline {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 0;
+    padding-right: 1em;
+}
+
+.ws-applications {
+    margin-bottom: 2em;
+}
+
+.ws-action-button-inline.ws-action-delete {
+    color: rgb(212 0 0);
 }
