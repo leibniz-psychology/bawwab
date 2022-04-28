@@ -30,8 +30,8 @@
          ,node-intlify-shared-9.1.9)))
     (home-page
       "https://github.com/intlify/vue-i18n-next/tree/master/packages/devtools-if#readme")
-    (synopsis "@intlify/devtools-if")
-    (description "@intlify/devtools-if")
+    (synopsis "intlify/devtools-if")
+    (description "intlify/devtools-if")
     (license license:expat)))
 
 (define-public node-intlify-core-base-9.1.9
@@ -69,8 +69,8 @@
          ,node-intlify-devtools-if-9.1.9)))
     (home-page
       "https://github.com/intlify/vue-i18n-next/tree/master/packages/core-base#readme")
-    (synopsis "@intlify/core-base")
-    (description "@intlify/core-base")
+    (synopsis "intlify/core-base")
+    (description "intlify/core-base")
     (license license:expat)))
 
 (define-public node-source-map-0.6.1
@@ -128,8 +128,8 @@
          ,node-intlify-message-resolver-9.1.9)))
     (home-page
       "https://github.com/intlify/vue-i18n-next/tree/master/packages/message-compiler#readme")
-    (synopsis "@intlify/message-compiler")
-    (description "@intlify/message-compiler")
+    (synopsis "intlify/message-compiler")
+    (description "intlify/message-compiler")
     (license license:expat)))
 
 (define-public node-intlify-message-resolver-9.1.9
@@ -154,8 +154,8 @@
           (delete 'build))))
     (home-page
       "https://github.com/intlify/vue-i18n-next/tree/master/packages/message-resolver#readme")
-    (synopsis "@intlify/message-resolver")
-    (description "@intlify/message-resolver")
+    (synopsis "intlify/message-resolver")
+    (description "intlify/message-resolver")
     (license license:expat)))
 
 (define-public node-intlify-runtime-9.1.9
@@ -187,8 +187,8 @@
          ,node-intlify-message-compiler-9.1.9)))
     (home-page
       "https://github.com/intlify/vue-i18n-next/tree/master/packages/runtime#readme")
-    (synopsis "@intlify/runtime")
-    (description "@intlify/runtime")
+    (synopsis "intlify/runtime")
+    (description "intlify/runtime")
     (license license:expat)))
 
 (define-public node-intlify-shared-9.1.9
@@ -213,8 +213,8 @@
           (delete 'build))))
     (home-page
       "https://github.com/intlify/vue-i18n-next/tree/master/packages/shared#readme")
-    (synopsis "@intlify/shared")
-    (description "@intlify/shared")
+    (synopsis "intlify/shared")
+    (description "intlify/shared")
     (license license:expat)))
 
 (define-public node-intlify-vue-devtools-9.1.9
@@ -246,8 +246,8 @@
          ,node-intlify-message-resolver-9.1.9)))
     (home-page
       "https://github.com/intlify/vue-i18n-next/tree/master/packages/vue-devtools#readme")
-    (synopsis "@intlify/vue-devtools")
-    (description "@intlify/vue-devtools")
+    (synopsis "intlify/vue-devtools")
+    (description "intlify/vue-devtools")
     (license license:expat)))
 
 (define-public node-vue-i18n-9.1.9

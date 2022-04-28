@@ -28,8 +28,8 @@
       `(("node-vue-shared" ,node-vue-shared-3.2.22)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/reactivity#readme")
-    (synopsis "@vue/reactivity")
-    (description "@vue/reactivity")
+    (synopsis "vue/reactivity")
+    (description "vue/reactivity")
     (license license:expat)))
 
 (define-public node-vue-runtime-core-3.2.22
@@ -58,8 +58,8 @@
         ("node-vue-shared" ,node-vue-shared-3.2.22)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/runtime-core#readme")
-    (synopsis "@vue/runtime-core")
-    (description "@vue/runtime-core")
+    (synopsis "vue/runtime-core")
+    (description "vue/runtime-core")
     (license license:expat)))
 
 (define-public node-csstype-2.6.19
@@ -117,8 +117,8 @@
         ("node-vue-shared" ,node-vue-shared-3.2.22)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/runtime-dom#readme")
-    (synopsis "@vue/runtime-dom")
-    (description "@vue/runtime-dom")
+    (synopsis "vue/runtime-dom")
+    (description "vue/runtime-dom")
     (license license:expat)))
 
 (define-public node-vue-ref-transform-3.2.22
@@ -150,8 +150,8 @@
         ("node-babel-parser" ,node-babel-parser-7.16.4)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/dev/packages/ref-transform#readme")
-    (synopsis "@vue/ref-transform")
-    (description "@vue/ref-transform")
+    (synopsis "vue/ref-transform")
+    (description "vue/ref-transform")
     (license license:expat)))
 
 (define-public node-sourcemap-codec-1.4.8
@@ -360,8 +360,8 @@
         ("node-babel-parser" ,node-babel-parser-7.16.4)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/compiler-sfc#readme")
-    (synopsis "@vue/compiler-sfc")
-    (description "@vue/compiler-sfc")
+    (synopsis "vue/compiler-sfc")
+    (description "vue/compiler-sfc")
     (license license:expat)))
 
 (define-public node-vue-shared-3.2.22
@@ -387,9 +387,9 @@
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/shared#readme")
     (synopsis
-      "internal utils shared across @vue packages")
+      "internal utils shared across vue packages")
     (description
-      "internal utils shared across @vue packages")
+      "internal utils shared across vue packages")
     (license license:expat)))
 
 (define-public node-babel-parser-7.16.4
@@ -498,8 +498,8 @@
         ("node-vue-shared" ,node-vue-shared-3.2.22)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/compiler-core#readme")
-    (synopsis "@vue/compiler-core")
-    (description "@vue/compiler-core")
+    (synopsis "vue/compiler-core")
+    (description "vue/compiler-core")
     (license license:expat)))
 
 (define-public node-vue-compiler-dom-3.2.22
@@ -528,8 +528,8 @@
         ("node-vue-shared" ,node-vue-shared-3.2.22)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/compiler-dom#readme")
-    (synopsis "@vue/compiler-dom")
-    (description "@vue/compiler-dom")
+    (synopsis "vue/compiler-dom")
+    (description "vue/compiler-dom")
     (license license:expat)))
 
 (define-public node-vue-compiler-ssr-3.2.22
@@ -558,8 +558,8 @@
         ("node-vue-shared" ,node-vue-shared-3.2.22)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/compiler-ssr#readme")
-    (synopsis "@vue/compiler-ssr")
-    (description "@vue/compiler-ssr")
+    (synopsis "vue/compiler-ssr")
+    (description "vue/compiler-ssr")
     (license license:expat)))
 
 (define-public node-vue-server-renderer-3.2.22
@@ -594,8 +594,8 @@
         ("node-vue-shared" ,node-vue-shared-3.2.22)))
     (home-page
       "https://github.com/vuejs/vue-next/tree/master/packages/server-renderer#readme")
-    (synopsis "@vue/server-renderer")
-    (description "@vue/server-renderer")
+    (synopsis "vue/server-renderer")
+    (description "vue/server-renderer")
     (license license:expat)))
 
 (define-public node-vue-3.2.22
