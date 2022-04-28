@@ -11,7 +11,7 @@ setup(
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     install_requires=[
-        'sanic',
+        'sanic>=21.12',
         # XXX: version 4 is currently broken, blacklist it
         'aiohttp<4',
         'pytz',

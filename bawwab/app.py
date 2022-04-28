@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys, logging
+import sys, logging, os
 
 import aiohttp
 import structlog
@@ -63,18 +63,18 @@ rootLogger.setLevel (logging.INFO)
 app = Sanic('bawwab', configure_logging=False)
 
 # XXX: make sure config has proper permissions
-app.config.from_envvar('BAWWAB_SETTINGS')
+app.config.update_config (os.environ['BAWWAB_SETTINGS'])
 config = app.config
 
 # globally available services
 @app.listener('before_server_start')
 async def setup (app, loop):
 	config = app.config
-	app.usermgrd = socketSession (config.USERMGRD_SOCKET)
+	app.ctx.usermgrd = socketSession (config.USERMGRD_SOCKET)
 
 @app.listener('after_server_stop')
 async def teardown (app, loop):
-	await app.usermgrd.close ()
+	await app.ctx.usermgrd.close ()
 
 @app.exception (Exception)
 def handleException (request, exception):

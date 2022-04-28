@@ -281,7 +281,7 @@ async def userCreate (request):
 		raise Forbidden ('exists')
 
 	try:
-		async with request.app.usermgrd.post ('http://localhost/', json=form) as resp:
+		async with request.app.ctx.usermgrd.post ('http://localhost/', json=form) as resp:
 			data = await resp.json ()
 			if data['status'] != 'ok':
 				request.ctx.logger.error (__name__ + '.create.usermgrd_error', reason=data['status'])
@@ -303,7 +303,7 @@ async def userCreate (request):
 async def userDelete (request, user):
 	async def callDelete (expectedStatus):
 		try:
-			async with request.app.usermgrd.delete (f'http://localhost/{user.name}') as resp:
+			async with request.app.ctx.usermgrd.delete (f'http://localhost/{user.name}') as resp:
 				data = await resp.json ()
 				status = data['status']
 				if status == 'user_not_found':

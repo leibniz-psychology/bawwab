@@ -123,7 +123,7 @@ async def getAction (token):
 
 	return action
 
-@bp.route ('/<token:string>', methods=['GET'])
+@bp.route ('/<token:str>', methods=['GET'])
 async def fetchAction (request, token):
 	session = request.ctx.session
 

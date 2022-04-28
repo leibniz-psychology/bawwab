@@ -26,7 +26,7 @@ import stat, mimetypes
 from contextlib import contextmanager
 
 from sanic import Blueprint
-from sanic.response import stream, json
+from sanic.response import json
 from sanic.exceptions import Forbidden, NotFound, ServerError
 import asyncssh
 from structlog import get_logger
@@ -48,10 +48,7 @@ def translateSSHError ():
 	except asyncssh.sftp.SFTPFailure:
 		raise ServerError ('error')
 
-# We can only use methods defined in
-# https://github.com/MagicStack/httptools/blob/v0.1.1/httptools/parser/cparser.pxd#L91
-# here.
-@bp.route ('/<path:path>', methods=['GET', 'PROPFIND', 'DELETE', 'PUT', 'MKCOL'], stream=True)
+@bp.route ('/<path:path>', methods=['GET', 'DELETE', 'PUT', 'POST'], stream=True)
 @authenticated
 async def fileGetDelete (request, user, path):
 	"""
@@ -79,22 +76,9 @@ async def fileGetDelete (request, user, path):
 					return {'name': e.filename, 'size': e.attrs.size}
 				return json (list (map (toDict, entries)))
 			elif stat.S_ISREG (s.permissions):
-				fd = await client.open (path, 'rb')
+				pass
 			else:
 				raise Forbidden ('invalid_type')
-
-		async def doStream (response):
-			try:
-				while True:
-					buf = await fd.read (10*1024)
-					if not buf:
-						break
-					await response.write (buf)
-			finally:
-				# We cannot	use	async with to open the fd, because
-				# the streaming	response goes out of scope before
-				# finishing. Thus close	it here	explicitly.
-				await fd.close ()
 
 		mimetype, encoding = mimetypes.guess_type (filename)
 		headers = {
@@ -108,23 +92,41 @@ async def fileGetDelete (request, user, path):
 		inline = 'inline' in request.args and mimetype in inlineAllowed
 		if not inline:
 			headers['Content-Disposition'] = f'attachment; filename="{filename}"'
-		return stream (doStream,
+		response = await request.respond (
 				headers=headers,
-				content_type=mimetype,
-				# disable chunked, because we know the file-size and thus the
-				# browser can show progress
-				chunked=False)
-	elif request.method == 'PROPFIND':
-		with translateSSHError ():
-			follow = int (request.args.get ('follow', 1)) != 0
-			if follow:
-				s = await client.stat (path)
-			else:
-				s = await client.lstat (path)
-			ret = dict (size=s.size)
-			if stat.S_ISLNK (s.permissions):
-				s['target'] = await client.readlink (path)
-			return json (dict (status='ok', result=ret))
+				content_type=mimetype)
+
+		fd = await client.open (path, 'rb')
+		try:
+			while True:
+				buf = await fd.read (10*1024)
+				if not buf:
+					break
+				await response.send (buf)
+		finally:
+			await response.eof ()
+			await fd.close ()
+	elif request.method == 'POST':
+		# We cannot use request.json here, since we use
+		# stream=True for the request body.
+		kind = request.args.get ('kind', None)
+		if kind == 'PROPFIND':
+			with translateSSHError ():
+				follow = int (request.args.get ('follow', 1)) != 0
+				if follow:
+					s = await client.stat (path)
+				else:
+					s = await client.lstat (path)
+				ret = dict (size=s.size)
+				if stat.S_ISLNK (s.permissions):
+					s['target'] = await client.readlink (path)
+				return json (dict (status='ok', result=ret))
+		elif kind == 'MKCOL':
+			with translateSSHError ():
+				await client.makedirs (path, exist_ok=True)
+			return json ({'status': 'ok'})
+		else:
+			return json ({'status': 'invalid_method'}, status=405)
 	elif request.method == 'PUT':
 		with translateSSHError ():
 			fd = await client.open (path, 'wb')
@@ -140,8 +142,4 @@ async def fileGetDelete (request, user, path):
 	elif request.method == 'DELETE':
 		with translateSSHError ():
 			await client.remove (path)
-		return json ({'status': 'ok'})
-	elif request.method == 'MKCOL':
-		with translateSSHError ():
-			await client.makedirs (path, exist_ok=True)
 		return json ({'status': 'ok'})
