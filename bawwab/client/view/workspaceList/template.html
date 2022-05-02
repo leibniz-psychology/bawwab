@@ -6,8 +6,10 @@
 			<p>{{ $t('v.workspaceList.description') }}</p>
 		</template>
 		<template #right>
-			<router-link class="btn low" :to="{name: 'workspaceImport'}"><i class="fas fa-file-import"></i> {{ $t('v.workspaceList.import') }}</router-link>
-			<action-button icon="plus-square" :f="createWorkspace" importance="high">{{ $t('v.workspaceList.create') }}</action-button>
+			<div class="wl-general-actions">
+				<router-link class="btn low" :to="{name: 'workspaceImport'}"><i class="fas fa-file-import"></i> {{ $t('v.workspaceList.import') }}</router-link>
+				<action-button icon="plus-square" :f="createWorkspace" importance="high">{{ $t('v.workspaceList.create') }}</action-button>
+			</div>
 		</template>
 	</action-bar>
 	<form class="filter">

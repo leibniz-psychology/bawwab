@@ -11,6 +11,12 @@
     flex-direction: column;
 }
 
+.sp-recipient-list--item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .sp-email-adder {
     display: flex;
     flex-direction: column;

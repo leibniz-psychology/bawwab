@@ -28,9 +28,11 @@
 			<div class="sp-mode-form">
 				<message v-if="emailQuotaReached" kind="warning">{{ $t('v.workspaceShare.quotareached') }}</message>
 				<ul v-if="emailAddresses.length > 0" class="sp-recipient-list">
-					<li v-for="a in emailAddresses">
-						{{ a.name }}
-						<small>{{ a.address }}</small>
+					<li v-for="a in emailAddresses" class="sp-recipient-list--item">
+						<div>
+							{{ a.name }}
+							<small>{{ a.address }}</small>
+						</div>
 						<action-button v-if="a.status==SendStatus.unknown" :f="_ => removeAddress(a)" icon="trash" importance="low"></action-button>
 						<spinner v-else-if="a.status==SendStatus.inprogress"></spinner>
 						<i v-else-if="a.status==SendStatus.success" class="fas fa-check"></i>

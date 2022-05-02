@@ -1,4 +1,10 @@
 /*NOTE: --- Evtl. workspaces runterbrechen auf single-classes ---*/
+.wl-general-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 table.workspaces {
     width: 100%;
     margin: 1em 0;

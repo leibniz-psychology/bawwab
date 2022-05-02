@@ -77,7 +77,7 @@ export default {
 			}
 		},
 		sendAllMails: async function () {
-			this.processAddresses (false);
+			this.processAddresses ();
 
 			for (let a of this.emailAddresses) {
 				if (a.status != SendStatus.unknown) {
@@ -123,32 +123,32 @@ export default {
 			this.emailAddresses = this.emailAddresses.filter (o => o.address != a.address);
 		},
 		addAddress: function () {
-			this.processAddresses (false);
+			this.processAddresses ();
 		},
-		processAddresses: function (needTerminator=true) {
+		processAddresses: function () {
 			/* this matches email addresses similar to RFCXXX:
 			 * user@example.com
 			 * <user@example.com>
 			 * user <user@example.com>
 			 * "user" <user@example.com>
 			 */
-			const restr = '^\\s*(?:["\']?(?<name>[^@\'"]+)["\']?\\s+)?<?(?<address>[^@ ,;<>"]+@[^@ ,;<>"]+)>?' + (needTerminator ? '[,; ]' : '');
+			const restr = '^\\s*(?:["\']?(?<name>[^@\'"]+)["\']?\\s+)?<?(?<address>[^@ ,;<>"]+@[^@ ,;<>"]+)>?';
 			const mailre = new RegExp(restr, 'ig');
 			const s = this.emailAddressesInput;
-			const it = s.matchAll (mailre);
-			for (let m of it) {
-				/* remove matched input */
-				this.emailAddressesInput = s.substr (0, m.index) + s.substr (m.index+m[0].length);
-				const g = m.groups;
-				this.emailAddresses.push ({
+			const rawAddresses = s.split(/[,;]/).map((address) => address.trim());
+			for (let rawAddress of rawAddresses) {
+				const it = rawAddress.matchAll (mailre);
+				for (let m of it) {
+					const g = m.groups;
+					this.emailAddresses.push ({
 						/* prefer name from text field, then from address then localpart of email */
 						name: this.emailName || g.name || g.address.split ('@', 1)[0],
 						address: g.address,
 						status: SendStatus.unknown});
-				this.emailName = '';
-				/* match at most one address */
-				break;
+				}
 			}
+			this.emailName = '';
+			this.emailAddressesInput = "";
 		},
 		runPreview: function () {
 			const debounceMs = 350;
@@ -170,9 +170,6 @@ export default {
 		},
 	},
 	watch: {
-		emailAddressesInput: function () {
-			this.processAddresses (true);
-		},
 		emailAddresses: async function () {
 			await this.runPreview ();
 		},

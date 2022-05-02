@@ -1,5 +1,4 @@
 import template from './template.html';
-import "./style.css";
 
 /* Display desktop icon for application */
 export default {
