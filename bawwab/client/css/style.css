@@ -204,7 +204,7 @@ header .product-logo img {
 
 #main-nav {
 	background-color: #FFFFFF;
-	padding: 1em 2em 0.5em 0;
+	padding: 1em 2em 1em 0;
 }
 
 #main-nav > ul {
@@ -213,7 +213,6 @@ header .product-logo img {
 
 #main-nav > ul li {
 	display: inline-block;
-	margin-right: 0.4em;
 }
 
 #main-nav > ul li a {
@@ -221,11 +220,20 @@ header .product-logo img {
 	color: #352071;
 	font-family: var(--font-header);
 	font-weight: 500;
-	padding: 0 1em 0.7em 1em;
 }
 
 #main-nav > ul li a.active {
 	color: var(--magenta-text);
+}
+
+.app-main-nav-items {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.app-main-nav-items li {
+	margin-left: 1.5em;
 }
 
 .main {
@@ -518,6 +526,7 @@ details.dropdown div.body > ul li {
 .dropdown.usermenu .body {
 	top: 2rem;
 	right: -1rem;
+	padding: 1em 2em;
 }
 
 .usermenu ul li {
