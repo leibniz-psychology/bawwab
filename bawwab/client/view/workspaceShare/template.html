@@ -46,10 +46,6 @@
 						<label for="shareEmail" class="sp-input-label">E-Mail</label>
 						<input :placeholder="$t('v.workspaceShare.emailPlaceholder')" type="text" id="shareEmail" v-model="emailAddressesInput">
 					</div>
-					<div class="sp-input">
-						<label for="shareName" class="sp-input-label">{{ $t('v.workspaceShare.nameLabel') }}</label>
-						<input placeholder="Name" type="text" id="shareName" v-model="emailName">
-					</div>
 					<button @click="addAddress" class="sp-add-address-btn btn high">{{ $t('v.workspaceShare.addButton') }}</button>
 
 					<div class="sp-input">

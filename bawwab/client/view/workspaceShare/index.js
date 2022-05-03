@@ -24,7 +24,6 @@ export default {
 		selectedShareUrl: false,
 		emailAddressesInput: '',
 		emailAddresses: [],
-		emailName: '',
 		emailMessage: '',
 		emailQuotaReached: false,
 		preview: null,
@@ -142,12 +141,11 @@ export default {
 					const g = m.groups;
 					this.emailAddresses.push ({
 						/* prefer name from text field, then from address then localpart of email */
-						name: this.emailName || g.name || g.address.split ('@', 1)[0],
+						name: g.name || g.address.split ('@', 1)[0],
 						address: g.address,
 						status: SendStatus.unknown});
 				}
 			}
-			this.emailName = '';
 			this.emailAddressesInput = "";
 		},
 		runPreview: function () {
