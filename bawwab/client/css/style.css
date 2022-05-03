@@ -254,7 +254,6 @@ main ul li {
 
 /* overrides for purecss */
 table.pure-table {
-	border-radius: 0.5em;
 	box-shadow: 0 0 0.3em rgba(0,0,0,0.2);
 	border: 0;
 }
@@ -553,7 +552,7 @@ form.filter input[type="radio"] ~ label {
 	background-color: var(--gray-light);
 	cursor: pointer;
 	border: 0.1em solid var(--gray-base);
-	border-radius: 0.5em 0.5em 0 0;
+	margin-right: 0.3em;
 	display: inline-block;
 }
 
