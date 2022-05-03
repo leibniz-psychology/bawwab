@@ -69,12 +69,12 @@
 			</ul>
 		</td>
 		<td class="actions">
-			<ul class="actions-container" v-if="w.getPermissions (this.username)[0].canShare ()">
-				<li class="action-container">
+			<ul class="actions-container">
+				<li class="action-container" v-if="w.getPermissions (this.username)[0].canShare ()">
 					<router-link class="action-button btn small" :to="{name: 'workspaceShare', params: {wsid: w.metadata._id}}" aria-label="share"><i class="fas fa-share"></i></router-link>
 					<span class="action-tooltip popup">{{ $t('v.workspaceList.share') }}</span>
 				</li>
-				<li class="action-container">
+				<li class="action-container" v-if="w.getPermissions (this.username)[0].canRead ()">
 					<action-button class="action-button btn small" icon="copy" :f="() => copy(w)" aria-label="copy"></action-button>
 					<span class="action-tooltip popup">{{ $t('v.workspaceList.copy') }}</span>
 				</li>
@@ -88,13 +88,13 @@
 					</template>
 					<template v-slot:default>
 						<ul>
-							<li><router-link class="btn small" :to="{name: 'workspacePublish', params: {wsid: w.metadata._id}}">
+							<li v-if="w.getPermissions (this.username)[0].canShare ()"><router-link class="btn small" :to="{name: 'workspacePublish', params: {wsid: w.metadata._id}}">
 								<i class="fas fa-globe"></i> {{ $t('v.workspaceList.publish') }}
 							</router-link></li>
-							<li><router-link class="btn small" :to="{name: 'workspaceExport', params: {wsid: w.metadata._id}}">
+							<li v-if="w.getPermissions (this.username)[0].canRead ()"><router-link class="btn small" :to="{name: 'workspaceExport', params: {wsid: w.metadata._id}}">
 								<i class="fas fa-file-export"></i> {{ $t('v.workspaceList.export') }}
 							</router-link></li>
-							<li><router-link class="btn small" :to="{name: 'workspacePackages', params: {wsid: w.metadata._id}}">
+							<li v-if="w.getPermissions (this.username)[0].canRun ()"><router-link class="btn small" :to="{name: 'workspacePackages', params: {wsid: w.metadata._id}}">
 								<i class="fas fa-box"></i> {{ $t('v.workspaceList.manage') }}
 							</router-link></li>
 						</ul>
