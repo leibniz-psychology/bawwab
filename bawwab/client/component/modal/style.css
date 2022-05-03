@@ -16,7 +16,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     /* the close button takes up the remaining padding in the top and left corner */
-    padding: 1em 1em 2em 2em;
+    padding: 3em 5em;
     width: 50vw;
     display: flex;
     overflow: hidden;
@@ -56,4 +56,12 @@
 
 .modal h2 {
     margin-top: 0.5em;
+}
+
+.modal-headline {
+    display: flex;
+}
+
+.modal-close-button {
+    margin-left: auto;
 }

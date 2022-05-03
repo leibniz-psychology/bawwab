@@ -1,10 +1,15 @@
 <div class="modal">
 	<div :class="frameClass">
-		<div class="icon">
-			<h2><i :class="'fas fa-' + icon"></i></h2>
-		</div>
 		<div class="content">
-			<h2>{{ title }}</h2>
+			<div class="modal-headline">
+				<div class="icon">
+					<h2><i :class="'fas fa-' + icon"></i></h2>
+				</div>
+				<h2>{{ title }}</h2>
+				<div class="close modal-close-button">
+					<a class="close" @click="close"><i class="fa fa-window-close"></i></a>
+				</div>
+			</div>
 			<div class="userContent">
 				<slot></slot>
 			</div>
@@ -12,9 +17,6 @@
 				<slot name="buttons"></slot>
 				<router-link :to="closeLink" v-if="closeName" class="btn low">{{ closeName }}</router-link>
 			</div>
-		</div>
-		<div class="close">
-			<a class="close" @click="close"><i class="fa fa-window-close"></i></a>
 		</div>
 	</div>
 </div>
