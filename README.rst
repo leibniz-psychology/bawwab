@@ -35,8 +35,7 @@ Then use the systemd service file provided in ``contrib/bawwab.service`` to run 
 Development
 -----------
 
-bawwab is a JavaScript application based on VueJS_ and `VueJS router`_ with a
-Python backend based on sanic_ and tortoise-orm_.
+bawwab is a Python backend based on sanic_ and tortoise-orm_.
 
 .. _VueJS: https://vuejs.org/
 .. _VueJS router: https://router.vuejs.org/
@@ -60,14 +59,7 @@ from that directory
 .. code:: console
 
 	export BAWWAB_SETTINGS=/path/to/config.py
-	bawwab
-
-After modifying the client (i.e. anything under ``bawwab/client``) you need to
-recompile the assets using
-
-.. code:: console
-
-	python setup.py esbuild --debug
+	sanic --debug bawwab.app:app
 
 The backend will pick up changes automatically when in debug mode.
 

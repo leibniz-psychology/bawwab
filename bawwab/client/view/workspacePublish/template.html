@@ -1,7 +1,0 @@
-<modal icon="globe" :title="$t('v.workspacePublish.title')" :closeName="$t('v.workspacePublish.cancel')" :closeLink="backRoute" :scaling="true">
-	<p>{{ $t('v.workspacePublish.explain') }}</p>
-	<template v-slot:buttons>
-		<action-button v-if="!workspace.isPublic" icon="globe" :f="sharePublic" importance="high">{{ $t('v.workspacePublish.sharepublic') }}</action-button>
-		<action-button v-else icon="globe" :f="unsharePublic" importance="high">{{ $t('v.workspacePublish.unsharepublic') }}</action-button>
-	</template>
-</modal>

@@ -2,7 +2,7 @@
 Description=bawwab
 
 [Service]
-ExecStart=/usr/local/profiles/bawwab/bin/bawwab
+ExecStart=/usr/local/profiles/bawwab/bin/sanic bawwab.app:app
 Environment='BAWWAB_SETTINGS=/etc/bawwab/config.py' LC_ALL=en_US.utf8 SSL_CERT_DIR=/usr/local/profiles/bawwab/etc/ssl/certs/
 StandardOutput=syslog
 StandardError=syslog

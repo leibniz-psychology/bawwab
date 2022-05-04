@@ -16,13 +16,7 @@
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (guix build-system python)
-  #:use-module (guix build-system node)
   #:use-module (guix gexp)
-  #:use-module (commonmark)
-  #:use-module (vue)
-  #:use-module (vue-i18n)
-  #:use-module (vue-router)
-  #:use-module (purecss)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26))
 
@@ -65,22 +59,6 @@
     (version "0.1")
     (source (local-file %source-dir #:recursive? #t))
     (build-system python-build-system)
-    (arguments
-      `(#:tests? #f
-        ;; Required, since guix will set the source directory to r/o and building
-        ;; would re-generate assets.
-        #:configure-flags '("--skip-build")))
-    (inputs
-      `(("node-vue" ,node-vue-3.2.22)
-        ("node-vue-router" ,node-vue-router-4.0.12)
-        ("node-purecss" ,node-purecss-2.0.6)
-        ("node-commonmark" ,node-commonmark-0.30.0)
-        ("node-vue-i18n" ,node-vue-i18n-9.1.9)))
-    (native-inputs
-     `(("esbuild" ,esbuild)
-       ;; Propagate NODE_PATH to build environment, so esbuild can find external
-       ;; modules.
-       ("node" ,node)))
     (propagated-inputs
      `(("python-asyncssh" ,python-asyncssh)
        ("python-furl" ,python-furl)
@@ -89,7 +67,6 @@
        ("python-websockets" ,python-websockets)
        ("python-aiohttp" ,python-aiohttp)
        ("python-pytz" ,python-pytz)
-       ("font-awesome" ,font-awesome)
        ("python-tortoise-orm" ,python-tortoise-orm)
        ("python-aiosqlite" ,python-aiosqlite)
        ("python-aiosmtplib" ,python-aiosmtplib)

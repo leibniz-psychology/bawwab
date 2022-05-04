@@ -1,57 +1,4 @@
-import subprocess, shutil, os
-from setuptools import setup, Command
-from distutils.command.build import build
-
-build.sub_commands.insert (0, ('esbuild', lambda self: True))
-
-class Esbuild (Command):
-	user_options = [('debug', None, 'Create debug build')]
-
-	def initialize_options(self):
-		self.debug = False
-
-	def finalize_options (self):
-		pass
-
-	def run(self):
-		assetdir = 'bawwab/assets'
-		os.makedirs (assetdir, exist_ok=True)
-		shutil.copy ('bawwab/client/app.html', assetdir)
-
-		node_env = 'development' if self.debug else 'production'
-		extraOpts = []
-		if not self.debug:
-			extraOpts = [
-					'--minify',
-					# this effectively removes these calls when minifying
-					'--pure:console.debug', '--pure:console.log',
-					]
-		subprocess.run (['esbuild', 'bawwab/client/app.js',
-				'--bundle',
-				'--sourcemap',
-				'--loader:.png=file',
-				'--loader:.jpg=file',
-				'--loader:.svg=file',
-				'--loader:.md=text',
-				'--loader:.html=text',
-				# For code splitting.
-				'--splitting',
-				'--format=esm',
-				# We support:
-				# Chrome: Last three versions. No LTS release.
-				# Edge: Last three versions.
-				# Firefox: Latest ESR release.
-				# Safari: Last three versions.
-				'--target=chrome87,firefox78,safari12,edge87',
-				f'--define:process.env.NODE_ENV=\"{node_env}\"',
-				'--define:__VUE_OPTIONS_API__=true',
-				'--define:__VUE_PROD_DEVTOOLS__=false',
-				# Configure vue-i18n.
-				'--define:__VUE_I18N_FULL_INSTALL__=true',
-				# For some reason we need the legacy API.
-				'--define:__VUE_I18N_LEGACY_API__=true',
-				'--define:__INTLIFY_PROD_DEVTOOLS__=false',
-				f'--outdir={assetdir}'] + extraOpts, check=True)
+from setuptools import setup
 
 setup(
     name='bawwab',
@@ -85,14 +32,10 @@ setup(
     python_requires='>=3.7',
     entry_points={
     'console_scripts': [
-            'bawwab = bawwab.run:main',
             'bawwab-migrate = bawwab.run:migrate',
             'bawwab-loganalyze = bawwab.run:loganalyze',
             'bawwab-passwd = bawwab.run:passwd',
             ],
-    },
-    package_data={
-            'bawwab': ['assets/*'],
     },
     classifiers = [
         'License :: OSI Approved :: MIT License',
@@ -100,5 +43,4 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
         ],
-	cmdclass={'esbuild': Esbuild},
 )

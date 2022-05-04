@@ -1,6 +1,0 @@
-<modal :title="canDelete ? $t('v.workspaceDelete.deletetitle') : $t('v.workspaceDelete.hidetitle')" :closeName="$t('v.workspaceDelete.cancel')" icon="trash" :closeLink="{name: 'workspace', params: {wsid: workspace.metadata._id}}" :scaling="true">
-	<p>{{ canDelete ? $t('v.workspaceDelete.deletequestion', { name: workspace.metadata.name }) : $t('v.workspaceDelete.hidequestion', {name: workspace.metadata.name}) }}</p>
-	<template v-slot:buttons>
-		<action-button :f="deleteWorkspace" icon="trash" importance="high">{{ canDelete ? $t('v.workspaceDelete.delete') : $t('v.workspaceDelete.hide') }}</action-button>
-	</template>
-</modal>
