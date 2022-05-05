@@ -1,7 +1,7 @@
 <modal :title="$t('v.workspaceExport.headline')" :closeName="$t('v.workspaceExport.back')" :closeLink="{name: 'workspace', params: {wsid: workspace?.metadata._id}}" :scaling="true" icon="file-export">
 	<div v-if="workspace">
 		<p>{{ $t('v.workspaceExport.description', {project: workspace.metadata.name}) }}</p>
-		<label for="kind">{{ $t('v.workspaceExport.exportas') }}</label>
+		<label for="kind" class="we-export-type-label">{{ $t('v.workspaceExport.exportas') }}</label>
 		<select v-model="kind" name="kind" id="kind" size="0">
 		<option v-for="format in supportedFormats" :key="format" :value="format">{{ $t('v.workspaceExport.kind-' + format) }}</option>
 		</select>
