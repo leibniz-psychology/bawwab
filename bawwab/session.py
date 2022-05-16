@@ -99,12 +99,13 @@ async def csrfOriginCheck (request):
 	origin = request.headers.get ('origin')
 	if origin:
 		originUrl = furl (origin).set (path='/')
-		requestUrl = furl (request.url).set (path='/')
+		requestUrl = furl (request.url).set (path='/', query=None, fragment=None)
 		# Fix the scheme for websocket requests
 		if requestUrl.scheme in {'ws', 'wss'}:
 			requestUrl = requestUrl.set (scheme=originUrl.scheme)
 		if originUrl != requestUrl:
-			request.ctx.logger.error (__name__ + '.csrfDenied', origin=str (originUrl))
+			request.ctx.logger.error (__name__ + '.csrfDenied',
+					origin=str (originUrl), requestUrl=str (requestUrl))
 			raise Forbidden ('csrf')
 
 async def saveSession (request, response):
