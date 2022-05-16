@@ -276,9 +276,12 @@ async def setup (app, loop):
 			realm=config.KEYCLOAK_REALM)
 
 	# @bp.middleware attaches to blueprint’s url only, but we need it
-	# application-wide
-	app.register_middleware (csrfOriginCheck, 'request')
+	# application-wide.
+	# The order matters, loadSession must always be invoked, otherwise
+	# saveSession might delete the cookie if an error occurs in
+	# the CSRF-checks.
 	app.register_middleware (loadSession, 'request')
+	app.register_middleware (csrfOriginCheck, 'request')
 	app.register_middleware (saveSession, 'response')
 
 @bp.listener('after_server_stop')
