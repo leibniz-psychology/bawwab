@@ -1,8 +1,5 @@
 # example configuration
-#SERVER_NAME = 'https://www.example.com'
-LISTEN = 'localhost:8000'
-#SOCKET = 'bawwab.socket'
-SOCKET_MODE = 0o600
+SERVER_NAME = 'www.example.com/api'
 
 # set these to Falso for production
 DEBUG = False
@@ -28,8 +25,6 @@ DATABASE_URL = 'sqlite://db.sqlite3'
 # to generate one, see https://cryptography.io/en/latest/fernet/. If you change
 # or lose it, you cannot decrypt ssh passwords any more.
 DATABASE_PASSWORD_KEY = b'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-
-AUDIT_LOG_PATH = 'audit.log'
 
 # location of usermgrd socket
 USERMGRD_SOCKET = 'usermgrd.socket'
