@@ -59,6 +59,7 @@
     (version "0.1")
     (source (local-file %source-dir #:recursive? #t))
     (build-system python-build-system)
+    (arguments (list #:tests? #f)) ; No tests.
     (propagated-inputs
      `(("python-asyncssh" ,python-asyncssh)
        ("python-furl" ,python-furl)
