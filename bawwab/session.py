@@ -163,11 +163,13 @@ async def sessionDelete (request):
 	return json ({}, status=200)
 
 def callbackUrl (request):
-	kwargs = dict ()
+	# We have to use _external=True here, so sanic will use
+	# SERVER_NAME from the config to build a proper path. SERVER_NAME
+	# must contain the subpath at which this app is mounted at.
+	kwargs = dict (_external=True)
 	if 'next' in request.args:
 		kwargs['next'] = request.args['next'][0]
-	return request.url_for ('session.callback', **kwargs)
-	#return request.url_for ('session.callback')
+	return request.app.url_for ('session.callback', **kwargs)
 
 @bp.route ('/login')
 async def login (request):
