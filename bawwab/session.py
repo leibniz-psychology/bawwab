@@ -99,7 +99,8 @@ async def csrfOriginCheck (request):
 	origin = request.headers.get ('origin')
 	if origin:
 		originUrl = furl (origin).set (path='/')
-		requestUrl = furl (request.url).set (path='/', query=None, fragment=None)
+		# XXX: Work around https://github.com/sanic-org/sanic/issues/2457
+		requestUrl = furl (request.url.replace (':://', '://')).set (path='/', query=None, fragment=None)
 		# Fix the scheme for websocket requests
 		if requestUrl.scheme in {'ws', 'wss'}:
 			requestUrl = requestUrl.set (scheme=originUrl.scheme)
