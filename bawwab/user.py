@@ -133,14 +133,16 @@ class UserConnectionManager:
 
 	async def _invalidate (self, user):
 		async with self._locks[user]:
-			c = self._conns.pop (user)
-			if c.bclient.sftp:
-				c.bclient.sftp.exit ()
-				await c.bclient.sftp.wait_closed ()
-			c.close ()
-			await c.wait_closed ()
+			if user in self._conns:
+				c = self._conns.pop (user)
+				if c.bclient.sftp:
+					c.bclient.sftp.exit ()
+					await c.bclient.sftp.wait_closed ()
+				c.close ()
+				await c.wait_closed ()
 
 	async def getChannel (self, user, kind, *args, **kwargs):
+		backoff = 0.5
 		for i in range (10):
 			try:
 				c = await self._getConnection (user)
@@ -155,9 +157,11 @@ class UserConnectionManager:
 					if kind == 'start_sftp_client':
 						c.bclient.sftp = ret
 					return ret
-			except (asyncssh.misc.ChannelOpenError, asyncssh.SFTPError):
+			except (asyncssh.misc.ChannelOpenError, asyncssh.misc.ConnectionLost, asyncssh.SFTPError):
 				self.logger.debug ('invalidate_channel', user=user, kind=kind)
 				await self._invalidate (user)
+				await asyncio.sleep (backoff)
+				backoff *= 1.2
 		raise Exception ('bug')
 
 	async def getSftp (self, user):
