@@ -96,16 +96,15 @@ async def fileGetDelete (request, user, path):
 				headers=headers,
 				content_type=mimetype)
 
-		fd = await client.open (path, 'rb')
-		try:
-			while True:
-				buf = await fd.read (10*1024)
-				if not buf:
-					break
-				await response.send (buf)
-		finally:
-			await response.eof ()
-			await fd.close ()
+		async with client.open (path, 'rb') as fd:
+			try:
+				while True:
+					buf = await fd.read (10*1024)
+					if not buf:
+						break
+					await response.send (buf)
+			finally:
+				await response.eof ()
 	elif request.method == 'POST':
 		# We cannot use request.json here, since we use
 		# stream=True for the request body.
