@@ -72,7 +72,7 @@
        ("python-aiosqlite" ,python-aiosqlite)
        ("python-aiosmtplib" ,python-aiosmtplib)
        ("python-bonsai" ,python-bonsai)
-       ("python-pypika" ,python-pypika)
+       ("python-pypika-tortoise" ,python-pypika-tortoise)
        ("python-structlog" ,python-structlog)))
     (home-page #f)
     (synopsis #f)

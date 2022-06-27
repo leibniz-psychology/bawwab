@@ -21,7 +21,7 @@ setup(
         'aiosqlite',
         'cryptography',
 		# for migrations
-		'pypika',
+		'pypika-tortoise',
 		'pyyaml',
 		'aiosmtplib',
 		'bonsai',
