@@ -253,6 +253,14 @@ async def callback (request):
 
 	return redirect (nextUrl)
 
+@bp.route ('/logout')
+async def logout (request):
+    u = auth.logoutUrl
+    next = request.args.get ('next')
+    if next:
+        u.set (args={'redirect_uri': next})
+    return redirect (str (u))
+
 expireJobThread = None
 auth = None
 

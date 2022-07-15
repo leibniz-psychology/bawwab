@@ -127,3 +127,7 @@ class KeycloakClient (Oauth2Client):
 	def userinfoUrl (self):
 		return self._buildUrl () / 'userinfo'
 
+	@property
+	def logoutUrl (self):
+		return self._buildUrl () / 'logout'
+
