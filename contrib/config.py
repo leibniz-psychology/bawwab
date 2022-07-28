@@ -26,13 +26,25 @@ DATABASE_URL = 'sqlite://db.sqlite3'
 # or lose it, you cannot decrypt ssh passwords any more.
 DATABASE_PASSWORD_KEY = b'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
-# location of usermgrd socket
-USERMGRD_SOCKET = 'usermgrd.socket'
+LDAP_SERVER = 'ldap://ldap.example.com'
+LDAP_USER = 'cn=pamtos,ou=system,dc=example,dc=com'
+LDAP_PASSWORD = 'changeme'
+LDAP_TOS_BASE = 'ou=terms,dc=example,dc=com'
+
+# Commands to create/delete a user.
+USERMGR_CREATE_COMMAND = \
+    ['usermgr',
+    '--keytab', '/path/to/bawwab.keytab',
+    '--client-principal', 'bawwab/example',
+    '--server-principal', 'usermgrd/example',
+    'user', 'create']
+USERMGR_DELETE_COMMAND = \
+    ['usermgr',
+    '--server-principal', 'usermgrd/example@example.com',
+    'user', 'delete']
 
 # compute node, just one supported right now
 SSH_HOST = 'ssh.example.com'
-# URL running conductor, python format string, which expands variables key and user
-PROXY_HOST = 'https://{key}.{user}.user.example.com'
 
 EMAIL = dict(
     server="mail.example.com",

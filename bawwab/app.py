@@ -38,10 +38,6 @@ class StructLogHandler (logging.Handler):
 		f = getattr (logger, lvl)
 		f ('logging.' + record.name, message=record.getMessage (), exc_info=record.exc_info)
 
-def socketSession (path):
-	conn = aiohttp.UnixConnector (path=path)
-	return aiohttp.ClientSession(connector=conn)
-
 structlog.configure (
 	wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
 	processors=[
@@ -65,16 +61,6 @@ app = Sanic('bawwab', configure_logging=False)
 # XXX: make sure config has proper permissions
 app.config.update_config (os.environ['BAWWAB_SETTINGS'])
 config = app.config
-
-# globally available services
-@app.listener('before_server_start')
-async def setup (app, loop):
-	config = app.config
-	app.ctx.usermgrd = socketSession (config.USERMGRD_SOCKET)
-
-@app.listener('after_server_stop')
-async def teardown (app, loop):
-	await app.ctx.usermgrd.close ()
 
 @app.exception (Exception)
 def handleException (request, exception):

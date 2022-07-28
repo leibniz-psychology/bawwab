@@ -22,7 +22,8 @@
 User management.
 """
 
-import asyncio, shlex
+import asyncio, shlex, json
+from asyncio.subprocess import PIPE
 from functools import wraps
 from datetime import timedelta
 from collections import defaultdict
@@ -32,7 +33,8 @@ from tortoise import fields
 from tortoise.exceptions import DoesNotExist, IntegrityError
 from tortoise.transactions import in_transaction
 from sanic import Blueprint
-from sanic.response import html, json
+from sanic.response import html
+from sanic.response import json as sanicjson
 from sanic.exceptions import Forbidden, ServerError, NotFound, ServiceUnavailable
 import aiohttp
 from cryptography.fernet import Fernet
@@ -245,9 +247,9 @@ async def makeUserResponse (user, acceptTos=False):
 		loginStatus = 'permissionDenied'
 	except OSError:
 		# SSH is down
-		return json (dict (status='unavailable'), status=503)
+		return sanicjson (dict (status='unavailable'), status=503)
 
-	return json (dict (
+	return sanicjson (dict (
 		status='ok',
 		name=user.name,
 		password=user.password,
@@ -273,6 +275,7 @@ async def userGet (request):
 async def userCreate (request):
 	session = request.ctx.session
 	form = request.json
+	config = request.app.config
 
 	authId = getattr (session, 'authId', None)
 	if authId is None:
@@ -285,11 +288,21 @@ async def userCreate (request):
 		raise Forbidden ('exists')
 
 	try:
-		async with request.app.ctx.usermgrd.post ('http://localhost/', json=form) as resp:
-			data = await resp.json ()
-			if data['status'] != 'ok':
-				request.ctx.logger.error (__name__ + '.create.usermgrd_error', reason=data['status'])
-				raise ServerError ('backend')
+		proc = await asyncio.create_subprocess_exec (*config.USERMGR_CREATE_COMMAND, stdin=PIPE, stdout=PIPE)
+
+		s = json.dumps (form)
+		proc.stdin.write (s.encode ('utf-8'))
+		await proc.stdin.drain ()
+		proc.stdin.close ()
+		await proc.stdin.wait_closed ()
+
+		await proc.wait ()
+		s = await proc.stdout.read ()
+		s = s.decode ('utf-8')
+		data = json.loads (s)
+		if data['status'] != 'ok':
+			request.ctx.logger.error (__name__ + '.create.usermgrd_error', reason=data['status'])
+			raise ServerError ('backend')
 	except aiohttp.ClientConnectionError:
 		request.ctx.logger.error (__name__ + '.create.usermgrd_connect_failure')
 		raise ServiceUnavailable ('backend')
@@ -303,46 +316,36 @@ async def userCreate (request):
 	return await makeUserResponse (user)
 
 @bp.route ('/', methods=['DELETE'])
-@authenticated
-async def userDelete (request, user):
-	async def callDelete (expectedStatus):
-		try:
-			async with request.app.ctx.usermgrd.delete (f'http://localhost/{user.name}') as resp:
-				data = await resp.json ()
-				status = data['status']
-				if status == 'user_not_found':
-					request.ctx.logger.warning (__name__ + '.delete.user_gone')
-					return None
-				elif status != expectedStatus:
-					request.ctx.logger.error (__name__ + '.delete.usermgrd_error',
-							reason=data['status'])
-					raise ServerError ('backend')
-				return data
-		except aiohttp.ClientConnectionError:
-			request.ctx.logger.error (__name__ + '.delete.usermgrd_connect_failure')
-			raise ServiceUnavailable ('backend')
-
-	data = await callDelete ('again')
-	if data:
-		# create the file
-		token = data['token']
-		command = ['touch', token]
-		try:
-			p = await user.getChannel ('create_process', shlex.join (command))
-			await p.wait ()
-			p.close ()
-			await p.wait_closed ()
-
-			# call again to confirm
-			await callDelete ('ok')
-		except asyncssh.misc.PermissionDenied:
-			raise Forbidden ('locked_out')
-
+async def userDelete (request):
 	session = request.ctx.session
-	request.ctx.logger.info (__name__ + '.delete')
+	form = request.json
+	config = request.app.config
+
+	authId = getattr (session, 'authId', None)
+	if authId is None:
+		raise Forbidden ('anonymous')
+
+	user = await User.get_or_none (authId=authId)
+	if user is None:
+		# This is fine.
+		return sanicjson ({'status': 'ok'}, status=200)
+
+	p = await user.getChannel ('create_process', shlex.join (config.USERMGR_DELETE_COMMAND))
+	result = await p.wait ()
+	request.ctx.logger.info (__name__ + '.data', result=result)
+	data = json.loads (result.stdout)
+	if data['status'] != 'ok':
+		request.ctx.logger.error (__name__ + '.delete.usermgrd_error', reason=data['status'])
+		raise ServerError ('backend')
+
+	# Close all connections.
+	await connmgr._invalidate (user)
+
 	await user.delete ()
 
-	return json ({}, status=200)
+	request.ctx.logger.info (__name__ + '.delete', user=user.name)
+
+	return sanicjson ({'status': 'ok'}, status=200)
 
 connmgr = None
 
