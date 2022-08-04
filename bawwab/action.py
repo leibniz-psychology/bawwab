@@ -73,6 +73,7 @@ def actionToDict (token, action):
 			name=action.name,
 			expires=action.expires.isoformat (),
 			usesRemaining=action.usesRemaining,
+			extra=action.arguments['extra'],
 			)
 
 @bp.route ('/', methods=['POST'])
@@ -91,7 +92,7 @@ async def createAction (request):
 		# passwordless sudo? Because it will not work with Kerberos and
 		# limiting the available commands is next to impossible.
 		# The command supports python-style format strings, see rpc.py
-		arguments = {'command': form['command'], 'user': session.authId}
+		arguments = {'command': form['command'], 'user': session.authId, 'extra': form.get ('extra')}
 	else:
 		raise NotFound ({'status': 'invalid_action'})
 
