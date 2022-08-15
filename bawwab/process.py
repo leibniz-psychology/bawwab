@@ -22,7 +22,7 @@
 Interact with processes running on the compute backend
 """
 
-import shlex, json, asyncio, sys
+import json, asyncio, sys
 from collections import defaultdict
 from functools import partial
 from itertools import chain
@@ -79,7 +79,7 @@ class WebsocketProcess:
 		self.messages.append (msg)
 		await self.broadcast (msg)
 
-	async def run (self):
+	async def run (self, useNewConnection=False):
 		async def sendOutput (kind, fd):
 			try:
 				while True:
@@ -113,7 +113,9 @@ class WebsocketProcess:
 				extraData=self.extraData,
 				)
 		await self.send (msg)
-		self.process = p = await self.user.getChannel ('create_process', shlex.join (self.command))
+		self.process = p = await self.user.createProcess (*self.command,
+				useNewConnection=useNewConnection)
+		print (type (self.process))
 		asyncio.create_task (sendOutput ('stdout', p.stdout))
 		asyncio.create_task (sendOutput ('stderr', p.stderr))
 
@@ -144,6 +146,7 @@ async def processRun (request, authenticatedUser):
 	# client-defined extra data, forwarded to start notification
 	extraData = reqData.get ('extraData', None)
 	token = reqData.get ('token', None)
+	useNewConnection = reqData.get ('useNewConnection', False)
 	isAction = bool (actionToken)
 	isCommand = bool (command)
 
@@ -175,9 +178,10 @@ async def processRun (request, authenticatedUser):
 		p = WebsocketProcess (token, user,
 				broadcastFunc=partial (broadcast, authenticatedUser),
 				command=command,
-				extraData=extraData)
+				extraData=extraData,
+				)
 		try:
-			await p.run ()
+			await p.run (useNewConnection=useNewConnection)
 			processes[token] = p
 			return jsonResponse ({'status': 'ok', 'token': token})
 		except asyncssh.misc.PermissionDenied:

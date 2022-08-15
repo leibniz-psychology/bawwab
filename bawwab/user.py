@@ -22,7 +22,7 @@
 User management.
 """
 
-import asyncio, shlex, json
+import asyncio, shlex, json, itertools
 from asyncio.subprocess import PIPE
 from functools import wraps
 from datetime import timedelta
@@ -41,7 +41,7 @@ from cryptography.fernet import Fernet
 import asyncssh
 from structlog import get_logger
 
-from .util import randomSecret, now
+from .util import randomSecret, now, periodic
 
 logger = get_logger ()
 
@@ -92,88 +92,214 @@ class BawwabSSHClient (asyncssh.SSHClient):
 					raise TermsNotAccepted ()
 		return ret
 
+class LastUseProxy:
+	"""
+	Object proxy, which records the last time a method was called
+	in asyncio.loop time.
+	"""
+
+	def __init__ (self, o):
+		self.o = o
+
+		self.loop = asyncio.get_running_loop ()
+		self.lastUse = self.loop.time ()
+
+	def __getattr__ (self, name):
+		self.lastUse = self.loop.time ()
+
+		return getattr (self.o, name)
+
+	def getLastUse (self):
+		return self.lastUse
+
+class UserConnection:
+	"""
+	A single SSH connection, which remembers it’s SFTP and process
+	channels, as well as its last usage.
+	"""
+
+	def __init__ (self, conn):
+		self.conn = conn
+		self.sftpConn = None
+		self.sftpLock = asyncio.Lock ()
+		self.processes = []
+		self.processLock = asyncio.Lock ()
+
+		# Can we use this connection? For the connection manager (urgh)
+		self.usable = True
+
+		self.loop = asyncio.get_running_loop ()
+		self.lastUse = self.loop.time ()
+
+	def getLastUse (self):
+		self.processes = list (filter (lambda x: not x.is_closing (), self.processes))
+		if len (self.processes) > 0:
+			# Still in use.
+			return self.loop.time ()
+		elif self.sftpConn is not None:
+			# Maybe we used SFTP?
+			return max (self.lastUse, self.sftpConn.getLastUse ())
+		else:
+			return self.lastUse
+
+	@classmethod
+	async def connect (cls, host, user, knownHosts=None, acceptTos=False):
+		conn = await asyncssh.connect (
+				client_factory=lambda: BawwabSSHClient (user, acceptTos),
+				host=host,
+				port=22,
+				username=user.name,
+				password=user.password,
+				options=asyncssh.SSHClientConnectionOptions (known_hosts=knownHosts),
+				)
+		return cls (conn)
+
+	async def close (self):
+		async with self.sftpLock:
+			if self.sftpConn is not None:
+				self.sftpConn.exit ()
+				await self.sftpConn.wait_closed ()
+				self.sftpConn = None
+
+		if self.conn is not None:
+			self.conn.close ()
+			await self.conn.wait_closed ()
+			self.conn = None
+
+	async def getMotd (self):
+		self.lastUse = self.loop.time ()
+
+		stdin, stdout, stderr = await self.conn.open_session ()
+
+		try:
+			return await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
+		except asyncio.TimeoutError:
+			return None
+
+	async def getSftp (self):
+		self.lastUse = self.loop.time ()
+
+		async with self.sftpLock:
+			if self.sftpConn is not None:
+				# There is no way to check the status of a connection, so
+				# try an operation to see if it’s still alive.
+				await self.sftpConn.getcwd ()
+			else:
+				self.sftpConn = LastUseProxy (await self.conn.start_sftp_client ())
+
+			return self.sftpConn
+
+	async def createProcess (self, *args):
+		self.lastUse = self.loop.time ()
+
+		async with self.processLock:
+			p = await self.conn.create_process (shlex.join (args))
+			self.processes.append (p)
+			return p
+
 class UserConnectionManager:
-	""" Manage per-user SSH connection """
+	"""
+	Manage per-user SSH connection.
+
+	A user can have multiple open connections, but only the most
+	recent one is exposed. Connections are automatically closed
+	when idle.
+	"""
 
 	def __init__ (self, host, knownHosts):
-		self._conns = {}
+		self._conns = defaultdict (list)
 		self._locks = defaultdict (asyncio.Lock)
 		self.host = host
 		self.knownHosts = knownHosts
 		self.logger = logger.bind ()
 
-	async def _getConnection (self, user, acceptTos=False):
+	async def getConnection (self, user, useNewConnection=False, acceptTos=False):
+		userconns = self._conns[user]
+		if len (userconns) == 0 or useNewConnection or not userconns[0].usable:
+			# Mark other connections as unusable, so even
+			# if we GC this new one we will not fall back to
+			# the other ones.
+			for c in userconns:
+				c.usable = False
+			c = await UserConnection.connect (self.host, user, self.knownHosts, acceptTos=acceptTos)
+			userconns.insert (0, c)
+		return userconns[0]
+
+	async def withConnection (self, f, *args, **kwargs):
 		"""
-		Get a cached connection or establish one.
+		Use a connection with one retry, return the result of f.
 
-		Can throw TermsNotAccepted via BawwabSSHClient.
+		Retries all asyncssh SSH and SFTP errors.
 		"""
-		async with self._locks[user]:
-			c = self._conns.get (user, None)
-			if c is None:
-				conn = await asyncssh.connect (
-						client_factory=lambda: BawwabSSHClient (user, acceptTos),
-						host=self.host,
-						port=22,
-						username=user.name,
-						password=user.password,
-						options=asyncssh.SSHClientConnectionOptions (known_hosts=self.knownHosts),
-						)
-				try:
-					stdin, stdout, stderr = await conn.open_session ()
-				except asyncssh.misc.ChannelOpenError:
-					raise Exception ('channel_open')
+		try:
+			c = await self.getConnection (*args, **kwargs)
+			return await f (c)
+		except (asyncssh.misc.Error, asyncssh.sftp.SFTPError):
+			kwargs['useNewConnection'] = True
+			c = await self.getConnection (*args, **kwargs)
+			return await f (c)
 
-				# get motd
-				try:
-					conn.bclient.motd = await asyncio.wait_for (stdout.read (64*1024), timeout=0.5)
-				except asyncio.TimeoutError:
-					pass
-
-				c = self._conns[user] = conn
-			return c
-
-	async def _invalidate (self, user):
-		async with self._locks[user]:
-			if user in self._conns:
-				c = self._conns.pop (user)
-				if c.bclient.sftp:
-					c.bclient.sftp.exit ()
-					await c.bclient.sftp.wait_closed ()
-				c.close ()
-				await c.wait_closed ()
-
-	async def getChannel (self, user, kind, *args, **kwargs):
-		backoff = 0.5
-		for i in range (10):
-			try:
-				c = await self._getConnection (user)
-				if kind == 'start_sftp_client' and c.bclient.sftp:
-					# There is no way to check the status of a connection, so
-					# try an operation to see if it’s still alive.
-					await c.bclient.sftp.getcwd ()
-					return c.bclient.sftp
-				async with self._locks[user]:
-					f = getattr (c, kind)
-					ret = await f (*args, **kwargs)
-					if kind == 'start_sftp_client':
-						c.bclient.sftp = ret
-					return ret
-			except (asyncssh.misc.ChannelOpenError, asyncssh.misc.ConnectionLost, asyncssh.SFTPError):
-				self.logger.debug ('invalidate_channel', user=user, kind=kind)
-				await self._invalidate (user)
-				await asyncio.sleep (backoff)
-				backoff *= 1.2
-		raise Exception ('bug')
+	async def getMotd (self, user):
+		async def f (c):
+			return await c.getMotd ()
+		return await self.withConnection (f, user)
 
 	async def getSftp (self, user):
-		""" Cached sftp client """
-		return await self.getChannel (user, 'start_sftp_client')
+		async def f (c):
+			return await c.getSftp ()
+		return await self.withConnection (f, user)
 
-	async def aclose (self):
-		for c in self._conns.values ():
-			c.close ()
-			await c.wait_closed ()
+	async def createProcess (self, user, *args, useNewConnection=False):
+		async def f (c):
+			return await c.createProcess (*args)
+		return await self.withConnection (f, user, useNewConnection=useNewConnection)
+
+	async def acceptTos (self, user):
+		c = await self.getConnection (user, useNewConnection=True, acceptTos=True)
+		return True
+
+	async def disconnect (self, user):
+		async with self._locks[user]:
+			for c in self._conns[user]:
+				await c.close ()
+
+	async def cleanup (self):
+		""" Clean up idle and dead connections """
+		self.logger.info ('connmgr.cleanup.start', conns=len (self._conns))
+		loop = asyncio.get_running_loop ()
+		now = loop.time ()
+		maxIdle = 10*60
+		for k in list (self._conns.keys ()):
+			purgeLock = False
+			async with self._locks[k]:
+				conns = self._conns[k]
+				alive = []
+				for c in conns:
+					if now - c.getLastUse () > maxIdle:
+						await c.close ()
+					else:
+						alive.append (c)
+				if len (alive) == 0:
+					self.logger.info ('connmgr.cleanup.purge', user=k)
+					del self._conns[k]
+					purgeLock = True
+				else:
+					self.logger.info ('connmgr.cleanup.alive', user=k, conns=len (alive))
+					self._conns[k] = alive
+			if purgeLock:
+				del self._locks[k]
+
+	async def close (self):
+		for c in itertools.chain.from_iterable (self._conns.values ()):
+			await c.close ()
+
+	@property
+	def connectionCount (self):
+		return sum (map (len, self._conns.values ()))
+
+	@property
+	def userCount (self):
+		return len (self._conns)
 
 class User (Model):
 	crypter = None
@@ -205,14 +331,20 @@ class User (Model):
 	def password (self, password):
 		self.passwordEncrypted = self.crypter.encrypt (password.encode ('utf-8'))
 
-	async def getChannel (self, kind, *args, **kwargs):
-		return await connmgr.getChannel (self, kind, *args, **kwargs)
-
-	async def getConnection (self, acceptTos=False):
-		return await connmgr._getConnection (self, acceptTos)
+	async def getMotd (self):
+		return await connmgr.getMotd (self)
 
 	async def getSftp (self):
 		return await connmgr.getSftp (self)
+
+	async def createProcess (self, *args, useNewConnection=False):
+		return await connmgr.createProcess (self, *args, useNewConnection=useNewConnection)
+
+	async def acceptTos (self):
+		return await connmgr.acceptTos (self)
+
+	async def disconnect (self):
+		return await connmgr.disconnect (self)
 
 def authenticated (f):
 	@wraps(f)
@@ -232,14 +364,17 @@ async def getStatus ():
 	activeSince = now() - timedelta (days=1)
 	return dict (
 			total=await User.filter().count (),
+			connmgr=dict(
+				connections=connmgr.connectionCount,
+				users=connmgr.userCount,
+				),
 			)
 
-async def makeUserResponse (user, acceptTos=False):
+async def makeUserResponse (user):
 	motd = None
 	loginStatus = 'unknown'
 	try:
-		c = await user.getConnection (acceptTos)
-		motd = c.bclient.motd
+		motd = await user.getMotd ()
 		loginStatus = 'success'
 	except TermsNotAccepted:
 		loginStatus = 'termsOfService'
@@ -265,9 +400,7 @@ async def userGet (request):
 	if authId is not None:
 		user = await User.get_or_none (authId=session.authId)
 		if user is not None:
-			# XXX: acceptTos should probably be done in a post request, because
-			# it modifies state
-			return await makeUserResponse (user, acceptTos='acceptTos' in request.args)
+			return await makeUserResponse (user)
 
 	raise NotFound ('nonexistent')
 
@@ -315,6 +448,12 @@ async def userCreate (request):
 
 	return await makeUserResponse (user)
 
+@bp.route ('/acceptTos', methods=['POST'])
+@authenticated
+async def userAcceptTos (request, user):
+	await user.acceptTos ()
+	return await makeUserResponse (user)
+
 @bp.route ('/', methods=['DELETE'])
 async def userDelete (request):
 	session = request.ctx.session
@@ -330,7 +469,7 @@ async def userDelete (request):
 		# This is fine.
 		return sanicjson ({'status': 'ok'}, status=200)
 
-	p = await user.getChannel ('create_process', shlex.join (config.USERMGR_DELETE_COMMAND))
+	p = await user.createProcess (*config.USERMGR_DELETE_COMMAND)
 	result = await p.wait ()
 	request.ctx.logger.info (__name__ + '.data', result=result)
 	data = json.loads (result.stdout)
@@ -339,7 +478,7 @@ async def userDelete (request):
 		raise ServerError ('backend')
 
 	# Close all connections.
-	await connmgr._invalidate (user)
+	await user.disconnect ()
 
 	await user.delete ()
 
@@ -348,17 +487,33 @@ async def userDelete (request):
 	return sanicjson ({'status': 'ok'}, status=200)
 
 connmgr = None
+cleanupThread = None
 
 @bp.listener('before_server_start')
 async def setup (app, loop):
 	global connmgr
+	global cleanupThread
 
 	config = app.config
 	User.setup (config.DATABASE_PASSWORD_KEY)
 	connmgr = UserConnectionManager (host=config.SSH_HOST,
 			knownHosts=config.KNOWN_HOSTS_PATH)
 
+	cleanupThread = asyncio.ensure_future (cleanupJob ())
+
 @bp.listener('after_server_stop')
 async def teardown (app, loop):
+	if cleanupThread:
+		cleanupThread.cancel ()
+		try:
+			await cleanupThread
+		except asyncio.CancelledError:
+			pass
+
 	if connmgr:
-		await connmgr.aclose ()
+		await connmgr.close ()
+
+@periodic(10)
+async def cleanupJob ():
+	await connmgr.cleanup ()
+
