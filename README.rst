@@ -58,6 +58,8 @@ from that directory
 
 .. code:: console
 
+	# Only needed, if the realm is not configured system-wide
+	export KRB5_CONFIG=contrib/krb5.conf
 	export BAWWAB_SETTINGS=/path/to/config.py
 	sanic --debug bawwab.app:app
 
