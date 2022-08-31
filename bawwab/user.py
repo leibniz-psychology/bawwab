@@ -150,7 +150,11 @@ class UserConnection:
 				port=22,
 				username=user.name,
 				password=user.password,
-				options=asyncssh.SSHClientConnectionOptions (known_hosts=knownHosts),
+				options=asyncssh.SSHClientConnectionOptions (
+						known_hosts=knownHosts,
+						# Disable GSS auth. Otherwise usermgr’s cached (and most likely expired)
+						# credentials will be used. We always use password authentication.
+						gss_auth=False, gss_kex=False),
 				)
 		return cls (conn)
 
