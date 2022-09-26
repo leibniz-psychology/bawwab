@@ -24,6 +24,7 @@ File I/O through SSH
 
 import stat, mimetypes
 from contextlib import contextmanager
+from urllib.parse import unquote_plus
 
 from sanic import Blueprint
 from sanic.response import json
@@ -55,7 +56,7 @@ async def fileGetDelete (request, user, path):
 	Fetch or delete a file
 	"""
 
-	path = '/' + path
+	path = '/' + unquote_plus (path)
 	filename = path.split ('/')[-1]
 	request.ctx.logger.info (__name__ + '.fileop', path=path)
 	try:
@@ -73,7 +74,8 @@ async def fileGetDelete (request, user, path):
 				entries = await client.readdir (path)
 				def toDict (e):
 					""" Turn SFTPName into dictionary """
-					return {'name': e.filename, 'size': e.attrs.size}
+					return dict (name=e.filename, size=e.attrs.size,
+							type=e.attrs.type, mtime=e.attrs.mtime)
 				return json (list (map (toDict, entries)))
 			elif stat.S_ISREG (s.permissions):
 				pass
@@ -124,6 +126,15 @@ async def fileGetDelete (request, user, path):
 			with translateSSHError ():
 				await client.makedirs (path, exist_ok=True)
 			return json ({'status': 'ok'})
+		elif kind == 'MOVE':
+			print ('source', path, request.args.get ('to'))
+			with translateSSHError ():
+				await client.rename (path, request.args.get ('to'))
+			return json ({'status': 'ok'})
+		elif kind == 'COPY':
+			with translateSSHError ():
+				await client.copy ([path], request.args.get ('to'), recurse=True)
+			return json ({'status': 'ok'})
 		else:
 			return json ({'status': 'invalid_method'}, status=405)
 	elif request.method == 'PUT':
@@ -140,5 +151,9 @@ async def fileGetDelete (request, user, path):
 			return json ({'status': 'ok'})
 	elif request.method == 'DELETE':
 		with translateSSHError ():
-			await client.remove (path)
+			s = await client.stat (path)
+			if stat.S_ISDIR (s.permissions):
+				await client.rmtree (path)
+			else:
+				await client.remove (path)
 		return json ({'status': 'ok'})
