@@ -176,12 +176,14 @@ def callbackUrl (request):
 async def login (request):
 	app = request.app
 	config = app.config
+	args = request.args
 
 	session = request.ctx.session
+	nextUrl = args.get ('next', '/')
 
 	# already logged in?
 	if session.oauthInfo:
-		return redirect ('/')
+		return redirect (nextUrl)
 
 	# development override active?
 	config = app.config
