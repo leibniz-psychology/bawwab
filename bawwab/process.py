@@ -52,7 +52,8 @@ perUserProcesses = defaultdict (dict)
 
 class WebsocketProcess:
 	__slots__ = ('token', 'user', 'broadcast', 'command',
-			'messages', 'task', 'process', 'extraData', 'logger')
+			'messages', 'task', 'stdoutTask', 'stderrTask',
+			'process', 'extraData', 'logger')
 
 	def __init__ (self, token, user, broadcastFunc, command, extraData):
 		self.token = token
@@ -66,6 +67,8 @@ class WebsocketProcess:
 		# message buffer, for session restore replay
 		self.messages = []
 		self.task = None
+		self.stdoutTask = None
+		self.stderrTask = None
 		self.process = None
 
 	def __repr__ (self):
@@ -92,7 +95,7 @@ class WebsocketProcess:
 							data=l,
 							)
 					await self.send (msg)
-			except:
+			except Exception:
 				pass
 
 		async def f (p):
@@ -116,8 +119,8 @@ class WebsocketProcess:
 		self.process = p = await self.user.createProcess (*self.command,
 				useNewConnection=useNewConnection)
 		print (type (self.process))
-		asyncio.create_task (sendOutput ('stdout', p.stdout))
-		asyncio.create_task (sendOutput ('stderr', p.stderr))
+		self.stdoutTask = asyncio.create_task (sendOutput ('stdout', p.stdout))
+		self.stderrTask = asyncio.create_task (sendOutput ('stderr', p.stderr))
 
 		self.task = asyncio.create_task (f (p))
 
