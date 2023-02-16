@@ -105,6 +105,10 @@ async def fileGetDelete (request, user, path):
 					if not buf:
 						break
 					await response.send (buf)
+			except ServerError:
+				# Happens when the receiver closes the connection before receiving all
+				# the data.
+				pass
 			finally:
 				await response.eof ()
 	elif request.method == 'POST':
