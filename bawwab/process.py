@@ -29,7 +29,7 @@ from itertools import chain
 
 from sanic import Blueprint
 from sanic.response import json as jsonResponse
-from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound, InvalidUsage
+from sanic.exceptions import Forbidden, InvalidUsage, ServerError, NotFound, InvalidUsage, WebsocketClosed
 
 from websockets.exceptions import WebSocketException
 
@@ -212,6 +212,8 @@ async def broadcast (recipient, msg):
 				d.result ()
 			except WebSocketException:
 				# Nothing we can do about.
+				pass
+			except WebsocketClosed:
 				pass
 
 @bp.websocket('/notify')
