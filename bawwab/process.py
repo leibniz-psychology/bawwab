@@ -221,7 +221,9 @@ async def broadcast (recipient, msg):
 async def processNotify (request, user, ws):
 	# first send the process state
 	processes = perUserProcesses[user]
-	for k, p in processes.items ():
+	# We must listify the iterator, since this loop can be interrupted by
+	# a process create.
+	for k, p in list (processes.items ()):
 		# do not replay if dead
 		if p.process.is_closing ():
 			continue
@@ -257,7 +259,9 @@ async def cleanupJob ():
 		removeDictKeys (d, list (filter (lambda x: not d[x], d.keys ())))
 
 	async def removeDeadTasks (processes):
-		for k, v in processes.items ():
+		# Use list. Loop is async, can be interrupted by task
+		# modifying processes.
+		for k, v in list (processes.items ()):
 			if v.task.done ():
 				try:
 					await v.task
